@@ -404,8 +404,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # competencia declarada
         self.compt = compt
 
-        # self.client_path = self.files_pathit(__r_social.strip(), self.compt)
-        self.client_path = self.pathit(self.compt, main_path, __r_social)
+        self.client_path = self.files_pathit(__r_social.strip(), self.compt)
+        # self.client_path = self.pathit(self.compt, main_path, __r_social)
         input(self.client_path)
 
         # drivers declarados

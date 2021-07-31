@@ -1,15 +1,74 @@
+from datetime import datetime
 from .pathmanager import Dirs
 from .now import Now
+import os
+import pandas as pd
 
 
-class InitialSetting(Dirs, Now):
-    @ classmethod
-    def get_compt(cls, m_cont=-1, y_cont=0, past_only=True, sep='-'):
-        from datetime import date
+class __Init:
+    main_path = os.path.dirname(os.path.realpath(__file__))
+    main_path += '\with_titlePATH.txt'
+
+    def getset_folderspath(cls, folder_path_only=True):
+        """Seleciona onde estão as pastas e planihas
+
+        Returns:
+            [type]: [description]
+        """
+        # filepath = os.path.realpath(__file__)
+        # os.path.dirname(filepath)
+        returned = False
+        try:
+
+            with open(cls.main_path) as f:
+                returned = f.read()
+        # except FileNotFoundError:
+        except (OSError, FileNotFoundError) as e:
+            e('WITH TITLE PATH NOT EXISTENTE ')
+            returned = cls.__select_path_if_not_exists()
+
+        finally:
+            if returned and folder_path_only:
+                returned = os.path.dirname(returned)
+            return returned
+
+    def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PLANILHA.", savit=main_path):
+        """[summary]
+        Args:
+            some_message (str, optional): []. Defaults to "SELECIONE ONDE ESTÃO SUAS PLANILHAS".
+            savit (str, optional): customizable, where to save the info
+        Returns:
+            [type]: [description]
+        """
+        from tkinter import Tk, filedialog, messagebox
+        root = Tk()
+        root.withdraw()
+        root = Tk()
+        root.withdraw()
+        # sh_management = SheetPathManager(file_with_name)
+        way = None
+        while way is None:
+            way = filedialog.askopenfilename(title=some_message, filetypes=[
+                                             ("Excel files", ".xlsx .xls .xlsm .csv")])
+            if len(way) <= 0:
+                way = None
+                resp = messagebox.askokcancel(
+                    'ATENÇÃO!', message='Favor, selecione uma pasta ou clique em CANCELAR.')
+                if not resp:
+                    return False
+            else:
+                wf = open(savit, 'w')
+                wf.write(way)
+                root.quit()
+                return way
+
+    @ staticmethod
+    def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
+        from datetime import date, datetime
         from datetime import timedelta
         from dateutil.relativedelta import relativedelta
-        month = cls.m()
-        year = cls.y()
+        month = datetime.now().month
+        year = datetime.now().year
 
         now_date = date(year, month, 1)
 
@@ -23,6 +82,45 @@ class InitialSetting(Dirs, Now):
         month, year = now_date.month, now_date.year
         compt = f'{month:02d}{sep}{year}'
         return compt
+
+
+class Consultar(__Init):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.MAIN_FOLDER = self.getset_folderspath()
+        self.MAIN_FILE = self.getset_folderspath(False)
+        print(self.MAIN_FOLDER)
+        input(self.MAIN_FILE)
+        self.ATUAL_COMPT = self.get_compt(m_cont=0)
+
+        self.DADOS_PADRAO = pd.read_excel(
+            self.MAIN_FILE, sheet_name='DADOS_PADRÃO').to_dict()
+# .to_html
+        self.DADOS = list(self.DADOS_PADRAO.values())
+
+    def consultar(self, specific=None):
+
+        cont = 0 if not specific else specific
+        while True:
+            razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = [
+                list(d.values())[cont] for d in self.DADOS]
+
+            yield razao_social, self.treat_documents_values(cnpj), cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas
+
+            if str(razao_social) == 'nan' or specific:
+                break
+            # print(razao_social)
+            cont += 1
+
+        compt_atual = pd.read_excel(
+            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT)
+
+        df = compt_atual.to_dict()
+        return df
+
+
+class InitialSetting(__Init, Dirs, Now):
 
     @classmethod
     def files_pathit(cls, pasta_client, insyear=None, ano=None):
