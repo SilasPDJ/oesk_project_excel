@@ -88,3 +88,4 @@ class HasJson:
         with open(file, 'w', encoding='utf-8') as file:
             json.dump(objeto, file, ensure_ascii=False, indent=8)
 
+
