@@ -3,14 +3,21 @@
 
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import Consultar
+from default.sets import get_compt
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 
-consultar = Consultar().consultar
+COMPT = get_compt(-1)
 
-razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = list(*consultar(
+CONS = Consultar()
+consultar = CONS.consultar
+main_folder = CONS.MAIN_FOLDER
+main_file = CONS.MAIN_FILE
+
+geral = razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = list(*consultar(
     2))
-input(razao_social)
+print(geral)
+
 
 PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples,
-                compt=ATUAL_COMPT, driver=pgdas_driver, main_path=MAIN_FOLDER)
+                compt=COMPT, driver=pgdas_driver)

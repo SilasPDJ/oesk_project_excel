@@ -4,11 +4,35 @@ from .now import Now
 import os
 import pandas as pd
 
+# @ staticmethod
+
+
+def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
+    from datetime import date, datetime
+    from datetime import timedelta
+    from dateutil.relativedelta import relativedelta
+    month = datetime.now().month
+    year = datetime.now().year
+
+    now_date = date(year, month, 1)
+
+    if past_only:
+        m_cont = m_cont * (-1) if m_cont > 0 else m_cont
+        y_cont = y_cont * (-1) if y_cont > 0 else y_cont
+        # force to be negative
+
+    now_date = now_date + relativedelta(months=m_cont)
+    now_date = now_date + relativedelta(years=y_cont)
+    month, year = now_date.month, now_date.year
+    compt = f'{month:02d}{sep}{year}'
+    return compt
+
 
 class __Init:
     main_path = os.path.dirname(os.path.realpath(__file__))
     main_path += '\with_titlePATH.txt'
 
+    @classmethod
     def getset_folderspath(cls, folder_path_only=True):
         """Seleciona onde estão as pastas e planihas
 
@@ -62,37 +86,14 @@ class __Init:
                 root.quit()
                 return way
 
-    @ staticmethod
-    def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
-        from datetime import date, datetime
-        from datetime import timedelta
-        from dateutil.relativedelta import relativedelta
-        month = datetime.now().month
-        year = datetime.now().year
-
-        now_date = date(year, month, 1)
-
-        if past_only:
-            m_cont = m_cont * (-1) if m_cont > 0 else m_cont
-            y_cont = y_cont * (-1) if y_cont > 0 else y_cont
-            # force to be negative
-
-        now_date = now_date + relativedelta(months=m_cont)
-        now_date = now_date + relativedelta(years=y_cont)
-        month, year = now_date.month, now_date.year
-        compt = f'{month:02d}{sep}{year}'
-        return compt
-
 
 class Consultar(__Init):
-    def __init__(self) -> None:
+    def __init__(self, compt=None) -> None:
         super().__init__()
 
         self.MAIN_FOLDER = self.getset_folderspath()
         self.MAIN_FILE = self.getset_folderspath(False)
-        print(self.MAIN_FOLDER)
-        input(self.MAIN_FILE)
-        self.ATUAL_COMPT = self.get_compt(m_cont=0)
+        self.ATUAL_COMPT = get_compt(m_cont=0) if compt is None else compt
 
         self.DADOS_PADRAO = pd.read_excel(
             self.MAIN_FILE, sheet_name='DADOS_PADRÃO').to_dict()
@@ -119,6 +120,10 @@ class Consultar(__Init):
         df = compt_atual.to_dict()
         return df
 
+    @staticmethod
+    def treat_documents_values(arg):
+        return str(int(arg))
+
 
 class InitialSetting(__Init, Dirs, Now):
 
@@ -131,13 +136,13 @@ class InitialSetting(__Init, Dirs, Now):
 
         Args:
             pasta_client (str): client folder name
-            insyear (str): inside year (competencia or whatever). Defaults then call cls.get_compt_only() as default
+            insyear (str): inside year (competencia or whatever). Defaults then call get_compt_only() as default
             ano (str,[optional]): year folder. Defaults to None.
 
         Returns:
             [type]: [description]
         """
-        insyear = cls.get_compt() if insyear is None else insyear
+        insyear = get_compt() if insyear is None else insyear
         compt = insyear
         if ano is None:
             # ano = ''.join([insyear[e+1:] for e in range(len(insyear)) if insyear[e] not in '0123456789'])
@@ -158,7 +163,3 @@ class InitialSetting(__Init, Dirs, Now):
                       ano, insyear, pasta_client]
         salva_path = Dirs.pathit(*path_final)
         return salva_path
-
-    @staticmethod
-    def treat_documents_values(arg):
-        return str(int(arg))

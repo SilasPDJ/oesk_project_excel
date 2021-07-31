@@ -1,6 +1,7 @@
 # dale
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
+from default.interact import press_keys_b4
 
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
@@ -193,7 +194,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             cod_caract.click()
             print(f'PRESSIONE ENTER P/ PROSSEGUIR, {CLIENTE}')
             try:
-                press_key_b4('enter')
+                press_keys_b4('enter')
             except ImportError:
                 for i in range(10, 0, -1):
                     print(i)
@@ -395,7 +396,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
-    def __init__(self, *args, compt, driver, main_path):
+    def __init__(self, *args, compt, driver):
 
         __r_social, __cnpj, __cpf, __cod_simples = args
 
@@ -410,8 +411,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # drivers declarados
         self.driver = driver(self.client_path)
-        self.driver.maximize_window()
-        self.driver.get('https://www.google.com.br')
+        # self.driver.maximize_window()
+
         # self.driver.maximize_window;()
         super().__init__(self.driver, self.compt)
         if __cod_simples is None:
@@ -422,7 +423,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
         if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
             print("pressione f9 para continuar")
-            press_key_b4("f9")
+            press_keys_b4("f9")
             self.driver.find_element_by_name(
                 "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
 
