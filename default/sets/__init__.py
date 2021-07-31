@@ -2,7 +2,6 @@ from datetime import datetime
 from .pathmanager import Dirs
 from .now import Now
 import os
-import pandas as pd
 
 # @ staticmethod
 
@@ -28,7 +27,7 @@ def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
     return compt
 
 
-class __Init:
+class Initial:
     main_path = os.path.dirname(os.path.realpath(__file__))
     main_path += '\with_titlePATH.txt'
 
@@ -87,45 +86,7 @@ class __Init:
                 return way
 
 
-class Consultar(__Init):
-    def __init__(self, compt=None) -> None:
-        super().__init__()
-
-        self.MAIN_FOLDER = self.getset_folderspath()
-        self.MAIN_FILE = self.getset_folderspath(False)
-        self.ATUAL_COMPT = get_compt(m_cont=0) if compt is None else compt
-
-        self.DADOS_PADRAO = pd.read_excel(
-            self.MAIN_FILE, sheet_name='DADOS_PADRÃO').to_dict()
-# .to_html
-        self.DADOS = list(self.DADOS_PADRAO.values())
-
-    def consultar(self, specific=None):
-
-        cont = 0 if not specific else specific
-        while True:
-            razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = [
-                list(d.values())[cont] for d in self.DADOS]
-
-            yield razao_social, self.treat_documents_values(cnpj), cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas
-
-            if str(razao_social) == 'nan' or specific:
-                break
-            # print(razao_social)
-            cont += 1
-
-        compt_atual = pd.read_excel(
-            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT)
-
-        df = compt_atual.to_dict()
-        return df
-
-    @staticmethod
-    def treat_documents_values(arg):
-        return str(int(arg))
-
-
-class InitialSetting(__Init, Dirs, Now):
+class InitialSetting(Initial, Dirs, Now):
 
     @classmethod
     def files_pathit(cls, pasta_client, insyear=None, ano=None):
