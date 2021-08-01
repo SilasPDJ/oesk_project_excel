@@ -9,6 +9,8 @@ from pgdas_fiscal_oesk import Consultar
 from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
+from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
+
 
 COMPT = get_compt(-1)
 
@@ -28,20 +30,29 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
     if razao_social == __razao_social:
 
         # print(razao_social)
-
-        if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
-            # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
-            valor_tot = 0
-            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
-                            compt=COMPT, driver=pgdas_driver)
-        else:
-            all_valores = get_all_valores(sem_ret, com_ret, anexo, valor_tot)
-            print(all_valores)
-
-            if all_valores:
+        def pgdas():
+            global valor_tot
+            if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
+                # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
+                valor_tot = 0
                 PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
-                                compt=COMPT, driver=pgdas_driver,
-                                all_valores=all_valores)
+                                compt=COMPT, driver=pgdas_driver)
             else:
-                raise ValueError(
-                    f'{razao_social.upper()} possui problemas na planilha')
+                all_valores = get_all_valores(
+                    sem_ret, com_ret, anexo, valor_tot)
+                print(all_valores)
+
+                if all_valores:
+                    PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                                    compt=COMPT, driver=pgdas_driver,
+                                    all_valores=all_valores)
+                else:
+                    raise ValueError(
+                        f'{razao_social.upper()} possui problemas na planilha')
+
+        # Giss Online
+        print(str(giss_login))
+
+        if str(giss_login).lower().strip() != 'ginfess cód' and str(giss_login) != 'nan':
+            if 'camila' in razao_social.lower() or 'controlesis' in razao_social.lower():
+                GissGui([cnpj, giss_login], pgdas_driver(), COMPT)
