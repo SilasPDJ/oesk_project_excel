@@ -6,9 +6,11 @@ from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
 
 
+from default.sets import get_all_valores
+
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 
-COMPT = get_compt(-1)
+COMPT = get_compt(0)
 
 CONS = Consultar()
 consultar_geral = CONS.consultar_geral
@@ -19,12 +21,27 @@ main_file = CONS.MAIN_FILE
 
 TOTAL_CLIENTES = len(list(consultar_compt()))
 
-for part in consultar_compt():
-    dal = razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, envio, div_envios = part
-    print(part)
+for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+    razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
+    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
 
+    if razao_social == __razao_social:
 
+        # print(razao_social)
 
-input('a')
-PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples,
-                compt=COMPT, driver=pgdas_driver)
+        # if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
+        if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
+            valor_tot = 0
+            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                            compt=COMPT, driver=pgdas_driver)
+        else:
+            all_valores = get_all_valores(sem_ret, com_ret, anexo, valor_tot)
+            print(all_valores)
+
+            if all_valores:
+                PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                                compt=COMPT, driver=pgdas_driver,
+                                all_valores=all_valores)
+            else:
+                raise ValueError(
+                    f'{razao_social.upper()} possui problemas na planilha')

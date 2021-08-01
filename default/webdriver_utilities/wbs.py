@@ -1,12 +1,11 @@
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import WebDriverException, TimeoutException, JavascriptException, InvalidArgumentException
-from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException, NoSuchWindowException
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import TimeoutException, JavascriptException
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
 
 class WDShorcuts:
     def __init__(self, driver):
@@ -157,6 +156,11 @@ class WDShorcuts:
         return WebDriverWait(driver, time).until(
             expected_conditions.presence_of_element_located((By.ID, el_id)))
 
+    def webdriverwait_by_tag(self, el, time=30):
+        driver = self.__arg_driver
+        return WebDriverWait(driver, time).until(
+            expected_conditions.presence_of_element_located((By.TAG_NAME, el)))
+
     def enable_download_in_headless_chrome(self, download_dir):
         """
         :param download_dir: where do you want to download it?
@@ -170,37 +174,3 @@ class WDShorcuts:
         params = {'cmd': 'Page.setDownloadBehavior', 'params': {
             'behavior': 'allow', 'downloadPath': download_dir}}
         command_result = driver.execute("send_command", params)
-
-    # Loga certificado do ecac, padrão
-    def loga_cert(self):
-        """
-        :return: mixes the two functions above (show_actual_tk_window, mensagem)
-        """
-        import pyautogui as pygui
-        from time import sleep
-        driver = self.__arg_driver
-
-        driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
-
-        initial = WebDriverWait(driver, 30).until(
-            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-
-        print('ativando janela acima, logando certificado abaixo, linhas 270')
-        sleep(5)
-
-        a = pygui.getWindowsWithTitle('gov.br - Acesse sua conta')[0]
-        pygui.click(a.center, clicks=0)
-        pygui.move(100, 140)
-        pygui.click()
-        pygui.move(0, -300)
-        print('sleep')
-        sleep(2.5)
-        pygui.click(duration=.5)
-
-        driver.back()
-        WebDriverWait(driver, 30).until(
-            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital'))).click()
-
-        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-        driver.implicitly_wait(10)
-        driver.find_elements_by_tag_name("img")[1].click()

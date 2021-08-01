@@ -1,7 +1,7 @@
 # dale
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
-from default.interact import press_keys_b4
+from default.interact import press_keys_b4, press_key_b4
 
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
@@ -190,16 +190,12 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                 'txtTexto_captcha_serpro_gov_br')
             btn_som = driver.find_element_by_id(
                 'btnTocarSom_captcha_serpro_gov_br')
+            sleep(2.5)
             btn_som.click()
+            sleep(.5)
             cod_caract.click()
             print(f'PRESSIONE ENTER P/ PROSSEGUIR, {CLIENTE}')
-            try:
-                press_keys_b4('enter')
-            except ImportError:
-                for i in range(10, 0, -1):
-                    print(i)
-                    sleep(1)
-                print('tentando login')
+            press_keys_b4('enter')
             while True:
                 try:
                     submit = driver.find_element_by_xpath(
@@ -210,6 +206,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                           'g, line 167. Cadê o submit?')
                     driver.refresh()
                     sleep(5)
+            sleep(5)
 
     # Loga certificado do ecac, padrão
 
@@ -394,11 +391,26 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         else:
             return True
 
+    def trata_money_excel(self, faturado):
+        try:
+            faturado = f'{float(faturado):,.2f}'
+        except ValueError:
+            print('Já é string')
+        finally:
+            faturado = faturado.lower().strip()
+            if 'nan' in faturado or 'zerou' in faturado:
+                faturado = 'SEM VALOR DECLARADO'
+                return faturado
+            faturado = faturado.replace('.', 'v')
+            faturado = faturado.replace(',', '.')
+            faturado = faturado.replace('v', ',')
+            return faturado
+
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
-    def __init__(self, *args, compt, driver):
+    def __init__(self, *args, compt, driver, all_valores=None):
 
-        __r_social, __cnpj, __cpf, __cod_simples = args
+        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia = args
 
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
@@ -407,7 +419,6 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
-        input(self.client_path)
 
         # drivers declarados
         self.driver = driver(self.client_path)
@@ -424,9 +435,11 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
             print("pressione f9 para continuar")
             press_keys_b4("f9")
-            self.driver.find_element_by_name(
-                "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
-
+            try:
+                self.driver.find_element_by_name(
+                    "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
+            except NoSuchElementException:
+                self.driver.refresh
         self.current_url = self.driver.current_url
         self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
 
@@ -440,10 +453,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 self.declaracao_sem_movimento(str(__valor_competencia))
 
             else:
-                __all_valores = args[-1]
 
                 self.declaracao_anexos(
-                    __all_valores, __valor_competencia, __cnpj)
+                    all_valores, __valor_competencia, __cnpj)
 
         else:
             print('is already declared')
@@ -474,7 +486,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # https://www.contabeis.com.br/ferramentas/simples-nacional/6920601/
         driver = self.driver
         compt = self.compt
-        self.compt_typist_valtotal(str(valor_competencia).replace('.', ','))
+        valor_competencia = self.trata_money_excel(valor_competencia)
+        self.compt_typist_valtotal(valor_competencia)
 
         exibe_tutti = self.webdriverwait_by_id('btn-exibe-todos', 30)
         exibe_tutti.click()
@@ -498,7 +511,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 print('venda')
             elif ANEXO == 'III':
 
-                print("maioria ISS")
+                # print("maioria ISS")
                 sem_ret = 14
                 com_ret = 15
                 # input(sem_ret)
@@ -530,20 +543,21 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             "input[type='text']")
         _count = 0
         for tres_valores in __valores_de_anexos:
-            v_n_ret = tres_valores.get("valor_n_retido")
-            v_ret = tres_valores.get("valor_retido")
+            v_n_ret = self.trata_money_excel(
+                tres_valores.get("valor_n_retido"))
+            v_ret = self.trata_money_excel(tres_valores.get("valor_retido"))
 
             if tres_valores.get("valor_n_retido") != 0:
                 inputs_text[_count].clear()
-                inputs_text[_count].send_keys(str(v_n_ret))
+                inputs_text[_count].send_keys(v_n_ret)
                 _count += 1
                 # new_seleciona_anexo(sem_ret)
             if tres_valores.get("valor_retido") != 0:
                 inputs_text[_count].clear()
-                inputs_text[_count].send_keys(str(v_ret))
+                inputs_text[_count].send_keys(v_ret)
                 _count += 1
                 # new_seleciona_anexo(com_ret)
-
+        input('SECURITY')
         # self.find_submit_form()
         self.driver.find_elements_by_class_name('btn-success')[1].click()
 

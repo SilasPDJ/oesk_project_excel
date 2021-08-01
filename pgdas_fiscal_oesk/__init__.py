@@ -26,9 +26,9 @@ class Consultar(Initial):
             razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = [
                 list(d.values())[cont] for d in self.DADOS]
 
-            yield razao_social, self.treat_documents_values(cnpj), cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas
             if str(razao_social) == 'nan':
                 break
+            yield razao_social, self.treat_documents_values(cnpj), cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas
             cont += 1
 
     def consultar_compt(self):
@@ -39,7 +39,7 @@ class Consultar(Initial):
 
         cont = 0
         while True:
-            once = razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, envio, div_envios = [
+            once = razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = [
                 list(d.values())[cont] for d in df]
             yield once
             if str(razao_social) == 'nan':

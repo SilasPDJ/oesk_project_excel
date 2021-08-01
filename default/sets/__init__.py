@@ -27,6 +27,48 @@ def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
     return compt
 
 
+def get_all_valores(sem_ret, com_ret, anexo, valor_tot):
+    def splitted_all_valores(val, withme=';'):
+        val = str(val)
+        try:
+            return val.split(withme)
+            # print('valorA;valorB___valorC;valorD  valorTotal')
+
+        except AttributeError:
+            return list(val)
+
+    def greater_than(l1, l2):
+        return len(l1) > len(l2)
+    sem_ret = splitted_all_valores(sem_ret)
+    com_ret = splitted_all_valores(com_ret)
+    anexo = splitted_all_valores(anexo)
+
+    
+    # retorna False para não prosseguir, pois o número de anexos não bate com o número de valores entre ;
+    if greater_than(sem_ret, com_ret):
+        if greater_than(anexo, sem_ret):
+            return False
+    elif greater_than(com_ret, sem_ret):
+        if greater_than(anexo, com_ret):
+            return False
+    else:
+        # tanto faz porque com_ret == sem_ret
+        if greater_than(anexo, sem_ret):
+            return False
+    
+
+    all_valores = []
+    soma_total = 0
+
+    for c in range(len(anexo)):
+        sr, cr, anx = sem_ret[c], com_ret[c], anexo[c]
+        soma_total += float(sr) + float(cr)
+        all_valores.append({'valor_n_retido': sr,
+                            'valor_retido': cr, 'anexo': anx})
+    if soma_total == valor_tot:
+        return all_valores
+
+
 class Initial:
     main_path = os.path.dirname(os.path.realpath(__file__))
     main_path += '\with_titlePATH.txt'
