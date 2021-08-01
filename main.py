@@ -10,9 +10,9 @@ from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 
-COMPT = get_compt(0)
+COMPT = get_compt(-1)
 
-CONS = Consultar()
+CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
 consultar_compt = CONS.consultar_compt
 
@@ -29,8 +29,8 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
 
         # print(razao_social)
 
-        # if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
-        if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
+        if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
+            # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
             valor_tot = 0
             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
                             compt=COMPT, driver=pgdas_driver)

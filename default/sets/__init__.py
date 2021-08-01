@@ -28,7 +28,7 @@ def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
 
 
 def get_all_valores(sem_ret, com_ret, anexo, valor_tot):
-    def splitted_all_valores(val, withme=';'):
+    def split_sep_vals(val, withme=';'):
         val = str(val)
         try:
             return val.split(withme)
@@ -39,32 +39,40 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot):
 
     def greater_than(l1, l2):
         return len(l1) > len(l2)
-    sem_ret = splitted_all_valores(sem_ret)
-    com_ret = splitted_all_valores(com_ret)
-    anexo = splitted_all_valores(anexo)
+    sem_ret = split_sep_vals(sem_ret)
+    com_ret = split_sep_vals(com_ret)
+    anexo = split_sep_vals(anexo)
 
-    
     # retorna False para não prosseguir, pois o número de anexos não bate com o número de valores entre ;
     if greater_than(sem_ret, com_ret):
-        if greater_than(anexo, sem_ret):
+        if greater_than(anexo, sem_ret) or greater_than(sem_ret, anexo):
             return False
     elif greater_than(com_ret, sem_ret):
-        if greater_than(anexo, com_ret):
+        if greater_than(anexo, com_ret) or greater_than(com_ret, anexo):
             return False
     else:
         # tanto faz porque com_ret == sem_ret
-        if greater_than(anexo, sem_ret):
+        if greater_than(anexo, sem_ret) or greater_than(sem_ret, anexo):
             return False
-    
 
     all_valores = []
     soma_total = 0
-
     for c in range(len(anexo)):
-        sr, cr, anx = sem_ret[c], com_ret[c], anexo[c]
+        try:
+            sr = sem_ret[c]
+        except IndexError:
+            sr = 0
+        try:
+            cr = com_ret[c]
+        except IndexError:
+            cr = 0
+        # Se o valor não foi escrito, é considerado 0
+
+        anx = anexo[c]
         soma_total += float(sr) + float(cr)
         all_valores.append({'valor_n_retido': sr,
                             'valor_retido': cr, 'anexo': anx})
+
     if soma_total == valor_tot:
         return all_valores
 

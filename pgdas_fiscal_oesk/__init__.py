@@ -9,7 +9,7 @@ class Consultar(Initial):
 
         self.MAIN_FOLDER = self.getset_folderspath()
         self.MAIN_FILE = self.getset_folderspath(False)
-        self.ATUAL_COMPT = get_compt(m_cont=0) if compt is None else compt
+        self.ATUAL_COMPT = get_compt(m_cont=-1) if compt is None else compt
 
         self.DADOS_PADRAO = pd.read_excel(
             self.MAIN_FILE, sheet_name='DADOS_PADRÃO').to_dict()
