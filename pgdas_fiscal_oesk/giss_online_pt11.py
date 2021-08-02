@@ -28,16 +28,19 @@ class GissGui(InitialSetting, WDShorcuts):
         # [print(s) for s in __senhas]
         __r_social, _giss_cnpj, _logar = dados[:3]
         self.compt_atual = firstcompt
+        self.driver = driver
         print(self.compt_atual)
         for loop_compt in self.ate_atual_compt(first_compt=firstcompt):
             self.client_path = self.files_pathit(
                 __r_social.strip(), loop_compt)
-            self.check_certif()
+            if self.certifs_exist():
+                self.driver.close()
+                continue
             [print(a)
                 for a in self.ate_atual_compt(first_compt=firstcompt)]
 
             # self.driver = ginfess_driver()
-            self.driver = driver
+
             super().__init__(self.driver)
 
             driver.get(weblink)
@@ -105,15 +108,15 @@ class GissGui(InitialSetting, WDShorcuts):
             self.driver.close()
         print('GISS encerrado!')
 
-    def check_certif(self):
+    def certifs_exist(self, at_least=2):
         arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
         arqs_search = [
             self.path_leaf(f, True) for f in arqs_search]
         arqs_search = [f for f in arqs_search if f.startswith('giss')]
-        input(arqs_search)
 
-        if len(arqs_search) >= 2:
-            pass
+        if len(arqs_search) >= at_least:
+            return True
+        return False
 
     def gerar_cert(self, arq):
         import os
