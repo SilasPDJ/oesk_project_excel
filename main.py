@@ -51,9 +51,12 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                         f'{razao_social.upper()} possui problemas na planilha')
 
         # Giss Online
+        # Auto Giss Online
         print(str(giss_login))
         if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
 
             GissGui([razao_social, cnpj, giss_login],
                     pgdas_driver(), COMPT)
             prossegue = True
+
+        # Ginfess

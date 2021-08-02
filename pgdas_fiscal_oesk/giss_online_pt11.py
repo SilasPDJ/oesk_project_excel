@@ -9,7 +9,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import *
 from time import sleep
-from . import *
+# from . import *
+# qualquer coisa me devolve
 
 
 weblink = 'https://portal.gissonline.com.br/login/index.html'

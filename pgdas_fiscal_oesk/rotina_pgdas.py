@@ -9,7 +9,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from time import sleep
-from . import *
+# from . import *
+# qualquer coisa me devolve
 
 
 # to fazendo um teste
@@ -142,11 +143,10 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
     def certif_feito(self, save_path, add=''):
         """
         certificado de que está feito
-        :param save_path: nome da pasta vinda de _files_path_v2
+        :param save_path: nome da pasta 
         :param add: um adicional no nome do arquivo
         :return: caminho+ nome_arquivo jpeg
         """
-        client_name = save_path[save_path.index('-')-2: save_path.index('-')+2]
         type_arquivo = 'png'
         try:
             save = r'{}\\{}-SimplesNacionalDeclarado.{}'.format(
