@@ -17,8 +17,6 @@ weblink = 'https://portal.gissonline.com.br/login/index.html'
 link = "ChromeDriver/chromedriver.exe"
 # ...
 
-sh_name = 'GISS'
-
 
 # self.pyautogui
 class GissGui(InitialSetting, WDShorcuts):
@@ -28,11 +26,13 @@ class GissGui(InitialSetting, WDShorcuts):
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
             __senhas = f.read().split(',')
         # [print(s) for s in __senhas]
-        _giss_cnpj, _logar = dados[:2]
+        __r_social, _giss_cnpj, _logar = dados[:3]
         self.compt_atual = firstcompt
         print(self.compt_atual)
-
         for loop_compt in self.ate_atual_compt(first_compt=firstcompt):
+            self.client_path = self.files_pathit(
+                __r_social.strip(), loop_compt)
+            self.check_certif()
             [print(a)
                 for a in self.ate_atual_compt(first_compt=firstcompt)]
 
@@ -92,35 +92,34 @@ class GissGui(InitialSetting, WDShorcuts):
                 # Try prestador, else = Construção civil
             except (NoSuchElementException, ElementNotInteractableException):
                 self.constr_civil()
+                self.gerar_cert('giss-construcao.png')
                 constr = True
             finally:
                 driver.switch_to.default_content()
                 sleep(1)
                 self.fazendo_principal(constr)
+                self.gerar_cert('giss-tomador.png')
+
             driver.implicitly_wait(10)
+
             self.driver.close()
         print('GISS encerrado!')
 
-    def readnew_lista(self, READ, print_values=False):
-        """ TRANSFORMO EM DICIONÁRIO, CONTINUAR"""
-        get_all = {}
-        new_lista = []
-        for k, lista in READ.items():
-            for v in lista:
-                v = str(v)
-                v = v.replace(u'\xa0', u' ')
-                v = v.strip()
-                if str(v) == 'nan':
-                    v = ''
-                new_lista.append(v)
-            get_all[k] = new_lista[:]
-            new_lista.clear()
-        if print_values:
-            for k, v in get_all.items():
-                print(f'\033[1;32m{k}')
-                for vv in v:
-                    print(f'\033[m{vv}')
-        return get_all
+    def check_certif(self):
+        arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
+        arqs_search = [
+            self.path_leaf(f, True) for f in arqs_search]
+        arqs_search = [f for f in arqs_search if f.startswith('giss')]
+        input(arqs_search)
+
+        if len(arqs_search) >= 2:
+            pass
+
+    def gerar_cert(self, arq):
+        import os
+        arq = 'gissoline.png' if arq is None else arq
+        save = os.path.join(self.client_path, arq)
+        self.driver.save_screenshot(save)
 
     def fazendo_principal(self, constr=False):
         """
@@ -139,6 +138,7 @@ class GissGui(InitialSetting, WDShorcuts):
                 sleep(2)
                 driver.find_elements_by_xpath(
                     "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
+                self.gerar_cert('giss-prestador.png')
                 # PrintScreenFinal(clien)
 
             except (NoSuchElementException, IndexError):
@@ -244,18 +244,9 @@ class GissGui(InitialSetting, WDShorcuts):
         sleep(5)
         iframe = driver.find_element_by_xpath("//iframe[@name='principal']")
         driver.switch_to.frame(iframe)
-        self.tag_wait(driver, 'input')
+        self.tags_wait('input')
         driver.find_element_by_xpath('//input[@name="mes"]').send_keys(mes)
         driver.find_element_by_xpath('//input[@name="ano"]').send_keys(ano)
-
-    def tag_wait(self, driver, tag):
-        delay = 10
-        try:
-            my_elem = WebDriverWait(driver, delay).until(
-                expected_conditions.presence_of_element_located((By.TAG_NAME, tag)))
-            print(f"\033[1;31m{tag.upper()}\033[m is ready!")
-        except TimeoutException:
-            input("Loading took too much time!")
 
     def ate_atual_compt(self, first_compt=None):
         from datetime import date

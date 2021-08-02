@@ -22,7 +22,7 @@ main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
 
 TOTAL_CLIENTES = len(list(consultar_compt()))
-
+prossegue = False
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
     __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
@@ -52,7 +52,8 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
 
         # Giss Online
         print(str(giss_login))
+        if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
 
-        if str(giss_login).lower().strip() != 'ginfess cód' and str(giss_login) != 'nan':
-            if 'camila' in razao_social.lower() or 'controlesis' in razao_social.lower():
-                GissGui([cnpj, giss_login], pgdas_driver(), COMPT)
+            GissGui([razao_social, cnpj, giss_login],
+                    pgdas_driver(), COMPT)
+            prossegue = True

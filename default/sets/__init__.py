@@ -167,10 +167,8 @@ class InitialSetting(Initial, Dirs, Now):
                 ano = date(cls.y(), cls.m(), 1) - du_rl.relativedelta(months=1)
                 # Se ele não achar o ano vindo do split...
 
-        excel_file_name = cls.getset_folderspath()
-        # print(insyear, excel_file_name)
-        __path = excel_file_name
-        path_final = [*str(__path).split('\\'),
+        __path = cls.getset_folderspath()
+        path_final = [*str(__path).split('/')[:-1],
                       ano, insyear, pasta_client]
         salva_path = Dirs.pathit(*path_final)
         return salva_path
