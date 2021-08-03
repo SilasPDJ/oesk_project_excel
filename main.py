@@ -10,6 +10,7 @@ from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
+from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
 
 COMPT = get_compt(-1)
@@ -60,3 +61,5 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
             prossegue = True
 
         # Ginfess
+        DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
+                           ginfess_link, driver=pgdas_driver(), compt=COMPT)

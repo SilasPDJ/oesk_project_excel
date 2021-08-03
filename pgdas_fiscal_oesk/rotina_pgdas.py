@@ -140,22 +140,6 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                 """window.location.href += '/declaracao?clear=1'""")
             sleep(2.5)
 
-    def certif_feito(self, save_path, add=''):
-        """
-        certificado de que está feito
-        :param save_path: nome da pasta 
-        :param add: um adicional no nome do arquivo
-        :return: caminho+ nome_arquivo jpeg
-        """
-        type_arquivo = 'png'
-        try:
-            save = r'{}\\{}-SimplesNacionalDeclarado.{}'.format(
-                save_path, add, type_arquivo)
-            print(save, '---------> SAVE')
-            return save
-        except FileNotFoundError:
-            print('NÃO CONSEGUI RETORNAR SAVE')
-
     def loga_simples(self, CNPJ, CPF, CodSim, CLIENTE):
         driver = self.driver
         driver.get(

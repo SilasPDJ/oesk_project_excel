@@ -94,6 +94,34 @@ class Dirs:
             else:
                 pdf_files.append(f'{fname}')
         return pdf_files
+    
+    def unzip_folder(self, full_path, rm_zip=True):
+        """
+        :param full_path: caminho
+        :param rm_zip: True -> remove zip, False, não remove
+        :return: arquivo extraído e excluído o zip.
+        Ele faz isso com todos os zip
+        """
+        from time import sleep
+        from os import chdir, remove, listdir
+        from zipfile import ZipFile, BadZipFile
+        chdir(full_path)
+        ls = listdir()
+        for file in ls:
+            print('Descompactando, ZIPs e excluíndo-os')
+            if file.endswith('.zip'):
+                try:
+                    zf = ZipFile(file, mode='r')
+                    zf.extractall()
+                    zf.close()
+                except BadZipFile:
+                    print('Não deszipei')
+                finally:
+                    if rm_zip:
+                        sleep(5)
+                        remove(file)
+
+    
 
 
 class HasJson:

@@ -17,229 +17,204 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
     # only static methods from JsonDateWithDataImprove
 
-    def __init__(self, fname, compt_file=None,):
-        from time import sleep
-        if compt_file is None:
-            # compt, excel_file_name = self.set_get_compt_file(1)
-            compt_file = self.set_get_compt_file(1)
-        print('teste ginfess')
-        json_file = self.load_json(fname)
-        # input(len(after_READ['CNPJ']))
-        print('-='*30)
-        print(f'{"Ginfess Download":^30}')
-        # print(json_file)
-        print('-='*30)
-        for eid in json_file.keys():
-            print('~'*30)
-            print(eid)
-            print('~' * 30)
-            # print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'*10)
-            # print(list_with_dict)
-            list_with_dic = json_file[eid]
+    def __init__(self, *dados, driver, compt):
+        __r_social, __cnpj, _ginfess_cod, link = dados
+        self.compt = compt
+        # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
+        self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
-            values = [v.values() for v in list_with_dic[:]]
-            # padrão
-            __r_social, __cnpj, __cpf, __cod_simples, __ja_declared = 1,2,3,4,5,6
-            
-            _ginfess_cod = ''.join(values[-6])
-            
-            _city = ''.join(values[-4])
-            print(_ginfess_cod, _city)
-            # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
-            self.client_path = self.files_pathit(__r_social.strip(), self.compt)
+        # Checa se já existe certificado
+        if _ginfess_cod.lower() == 'não há':
+            # removi o ja_imported
+            print(
+                f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
+        elif self.check_done(self.client_path, '.png', startswith='GINFESS'):
+            # Checka o certificado ginfess, somente
 
-            # Checa se já existe certificado
-            if _ginfess_cod.lower() == 'não há':
-                # removi o ja_imported
-                print(f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
-            elif self.check_done(self.client_path, '.png', startswith='GINFESS'):
-                # Checka o certificado ginfess, somente
+            # if city in 'ABC':
+            self.driver = driver
+            super().__init__(self.driver)
+            driver = self.driver
+            driver.maximize_window()
 
-                # if city in 'ABC':
-                self.driver = ginfess_driver(self.client_path)
-                super().__init__(self.driver)
-                driver = self.driver
-                driver.maximize_window()
+            self.driver.get(link)
+            # for
+            if self.driver.title == 'NFS-e':
+                # links das cidades
 
-                cities = "Trem", "A", "B", "C", "SP"
-                urls = \
-               'https://santoandre.ginfes.com.br/', 'https://nfse.isssbc.com.br/', 'https://saocaetano.ginfes.com.br/', \
-               'https://nfe.prefeitura.sp.gov.br/login.aspx'
+                # driver.maximize_window()
+                # #######################################################
+                self.ABC_ginfess(__cnpj, _ginfess_cod)
+                input('abc ginfess')
+                # #######################################################
+
                 try:
-                    self.driver.get(id_url)
-                except InvalidArgumentException:
-                    if int(eid)-1 == len(json_file.keys()):
-                        print('FIM')
-                        break
-                #for
-                if _city in ['A', 'B', 'C']:
-                    # links das cidades
+                    # Find existent tags
+                    driver.implicitly_wait(5)
+                    self.tags_wait('table', 'tbody', 'tr', 'td')
 
-                    # driver.maximize_window()
-                    # #######################################################
-                    self.ABC_ginfess(__cnpj, _ginfess_cod, _city)
+                    print('printscreen aqui')
 
-                    # #######################################################
+                    self.download()
+                    driver.implicitly_wait(5)
+                    self.cexcel_from_html_above_v1(
+                        __r_social, self.ginfess_table_valores_html_code())
 
-                    try:
-                        # Find existent tags
-                        driver.implicitly_wait(5)
-                        self.tags_wait('table', 'tbody', 'tr', 'td')
+                except IndexError:
+                    print('~' * 30)
+                    print('não emitiu nenhuma nota'.upper())
+                    print('~' * 30)
 
-                        print('printscreen aqui')
+                driver.save_screenshot(self.certif_feito(
+                    self.client_path, add='GINFESS'))
+                # coloquei tudo no dele
 
-                        self.download(_city)
-                        driver.implicitly_wait(5)
-                        self.cexcel_from_html_above_v1(__r_social, self.ginfess_table_valores_html_code())
+            elif self.driver.current_url == 'https://tremembe.sigiss.com.br/tremembe/contribuinte/login.php':
+                driver.implicitly_wait(5)
 
-                    except IndexError:
-                        print('~' * 30)
-                        print('não emitiu nenhuma nota'.upper())
-                        print('~' * 30)
-
-                    driver.save_screenshot(self.certif_feito(self.client_path, add='GINFESS'))
-                    # coloquei tudo no dele
-
-                elif _city.upper() == 'TREM':
+                zero_um = _ginfess_cod.split('//')
+                # ginfess login//senha
+                self.tags_wait('html')
+                self.tags_wait('body')
+                while True:
                     driver.implicitly_wait(5)
 
+                    ccm = driver.find_element_by_id('ccm')
+                    senha = driver.find_element_by_id('senha')
+                    confirma = driver.find_element_by_id('confirma')
+                    ccm.send_keys(zero_um[0])
 
-                    zero_um = _ginfess_cod.split('//')
-                    # ginfess login//senha
-                    self.tags_wait('html')
-                    self.tags_wait('body')
-                    while True:
-                        driver.implicitly_wait(5)
+                    for el in ccm, senha, confirma:
+                        el.clear()
+                    ccm.send_keys(zero_um[0])
+                    senha.send_keys(zero_um[1])
+                    trem_cod = self.captcha_hacking()
+                    confirma.send_keys(trem_cod)
+                    # driver.find_element_by_id('btnOk').click()
+                    if 'login.php' in driver.current_url:
+                        driver.refresh()
+                        driver.implicitly_wait(6)
+                    else:
+                        break
 
-                        ccm = driver.find_element_by_id('ccm')
-                        senha = driver.find_element_by_id('senha')
-                        confirma = driver.find_element_by_id('confirma')
-                        ccm.send_keys(zero_um[0])
+                print('break')
+                driver.implicitly_wait(10)
+                driver.execute_script("""function abre_arquivo(onde){
+                var iframe = document.getElementById("main");
+                iframe.src = onde;
+                }
+                """)
 
-                        for el in ccm, senha, confirma:
-                            el.clear()
-                        ccm.send_keys(zero_um[0])
-                        senha.send_keys(zero_um[1])
-                        trem_cod = self.captcha_hacking()
-                        confirma.send_keys(trem_cod)
-                        # driver.find_element_by_id('btnOk').click()
-                        if 'login.php' in driver.current_url:
-                            driver.refresh()
-                            driver.implicitly_wait(6)
-                        else:
-                            break
+                driver.execute_script("abre_arquivo('dmm/_menuPeriodo.php');")
 
-                    print('break')
-                    driver.implicitly_wait(10)
+                driver.implicitly_wait(5)
+
+                # self.tag_with_text('td', 'Movimento ').click()
+
+                sleep(5)
+
+                iframe = driver.find_element_by_id('main')
+                driver.switch_to_frame(iframe)
+                driver.find_element_by_name('btnAlterar').click()
+                driver.implicitly_wait(5)
+
+                # handelling select
+                compt = self.compt
+                mes, ano = compt.split('-')
+
+                driver.find_element_by_name('ano').clear()
+                driver.find_element_by_name('ano').send_keys(ano)
+                mes = self.nome_mes(int(mes))
+
+                driver.find_element_by_xpath(
+                    f"//select[@name='mes']/option[text()='{mes}']").click()
+                # driver.find_element_by_name('ano').send_keys(ano)
+
+                driver.implicitly_wait(5)
+                driver.find_element_by_id('btnOk').click()
+
+                driver.implicitly_wait(10)
+
+                # iframe = driver.find_element_by_id('iframe')
+                # driver.switch_to_frame(iframe)
+
+                self.tag_with_text('td', 'Encerramento').click()
+                # driver.switch_to_alert().accept()
+
+                # driver.get('../fechamento/prestado.php')
+                driver.find_element_by_xpath(
+                    '//a[contains(@href,"../fechamento/prestado.php")]').click()
+                driver.implicitly_wait(10)
+                try:
+                    driver.find_element_by_id('btnSalvar').click()
+                    driver.implicitly_wait(5)
+                    driver.switch_to_alert().accept()
+                    driver.implicitly_wait(5)
+                    # driver.back()
+                except (NoSuchElementException, NoAlertPresentException):
+                    print('Já encerrado')
+                finally:
+                    driver.implicitly_wait(5)
+                    driver.back()
+                    driver.back()
                     driver.execute_script("""function abre_arquivo(onde){
                     var iframe = document.getElementById("main");
                     iframe.src = onde;
                     }
                     """)
-
-                    driver.execute_script("abre_arquivo('dmm/_menuPeriodo.php');")
-
-                    driver.implicitly_wait(5)
-
-                    # self.tag_with_text('td', 'Movimento ').click()
-
-                    sleep(5)
-
+                    driver.execute_script(
+                        "abre_arquivo('dmm/_menuPeriodo.php');")
                     iframe = driver.find_element_by_id('main')
                     driver.switch_to_frame(iframe)
                     driver.find_element_by_name('btnAlterar').click()
-                    driver.implicitly_wait(5)
+                    driver.find_element_by_name('btnOk').click()
 
-                    # handelling select
-                    compt = self.compt_and_filename()[0]
-                    mes, ano = compt.split('-')
+                    # ############### validar driver.back()
 
-                    driver.find_element_by_name('ano').clear()
-                    driver.find_element_by_name('ano').send_keys(ano)
-                    mes = self.nome_mes(int(mes))
+                url = '/'.join(driver.current_url.split('/')[:-1])
+                driver.get(f'{url}/nfe/nfe_historico_exportacao.php')
+                driver.implicitly_wait(3)
+                self.tags_wait('html')
+                self.tags_wait('body')
 
-                    driver.find_element_by_xpath(f"//select[@name='mes']/option[text()='{mes}']").click()
-                    # driver.find_element_by_name('ano').send_keys(ano)
+                driver.implicitly_wait(2)
+                driver.find_element_by_id('todos').click()
+                driver.find_element_by_id('btnExportar').click()
+                driver.switch_to.alert.accept()
 
-                    driver.implicitly_wait(5)
-                    driver.find_element_by_id('btnOk').click()
+                path_zip = self.client_path
+                print(f'path_zip-> {path_zip}')
+                self.unzip_folder(path_zip)
 
-                    driver.implicitly_wait(10)
+                driver.switch_to_default_content()
+                driver.save_screenshot(self.certif_feito(
+                    self.client_path, add='GINFESS'))
 
-                    # iframe = driver.find_element_by_id('iframe')
-                    # driver.switch_to_frame(iframe)
+            [(print(f'Sleeping before close {i}'), sleep(1))
+             for i in range(5, -1, -1)]
 
-                    self.tag_with_text('td', 'Encerramento').click()
-                    # driver.switch_to_alert().accept()
-
-                    # driver.get('../fechamento/prestado.php')
-                    driver.find_element_by_xpath('//a[contains(@href,"../fechamento/prestado.php")]').click()
-                    driver.implicitly_wait(10)
-                    try:
-                        driver.find_element_by_id('btnSalvar').click()
-                        driver.implicitly_wait(5)
-                        driver.switch_to_alert().accept()
-                        driver.implicitly_wait(5)
-                        # driver.back()
-                    except (NoSuchElementException, NoAlertPresentException):
-                        print('Já encerrado')
-                    finally:
-                        driver.implicitly_wait(5)
-                        driver.back()
-                        driver.back()
-                        driver.execute_script("""function abre_arquivo(onde){
-                        var iframe = document.getElementById("main");
-                        iframe.src = onde;
-                        }
-                        """)
-                        driver.execute_script("abre_arquivo('dmm/_menuPeriodo.php');")
-                        iframe = driver.find_element_by_id('main')
-                        driver.switch_to_frame(iframe)
-                        driver.find_element_by_name('btnAlterar').click()
-                        driver.find_element_by_name('btnOk').click()
-
-                        # ############### validar driver.back()
-
-                    url = '/'.join(driver.current_url.split('/')[:-1])
-                    driver.get(f'{url}/nfe/nfe_historico_exportacao.php')
-                    driver.implicitly_wait(3)
-                    self.tags_wait('html')
-                    self.tags_wait('body')
-
-                    driver.implicitly_wait(2)
-                    driver.find_element_by_id('todos').click()
-                    driver.find_element_by_id('btnExportar').click()
-                    driver.switch_to.alert.accept()
-                    self.download(_city)
-
-                    path_zip = client_path
-                    print(f'path_zip-> {path_zip}')
-                    self.unzipe_file(path_zip)
-
-                    driver.switch_to_default_content()
-                    driver.save_screenshot(self.certif_feito(self.client_path, add='GINFESS'))
-
-                [(print(f'Sleeping before close {i}'), sleep(1)) for i in range(5, -1, -1)]
-
-                driver.close()
+            driver.close()
 
     def wait_main_tags(self):
         self.tags_wait('body', 'div', 'table')
 
-    def ABC_ginfess(self, __cnpj, __senha, city):
+    def ABC_ginfess(self, __cnpj, __senha):
 
         driver = self.driver
 
         def label_with_text(searched):
-            label = driver.find_element_by_xpath(f"//label[contains(text(),'{searched.rstrip()}')]")
+            label = driver.find_element_by_xpath(
+                f"//label[contains(text(),'{searched.rstrip()}')]")
             return label
 
         def button_with_text(searched):
-            bt = driver.find_element_by_xpath(f"//button[contains(text(),'{searched.rstrip()}')]")
+            bt = driver.find_element_by_xpath(
+                f"//button[contains(text(),'{searched.rstrip()}')]")
             return bt
 
         def a_with_text(searched):
-            link_tag = driver.find_element_by_xpath(f"//a[contains(text(),'{searched.rstrip()}')]")
+            link_tag = driver.find_element_by_xpath(
+                f"//a[contains(text(),'{searched.rstrip()}')]")
             return link_tag
 
         self.wait_main_tags()
@@ -321,40 +296,36 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         self.wait_main_tags()
         driver.implicitly_wait(10)
 
-    def download(self, city):
+    def download(self):
         """
-        :city:
+        :city: A, B, C only
         :return:
         """
         driver = self.driver
-
-        if city.strip().lower() not in ('trem', 'sp'):
+        try:
             try:
-                try:
-                    # self.del_dialog_box('x-shadow')
-                    xsh = driver.find_element_by_class_name('x-shadow')
-                    if 'block' in xsh.get_attribute('style'):
-                        self.del_dialog_box('x-shadow')
-                        driver.implicitly_wait(10)
-                        print('W-SHADOW-DELETADO')
-                    else:
-                        raise NoSuchElementException
-
-                except NoSuchElementException:
-                    print('Tem notas')
+                # self.del_dialog_box('x-shadow')
+                xsh = driver.find_element_by_class_name('x-shadow')
+                if 'block' in xsh.get_attribute('style'):
+                    self.del_dialog_box('x-shadow')
                     driver.implicitly_wait(10)
-                    downloada_xml = driver.find_element_by_xpath('//img[@src="imgs/download.png"]')
-                    try:
-                        downloada_xml.click()
-                    except ElementClickInterceptedException:
-                        self.click_ac_elementors(downloada_xml)
-                    # self.click_ac_elementors(downloada_xml)
+                    print('W-SHADOW-DELETADO')
+                else:
+                    raise NoSuchElementException
 
             except NoSuchElementException:
-                print('NÃO CONSEGUI FAZER DOWNLOAD...')
-        else:
-            if driver.current_url.lower() in 'sigiss':
-                pass
+                print('Tem notas')
+                driver.implicitly_wait(10)
+                downloada_xml = driver.find_element_by_xpath(
+                    '//img[@src="imgs/download.png"]')
+                try:
+                    downloada_xml.click()
+                except ElementClickInterceptedException:
+                    self.click_ac_elementors(downloada_xml)
+                # self.click_ac_elementors(downloada_xml)
+
+        except NoSuchElementException:
+            print('NÃO CONSEGUI FAZER DOWNLOAD...')
 
     def ginfess_table_valores_html_code(self):
         """
@@ -369,7 +340,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
         cont_export = 1
 
-        xml_pages = driver.find_element_by_xpath('//input[@class="x-tbar-page-number"]')
+        xml_pages = driver.find_element_by_xpath(
+            '//input[@class="x-tbar-page-number"]')
         driver.implicitly_wait(5)
         number_in_pages = xml_pages.get_attribute('value')
 
@@ -395,7 +367,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
             # // div[ @ id = 'a'] // a[ @class ='click']
 
-            wanted_wanted = driver.find_elements_by_xpath("//div[contains(@class, 'x-grid3-row')]")
+            wanted_wanted = driver.find_elements_by_xpath(
+                "//div[contains(@class, 'x-grid3-row')]")
             print(wanted_wanted[0].text)
             # table = wanted_wanted
 
@@ -451,7 +424,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             # not really necessary, but i want to
             try:
                 wb = Workbook()
-                sh_name = client_path.split('/')[-1] if '\\' not in client_path else client_path.split('\\')[-1]
+                sh_name = client_path.split(
+                    '/')[-1] if '\\' not in client_path else client_path.split('\\')[-1]
                 sh_name = sh_name[:10]
                 # limitando
                 wb.create_sheet(sh_name)
@@ -520,6 +494,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         Tremembé... rs
         """
         driver = self.driver
+
         class SbFConverter:
             """
             MUITO OBRIGADO, SENHOR
