@@ -24,6 +24,7 @@ main_file = CONS.MAIN_FILE
 
 TOTAL_CLIENTES = len(list(consultar_compt()))
 prossegue = False
+
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
     __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
@@ -62,5 +63,6 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
 
         # Ginfess
         print(razao_social)
-        DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                           ginfess_link, driver=ginfess_driver(), compt=COMPT)
+        if ginfess_link != 'nan':
+            DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
+                               ginfess_link, driver=ginfess_driver(), compt=COMPT)

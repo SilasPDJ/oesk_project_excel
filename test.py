@@ -86,9 +86,12 @@ formul_ret = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:
 n_retforml = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}=0)+0)'
 
 ws[f'C{ln_ret}'] = formul_ret
+ws[f'C{ln_ret}'].number_format = ws['C2'].number_format
 ws[f'A{ln_ret}'] = 'RETIDO'
 
 ws[f'C{ln_nao}'] = n_retforml
+
+
 ws[f'A{ln_nao}'] = 'NÃO RETIDO'
 
 # muda
@@ -99,4 +102,6 @@ for table, row in zip(with_class, ws['A']):
     if 'notaCancelada' in table:
         row.fill = redFill
 # ws['A2'].fill = redFill
+
+
 wb.save(excel_file)

@@ -64,7 +64,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     driver.implicitly_wait(5)
 
                     # Creation initial
-                    excel_file = os.path.join(self.client_path, 'testsDF.xlsx')
+                    excel_file = os.path.join(
+                        self.client_path, f'{__cnpj}.xlsx')
                     # Aqui
                     self.excel_from_html_above(
                         excel_file, html=self.ginfess_table_valores_html_code())
@@ -466,12 +467,15 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         formul_ret = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}>0)+0)'
         n_retforml = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}=0)+0)'
 
+        # valores
         ws[f'C{ln_ret}'] = formul_ret
         ws[f'A{ln_ret}'] = 'RETIDO'
-
         ws[f'C{ln_nao}'] = n_retforml
         ws[f'A{ln_nao}'] = 'NÃO RETIDO'
-
+        # formatacoes
+        ws[f'C{ln_ret}'].number_format = ws['C2'].number_format
+        ws[f'C{ln_nao}'].number_format = ws['C2'].number_format
+        ws[f'C{line}'].number_format = ws['C2'].number_format
         # muda
         redFill = PatternFill(start_color='FFFF0000',
                               end_color='FFFF0000',
