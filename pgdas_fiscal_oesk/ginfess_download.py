@@ -64,14 +64,10 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     driver.implicitly_wait(5)
 
                     # Creation initial
-                    mylist = pd.read_html(
-                        self.ginfess_table_valores_html_code())
-                    df = pd.concat([l for l in mylist])
-                    header = ['Nº NF', 'Data', 'Valor', 'Imposto',
-                              'CPF/CNPJ tomador']
                     excel_file = os.path.join(self.client_path, 'testsDF.xlsx')
                     # Aqui
-                    input('Aqui vai o restante...')
+                    self.excel_from_html_above(
+                        excel_file, html=self.ginfess_table_valores_html_code())
 
                 except IndexError:
                     print('~' * 30)
@@ -401,82 +397,90 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         return html_cod
         # de.send_keys(Keys.TAB)
 
-    def cexcel_from_html_above_v1(self, cliente, html_codigo):
-        # # DEPOIS JUNTAR ELA COM GINFESS_SCRAP
-        import os
-        import pyautogui as pygui
-        from pyperclip import paste, copy
-        from time import sleep
-        from .retornot import RetidosNorRetidos, RnrSo1
-        from .ginfess_scrap import cria_site_v1
+    def excel_from_html_above(self, excel_file, html):
+        from bs4 import BeautifulSoup
+        from openpyxl.styles import PatternFill
 
-        """
-         :param cliente: nome do cliente vindo do loop
-         :param competencia: vindo do GINFESS_download na linha 37
-         :param site_cria: (lugar_salvar)
-         :return: return_full_path for with_titlePATH.txt
-         """
-        client_path = self.client_path
-        # impossível ser None
-        driver = self.driver
+        mylist = pd.read_html(html)
 
-        qtd_nf = driver.find_element_by_class_name('x-paging-info')
-        qtd_text = qtd_nf.text
-        proc = qtd_text.index('of')
-        pal = qtd_text[proc:].split()
-        qtd_text = pal[1]
-        prossigo = cria_site_v1(html_codigo, qtd_text)
-        _prossigo = prossigo[0]
-        len_tables = prossigo[1]
-        # input(f'{prossigo}, {len_tables}, {_prossigo}')
-        sleep(5)
-        if _prossigo:
-            arq = f'rnc-{cliente}.xlsx'
-            if len(arq) > 32:
-                arq = f'rnc-{cliente.split()[0]}.xlsx'
-            x, y = pygui.position()
-            arq = f'{client_path}/{arq}' if '/' in client_path else f'{client_path}\\{arq}'
-            # not really necessary, but i want to
-            try:
-                wb = Workbook()
-                sh_name = client_path.split(
-                    '/')[-1] if '\\' not in client_path else client_path.split('\\')[-1]
-                sh_name = sh_name[:10]
-                # limitando
-                wb.create_sheet(sh_name)
-                wb.active = 1
-                wb.remove(wb['Sheet'])
-                wb.save(arq)
-            except FileExistsError:
-                pass
+        soup = BeautifulSoup(html, 'html.parser')
+        with_class = tables = [str(table) for table in soup.select('table')]
+        df = pd.concat([l for l in mylist])
+        header = ['Nº NF', 'Data', 'Valor', 'Imposto',
+                  'CPF/CNPJ tomador']
 
-            finally:
-                # ########## ABRINDO EXCEL ####### #
-                program = arq.split('_')[-1]
-                """~~~~"""
-                os.startfile(arq)
-                """~~~~"""
-                sleep(12)
+        def to_number(ind):
+            df[ind] = [d.replace('R$ ', '') for d in df[ind]]
+            df[ind] = [d.replace('.', '') for d in df[ind]]
+            df[ind] = [d.replace(',', '.') for d in df[ind]]
+            df[ind] = pd.to_numeric(df[ind])
+            return df[ind]
+        with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
+            df[2] = to_number(2)
+            df[3] = to_number(3)
+            # df.style =
+            # create new formats
+            book = writer.book
+            contabil_format = book.add_format({'num_format': 44})
 
-                allin = pygui.getAllWindows()
-                for e, l in enumerate(allin):
-                    if program in l.title.lower():
-                        l.restore()
-                        l.activate()
-                        l.maximize()
+            add_soma = f'C{len(df[2])+1}'
+            add_soma = df[2].sum()
+            # df.loc[2] = add_soma
 
-                # ########## ABRINDO #########
-                sleep(6)
-                if len_tables > 1:
-                    RetidosNorRetidos()
-                # input('RETIDOS N RETIDOS')
-                    pygui.hotkey('alt', 'f4')
-                    sleep(5)
-                    pygui.hotkey('enter')
-                # from RETIDOS_N_RETIDOS import save_after_changes
-                else:
-                    RnrSo1()
-                    print(f'Testado, len tables = {len_tables}')
+            # input(add_soma)
+
+            while True:
+                try:
+                    wb = df.to_excel(writer, sheet_name='Sheet1',
+                                     header=header, index=False)
+                    break
+                except ValueError:
+                    header.append('-')
+
+            worksheet = writer.sheets['Sheet1']
+
+            worksheet.set_column('C:C', None, contabil_format)
+            worksheet.set_column('D:D', None, contabil_format)
+
+        wb = openpyxl.load_workbook(excel_file)
+        wks = wb.worksheets
+        ws = wb.active
+
+        # next line = nxln
+        # last value line = llv
+        line = nxln = llv = len(df[2]) + 3
+        llv -= 2
+
+        # filt
+        ws.auto_filter.ref = f'A1:F{llv}'
+
+        ln_ret = line + 1
+        ln_nao = line + 2
+
+        # Total independente E DESCARTÁVEL
+        ws[f'E{line}'] = f'= SUM(C2:C{llv})'
+
+        ws[f'C{line}'] = f'= SUM(C{ln_ret}:C{ln_nao})'
+        ws[f'A{line}'] = f'Valor total'
+
+        formul_ret = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}>0)+0)'
+        n_retforml = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}=0)+0)'
+
+        ws[f'C{ln_ret}'] = formul_ret
+        ws[f'A{ln_ret}'] = 'RETIDO'
+
+        ws[f'C{ln_nao}'] = n_retforml
+        ws[f'A{ln_nao}'] = 'NÃO RETIDO'
+
+        # muda
+        redFill = PatternFill(start_color='FFFF0000',
+                              end_color='FFFF0000',
+                              fill_type='solid')
+        for table, row in zip(with_class, ws['A']):
+            if 'notaCancelada' in table:
+                row.fill = redFill
+        # ws['A2'].fill = redFill
+        wb.save(excel_file)
 
     def check_done(self, save_path, file_type, startswith=None):
         """

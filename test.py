@@ -5,7 +5,21 @@ import os
 from openpyxl.utils import get_column_letter as gcl
 import openpyxl
 import pandas as pd
+
+
+def btf_class():
+    from bs4 import BeautifulSoup
+    with open('test.html') as res:
+        soup = BeautifulSoup(res, 'html.parser')
+        tables = [str(table) for table in soup.select('table')]
+        return tables
+
+
+# btf()
 mylist = pd.read_html('test.html')
+with_class = btf_class()
+# print(with_class[0])
+# input('notaCancelada' in with_class[0])
 
 
 client_path = r'C:\Users\Silas\OneDrive\_FISCAL-2021\2021\07-2021\Controlesis Tecnologia e Desenvolvimento de Software LTDA'
@@ -23,6 +37,7 @@ with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
     df[2] = [d.replace('R$ ', '').replace(',', '.')for d in df[2]]
     df[2] = pd.to_numeric(df[2])
 
+    # df.style =
     # create new formats
     book = writer.book
     contabil_format = book.add_format({'num_format': 44})
@@ -76,20 +91,12 @@ ws[f'A{ln_ret}'] = 'RETIDO'
 ws[f'C{ln_nao}'] = n_retforml
 ws[f'A{ln_nao}'] = 'NÃO RETIDO'
 
-
-# input(ws['A2'].fill.start_color.index)
-
 # muda
 redFill = PatternFill(start_color='FFFF0000',
                       end_color='FFFF0000',
                       fill_type='solid')
-# ws.auto_filter
-
-ws['A2'].fill = redFill
-
-# ws.auto_filter.sort_state = redFill
-
+for table, row in zip(with_class, ws['A']):
+    if 'notaCancelada' in table:
+        row.fill = redFill
+# ws['A2'].fill = redFill
 wb.save(excel_file)
-
-
-
