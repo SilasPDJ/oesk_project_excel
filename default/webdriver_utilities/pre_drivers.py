@@ -161,7 +161,7 @@ def ginfess_driver(path=''):
         "safebrowsing_for_trusted_sources_enabled": False,
         "safebrowsing.enabled": True,
         'download.extensions_to_open': 'xml',
-        "plugins.always_open_pdf_externally": True,
+        # "plugins.always_open_pdf_externally": True,
         # download PDF automaticamente acima
         'profile.default_content_setting_values.automatic_downloads': 1,
     })

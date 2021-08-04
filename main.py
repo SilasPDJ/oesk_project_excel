@@ -61,5 +61,6 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
             prossegue = True
 
         # Ginfess
+        print(razao_social)
         DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                           ginfess_link, driver=pgdas_driver(), compt=COMPT)
+                           ginfess_link, driver=ginfess_driver(), compt=COMPT)

@@ -1,59 +1,75 @@
-from default.webdriver_utilities.wbs import WDShorcuts as W
-from default.webdriver_utilities.pre_drivers import pgdas_driver
-from selenium.common.exceptions import *
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
-from time import sleep
-
-driver = pgdas_driver()
-weblink = 'https://portal.gissonline.com.br/login/index.html'
-with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
-    __senhas = f.read().split(',')
+from operator import add
+import xlsxwriter
+import os
+from openpyxl.utils import get_column_letter as gcl
+import openpyxl
+import pandas as pd
+mylist = pd.read_html('test.html')
 
 
-driver.get(weblink)
-cont_senha = 0
+client_path = r'C:\Users\Silas\OneDrive\_FISCAL-2021\2021\07-2021\Controlesis Tecnologia e Desenvolvimento de Software LTDA'
+df = pd.concat([l for l in mylist])
 
-_logar = '127571'  # constr
-# _logar = '168632'
+header = ['Nº NF', 'Data', 'Valor', 'Imposto',
+          'CPF/CNPJ tomador']
+excel_file = os.path.join(client_path, 'tests.xlsx')
+
+# writter = pd.ExcelWriter(excel_file, header=header, index=False)
+with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
+    df[3] = [d.replace('R$ ', '').replace(',', '.')for d in df[3]]
+    df[3] = pd.to_numeric(df[3])
+
+    df[2] = [d.replace('R$ ', '').replace(',', '.')for d in df[2]]
+    df[2] = pd.to_numeric(df[2])
+
+    # create new formats
+    book = writer.book
+    contabil_format = book.add_format({'num_format': 44})
+
+    add_soma = f'C{len(df[2])+1}'
+    add_soma = df[2].sum()
+    # df.loc[2] = add_soma
+
+    # input(add_soma)
+
+    while True:
+        try:
+            wb = df.to_excel(writer, sheet_name='Sheet1',
+                             header=header, index=False)
+            break
+        except ValueError:
+            header.append('-')
+
+    worksheet = writer.sheets['Sheet1']
+
+    worksheet.set_column('C:C', None, contabil_format)
+    worksheet.set_column('D:D', None, contabil_format)
+
+wb = openpyxl.load_workbook(excel_file)
+wks = wb.worksheets
+ws = wb.active
+
+# next line = nxln
+# last value line = llv
+line = nxln = llv = len(df[2]) + 2
+llv -= 1
+
+ws[f'C{line}'] = f'= SUM(C2:C{llv})'
+ws[f'A{line}'] = f'Valor total'
 
 
-while True:
-    # TxtIdent
-    driver.find_element_by_xpath('//input[@name="TxtIdent"]').send_keys(_logar)
-    driver.find_element_by_xpath(
-        '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
-    print(f'Senha: {__senhas[cont_senha]}', end=' ')
-    cont_senha += 1
-    driver.find_element_by_link_text("Acessar").click()
-    try:
-        WebDriverWait(driver, 5).until(expected_conditions.alert_is_present(),
-                                       'Timed out waiting for PA creation ' +
-                                       'confirmation popup to appear.')
-        alert = driver.switch_to.alert
-        alert.accept()
-        print("estou no try")
-        driver.execute_script("window.history.go(-1)")
-    except TimeoutException:
-        print("no alert, sem alerta, exceptado")
-        break
+formul_ret = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}>0)+0)'
+n_retforml = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}=0)+0)'
 
-    try:
-        iframe = driver.find_element_by_xpath(
-            "//iframe[@name='header']")
-        driver.switch_to.frame(iframe)
-    except NoSuchElementException:
-        driver.execute_script(
-            "window.location.href=('/tomador/tomador.asp');")
+nxln += 1
+ws[f'C{nxln}'] = formul_ret
+ws[f'A{nxln}'] = 'RETIDO'
 
+nxln += 1
+ws[f'C{nxln}'] = n_retforml
+ws[f'A{nxln}'] = 'NÃO RETIDO'
 
-try:
-    driver.find_element_by_xpath(
-        "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
-except (NoSuchElementException, ElementNotInteractableException) as e:
-    print(e)
+ws.auto_filter.ref = 'A:F'
+ws.auto_filter
 
-    def constr_civil():
-        print('teste')
-
-    constr_civil()
+wb.save(excel_file)

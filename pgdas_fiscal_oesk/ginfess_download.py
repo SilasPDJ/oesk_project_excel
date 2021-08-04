@@ -1,4 +1,5 @@
 # dale
+import openpyxl
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
@@ -11,6 +12,10 @@ from selenium.common.exceptions import *
 from time import sleep
 from default.webdriver_utilities.pre_drivers import ginfess_driver
 from openpyxl import Workbook
+from openpyxl.utils.cell import coordinate_from_string
+from openpyxl.utils import get_column_letter as gcl
+import pandas as pd
+import os
 
 
 class DownloadGinfessGui(InitialSetting, WDShorcuts):
@@ -45,7 +50,6 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 # driver.maximize_window()
                 # #######################################################
                 self.ABC_ginfess(__cnpj, _ginfess_cod)
-                input('abc ginfess')
                 # #######################################################
 
                 try:
@@ -56,9 +60,18 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     print('printscreen aqui')
 
                     self.download()
+
                     driver.implicitly_wait(5)
-                    self.cexcel_from_html_above_v1(
-                        __r_social, self.ginfess_table_valores_html_code())
+
+                    # Creation initial
+                    mylist = pd.read_html(
+                        self.ginfess_table_valores_html_code())
+                    df = pd.concat([l for l in mylist])
+                    header = ['Nº NF', 'Data', 'Valor', 'Imposto',
+                              'CPF/CNPJ tomador']
+                    excel_file = os.path.join(self.client_path, 'testsDF.xlsx')
+                    # Aqui
+                    input('Aqui vai o restante...')
 
                 except IndexError:
                     print('~' * 30)
@@ -322,6 +335,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     downloada_xml.click()
                 except ElementClickInterceptedException:
                     self.click_ac_elementors(downloada_xml)
+
+                except ElementNotInteractableException:
+                    pass
                 # self.click_ac_elementors(downloada_xml)
 
         except NoSuchElementException:
@@ -352,7 +368,6 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     }
                     </style>
                    """.strip()
-        pasta_a_salvar = 'G5'
 
         for i in range(10):
             print(number_in_pages)
@@ -535,3 +550,33 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
         continua = paste()
         return continua
+
+    def first_and_last_day_compt(self, sep='/'):
+        """
+        ELE JÁ PEGA O ANTERIOR MAIS PROX
+        :param str compt:(competencia or whatever). Defaults then call cls.get_compt_only() as default
+        :param sep: separates month/year
+        # É necessario o will_be pois antes dele é botado ao contrário
+        # tipo: 20200430
+        # ano 2020, mes 04, dia 30... (exemplo)
+        :return: ÚLTIMO DIA DO MES
+        """
+        from datetime import date, timedelta
+        from dateutil.relativedelta import relativedelta
+
+        compt = self.compt
+        ill_split = ''.join([v for v in compt if v not in '0123456789'])
+        mes, ano = compt.split(ill_split)
+        mes, ano = int(mes), int(ano)
+        #  - timedelta(days=1)
+        # + relativedelta(months=1)
+
+        last_now = date(ano, mes, 1) + relativedelta(months=1)
+        last_now -= timedelta(days=1)
+        first_now = date(ano, mes, 1)
+
+        z, a = last_now, first_now
+        br1st = f'{a.day:02d}{sep}{a.month:02d}{sep}{a.year}'
+        brlast = f'{z.day:02d}{sep}{z.month:02d}{sep}{z.year}'
+        print(br1st, brlast)
+        return br1st, brlast
