@@ -1,3 +1,4 @@
+from openpyxl.styles import PatternFill
 from operator import add
 import xlsxwriter
 import os
@@ -51,25 +52,44 @@ ws = wb.active
 
 # next line = nxln
 # last value line = llv
-line = nxln = llv = len(df[2]) + 2
-llv -= 1
+line = nxln = llv = len(df[2]) + 3
+llv -= 2
 
-ws[f'C{line}'] = f'= SUM(C2:C{llv})'
+# filt
+ws.auto_filter.ref = f'A1:A{llv}'
+
+ln_ret = line + 1
+ln_nao = line + 2
+
+# Total independente E DESCARTÁVEL
+ws[f'E{line}'] = f'= SUM(C2:C{llv})'
+
+ws[f'C{line}'] = f'= SUM(C{ln_ret}:C{ln_nao})'
 ws[f'A{line}'] = f'Valor total'
-
 
 formul_ret = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}>0)+0)'
 n_retforml = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}=0)+0)'
 
-nxln += 1
-ws[f'C{nxln}'] = formul_ret
-ws[f'A{nxln}'] = 'RETIDO'
+ws[f'C{ln_ret}'] = formul_ret
+ws[f'A{ln_ret}'] = 'RETIDO'
 
-nxln += 1
-ws[f'C{nxln}'] = n_retforml
-ws[f'A{nxln}'] = 'NÃO RETIDO'
+ws[f'C{ln_nao}'] = n_retforml
+ws[f'A{ln_nao}'] = 'NÃO RETIDO'
 
-ws.auto_filter.ref = 'A:F'
-ws.auto_filter
+
+# input(ws['A2'].fill.start_color.index)
+
+# muda
+redFill = PatternFill(start_color='FFFF0000',
+                      end_color='FFFF0000',
+                      fill_type='solid')
+# ws.auto_filter
+
+ws['A2'].fill = redFill
+
+# ws.auto_filter.sort_state = redFill
 
 wb.save(excel_file)
+
+
+
