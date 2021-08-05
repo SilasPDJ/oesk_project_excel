@@ -32,15 +32,11 @@ class GissGui(InitialSetting, WDShorcuts):
         print(self.compt_atual)
         self.client_path = self.files_pathit(
             __r_social.strip(), compt)
-        self.driver = driver(self.client_path)
-        driver = self.driver
 
-        super().__init__(self.driver)
-        if self.certifs_exist():
-            # independente da first_compt, se ja existir...
-            self.driver.close()
-
-        else:
+        if not self.certifs_exist():
+            self.driver = driver(self.client_path)
+            driver = self.driver
+            super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
 
