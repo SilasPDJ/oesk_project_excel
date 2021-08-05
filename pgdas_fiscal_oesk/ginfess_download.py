@@ -3,6 +3,7 @@ import openpyxl
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
+from selenium.webdriver import Chrome
 
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
@@ -37,7 +38,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             # Checka o certificado ginfess, somente
 
             # if city in 'ABC':
-            self.driver = driver
+            self.driver = driver(self.client_path)
             super().__init__(self.driver)
             driver = self.driver
             driver.maximize_window()
@@ -200,6 +201,23 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
 
+            elif self.driver.current_url == 'https://app.siappa.com.br/issqn_itupeva/servlet/com.issqnwebev3v2.login':
+                self.driver.find_element_by_id('vUSR_COD').send_keys(__cnpj)
+                self.driver.find_element_by_css_selector(
+                    '[type="password"]').send_keys(_ginfess_cod)
+                # d = Chrome()
+                press_keys_b4('f9')
+                driver.save_screenshot(self.certif_feito(
+                    self.client_path, add='GINFESS'))
+            elif self.driver.current_url == 'https://bragancapaulista.giap.com.br/apex/pmbp/f?p=994:101':
+                print('DA PRA FAZER')
+                press_keys_b4('f9')
+                driver.save_screenshot(self.certif_feito(
+                    self.client_path, add='GINFESS'))
+            else:
+                press_keys_b4('f9')
+                driver.save_screenshot(self.certif_feito(
+                    self.client_path, add='GINFESS'))
             [(print(f'Sleeping before close {i}'), sleep(1))
              for i in range(5, -1, -1)]
 

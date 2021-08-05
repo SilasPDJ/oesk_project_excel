@@ -29,11 +29,11 @@ class GissGui(InitialSetting, WDShorcuts):
         # [print(s) for s in __senhas]
         __r_social, _giss_cnpj, _logar = dados[:3]
         self.compt_atual = firstcompt
-        self.driver = driver
         print(self.compt_atual)
         for loop_compt in self.ate_atual_compt(first_compt=firstcompt):
             self.client_path = self.files_pathit(
                 __r_social.strip(), loop_compt)
+            self.driver = driver(self.client_path)
             if self.certifs_exist():
                 self.driver.close()
                 continue
