@@ -25,6 +25,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
     def __init__(self, *dados, driver, compt):
         __r_social, __cnpj, _ginfess_cod, link = dados
+        _ginfess_cod = str(_ginfess_cod)
+
         self.compt = compt
         # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
@@ -205,16 +207,41 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 self.driver.find_element_by_id('vUSR_COD').send_keys(__cnpj)
                 self.driver.find_element_by_css_selector(
                     '[type="password"]').send_keys(_ginfess_cod)
-                # d = Chrome()
+                # d = Chrome().
                 press_keys_b4('f9')
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
             elif self.driver.current_url == 'https://bragancapaulista.giap.com.br/apex/pmbp/f?p=994:101':
-                print('DA PRA FAZER')
-                press_keys_b4('f9')
-                driver.save_screenshot(self.certif_feito(
+                a = __login, __senha = _ginfess_cod.split('//')
+                self.driver.find_element_by_id(
+                    'P101_USERNAME').send_keys(__login)
+                self.driver.find_element_by_css_selector(
+                    '[type="password"]').send_keys(str(__senha))
+                self.click_ac_elementors(self.tag_with_text('span', 'ENTRAR'))
+
+                # CONSULTAR
+                self.driver.implicitly_wait(30)
+                self.driver.execute_script(
+                    "javascript:apex.submit('EMISSAO NOTA');")
+                mes, ano = self.compt.split('-')
+                mes = self.nome_mes(int(mes))
+                self.driver.find_element_by_xpath(
+                    f"//select[@name='P26_MES']/option[text()='{mes}']").click()
+                self.driver.find_element_by_xpath(
+                    f"//select[@name='P26_ANO']/option[text()='{ano}']").click()
+                # CONSULTAR
+                self.driver.execute_script(
+                    "apex.submit({request:'P26_BTN_CONSULTAR'});")
+
+                self.driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
             else:
+
+                self.send_keys_anywhere(__cnpj)
+                self.send_keys_anywhere(Keys.TAB)
+                self.send_keys_anywhere(_ginfess_cod)
+                self.send_keys_anywhere(Keys.TAB)
+
                 press_keys_b4('f9')
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))

@@ -56,12 +56,16 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
         # Auto Giss Online
         def giss_online():
             if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
+
                 print(str(giss_login))
+                # GissGui([razao_social, cnpj, giss_login],
+                #         pgdas_driver, COMPT)
                 GissGui([razao_social, cnpj, giss_login],
-                        pgdas_driver, COMPT)
-                
+                        driver=pgdas_driver, compt=COMPT, first_compt='04-2019')
+
         # Ginfess
+        giss_online()
         print(razao_social)
         if str(ginfess_link) != 'nan':
             DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
-                               ginfess_link, driver=pgdas_driver, compt=COMPT)
+                               ginfess_link, driver=ginfess_driver, compt=COMPT)

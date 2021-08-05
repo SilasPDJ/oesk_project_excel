@@ -22,32 +22,35 @@ link = "ChromeDriver/chromedriver.exe"
 # self.pyautogui
 class GissGui(InitialSetting, WDShorcuts):
 
-    def __init__(self, dados, driver, firstcompt=None):
+    def __init__(self, dados, driver, compt, first_compt=None):
         from functools import partial
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
             __senhas = f.read().split(',')
         # [print(s) for s in __senhas]
         __r_social, _giss_cnpj, _logar = dados[:3]
-        self.compt_atual = firstcompt
+        self.compt_atual = compt
         print(self.compt_atual)
-        for loop_compt in self.ate_atual_compt(first_compt=firstcompt):
-            self.client_path = self.files_pathit(
-                __r_social.strip(), loop_compt)
-            self.driver = driver(self.client_path)
-            if self.certifs_exist():
-                self.driver.close()
-                continue
+        self.client_path = self.files_pathit(
+            __r_social.strip(), compt)
+        self.driver = driver(self.client_path)
+        driver = self.driver
+
+        super().__init__(self.driver)
+        if self.certifs_exist():
+            # independente da first_compt, se ja existir...
+            self.driver.close()
+
+        else:
             [print(a)
-                for a in self.ate_atual_compt(first_compt=firstcompt)]
+                for a in self.ate_atual_compt(first_compt)]
 
             # self.driver = ginfess_driver()
 
-            super().__init__(self.driver)
-
-            driver.get(weblink)
+            # holy
             cont_senha = 0
             while True:
                 # TxtIdent
+                self.driver.get(weblink)
                 driver.find_element_by_xpath(
                     '//input[@name="TxtIdent"]').send_keys(_logar)
                 driver.find_element_by_xpath(
@@ -66,47 +69,38 @@ class GissGui(InitialSetting, WDShorcuts):
                 except TimeoutException:
                     print("no alert, sem alerta, exceptado")
                     break
+            for loop_compt in self.ate_atual_compt(first_compt):
+                driver.get(
+                    'https://www10.gissonline.com.br/interna/default.cfm')
+                month, year = loop_compt.split('-')
 
-                    # holy
-            """
-            for m in range(m_cont):
-                # print(self.write_date(m_cont, y_cont))
-                mes, ano = self.set_get_compt_file(m_cont, y_cont, file_type=False).split('-')
+                self.calls_write_date = partial(
+                    self.write_date_variascompt, month, year)
+                try:
+                    iframe = driver.find_element_by_xpath(
+                        "//iframe[@name='header']")
+                    driver.switch_to.frame(iframe)
+                except NoSuchElementException:
+                    driver.execute_script(
+                        "window.location.href=('/tomador/tomador.asp');")
 
-                print(mes, ano)
-            input()
-            """
+                constr = False
+                try:
+                    driver.find_element_by_xpath(
+                        "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
+                    # Try prestador, else = Construção civil
+                except (NoSuchElementException, ElementNotInteractableException):
+                    self.constr_civil()
+                    self.gerar_cert('giss-construcao.png')
+                    constr = True
+                finally:
+                    driver.switch_to.default_content()
+                    sleep(1)
+                    self.fazendo_principal(constr)
+                    self.gerar_cert('giss-tomador.png')
 
-            month, year = loop_compt.split('-')
-
-            self.calls_write_date = partial(
-                self.write_date_variascompt, month, year)
-            try:
-                iframe = driver.find_element_by_xpath(
-                    "//iframe[@name='header']")
-                driver.switch_to.frame(iframe)
-            except NoSuchElementException:
-                driver.execute_script(
-                    "window.location.href=('/tomador/tomador.asp');")
-
-            constr = False
-            try:
-                driver.find_element_by_xpath(
-                    "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
-                # Try prestador, else = Construção civil
-            except (NoSuchElementException, ElementNotInteractableException):
-                self.constr_civil()
-                self.gerar_cert('giss-construcao.png')
-                constr = True
-            finally:
-                driver.switch_to.default_content()
-                sleep(1)
-                self.fazendo_principal(constr)
-                self.gerar_cert('giss-tomador.png')
-
-            driver.implicitly_wait(10)
-
-            self.driver.close()
+                driver.implicitly_wait(10)
+            driver.close()
         print('GISS encerrado!')
 
     def certifs_exist(self, at_least=2):
@@ -249,10 +243,15 @@ class GissGui(InitialSetting, WDShorcuts):
         iframe = driver.find_element_by_xpath("//iframe[@name='principal']")
         driver.switch_to.frame(iframe)
         self.tags_wait('input')
-        driver.find_element_by_xpath('//input[@name="mes"]').send_keys(mes)
-        driver.find_element_by_xpath('//input[@name="ano"]').send_keys(ano)
+        m = driver.find_element_by_xpath('//input[@name="mes"]')
+        a = driver.find_element_by_xpath('//input[@name="ano"]')
+        m.clear()
+        a.clear()
+        m.send_keys(mes)
+        a.send_keys(ano)
 
     def ate_atual_compt(self, first_compt=None):
+
         from datetime import date
         from dateutil import relativedelta
         if first_compt is None:
@@ -271,6 +270,7 @@ class GissGui(InitialSetting, WDShorcuts):
             last_compt = [int(v) for v in last_compt]
             last_compt = date(last_compt[1], last_compt[0], 1)
 
+            list_compts = []
             while first_compt != last_compt:
                 compt = first_compt = first_compt + \
                     relativedelta.relativedelta(months=1)
@@ -278,11 +278,8 @@ class GissGui(InitialSetting, WDShorcuts):
                 compt_appended = f'{compt.month:02d}-{compt.year}'
                 # list_compts.append(compt_appended)
                 yield compt_appended
-            else:
-                compt = first_compt
-                compt = f'{compt.month:02d}-{compt.year}'
-                yield compt
-                # yield
+
+        # TODO: depois faço aprtindo do first_compt
         # O objetivo dessa função é retornar yildar um range de compt, partindo do first_compt
 
         # yield list_compts
