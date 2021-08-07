@@ -10,6 +10,7 @@ from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
 import tkinter as tk
+from default.interact.autocomplete_entry import AutocompleteEntry, matches
 from threading import Thread
 
 
@@ -36,7 +37,7 @@ class Backend:
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
             yield __razao_social
 
-    def call_func_v1(self, FUNC):
+    def call_func_v1(self, FUNC, specific=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
@@ -70,7 +71,14 @@ class Backend:
                 if str(ginfess_link) != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
                                        ginfess_link, driver=ginfess_driver, compt=COMPT)
-            eval(f'{FUNC}()')
+
+            if specific is None:
+                eval(f'{FUNC}()')
+            else:
+                if razao_social == specific:
+                    return eval(f'{FUNC}()')
+                else:
+                    print(razao_social, specific, 'teste')
 
 
 class MainApplication(tk.Frame, Backend):
@@ -90,16 +98,12 @@ class MainApplication(tk.Frame, Backend):
         self.__pack(bt_giss)
 
         optmenu_data = list(self.get_data())
-        optmenu_var = tk.StringVar(parent)
-        optmenu_var.set(optmenu_data[0])
-        self.optmenu = optmenu = tk.OptionMenu(
-            parent, optmenu_var, *optmenu_data)  # *self.get_data()
-        self.__pack(optmenu)
+        self.entry = AutocompleteEntry(optmenu_data, root,
+                                       listboxLength=0, width=60, matchesFunction=matches)
         self.__pack(self.button('Gerar DAS de: ',
-                    lambda: self.gerar_das_de(optmenu_var.get())))
+                    lambda: self.call_func_v1('pgdas', self.entry.get())))
 
-    def gerar_das_de(self, a):
-        print(a)
+        self.__pack(self.entry)
 
     # functions
     def optmenu_value(self, _var: tk.StringVar):
