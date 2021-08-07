@@ -34,19 +34,19 @@ class Backend:
     def get_data(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
+            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
             yield __razao_social
 
-    def call_func_v1(self, FUNC, specific=None):
+    def call_func_v2(self, FUNC, specific=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
+            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
 
             def pgdas():
                 if str(declarado).upper() != 'S':
                     if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV':
                         # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
-                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                         compt=COMPT, driver=pgdas_driver)
                     else:
                         all_valores = get_all_valores(
@@ -54,7 +54,7 @@ class Backend:
                         print(all_valores)
 
                         if all_valores:
-                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                             compt=COMPT, driver=pgdas_driver,
                                             all_valores=all_valores)
                         else:
@@ -88,22 +88,21 @@ class MainApplication(tk.Frame, Backend):
 
         self.parent = parent
         self.root = parent
+        optmenu_data = list(self.get_data())
+        self.selected_client = AutocompleteEntry(optmenu_data, root,
+                                                 listboxLength=0, width=60, matchesFunction=matches)
 
-        bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v1('pgdas'))
+        bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
+            'pgdas', self.selected_client.get()))
         bt_ginfess = self.button(
-            'Fazer Ginfess', lambda: self.call_func_v1('ginfess'))
-        bt_giss = self.button('Fazer Giss', lambda: self.call_func_v1('giss'))
+            'Fazer Ginfess', lambda: self.call_func_v2('ginfess', self.selected_client.get()))
+        bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
+            'giss', self.selected_client.get()))
         self.__pack(bt_das)
         self.__pack(bt_ginfess)
         self.__pack(bt_giss)
 
-        optmenu_data = list(self.get_data())
-        self.entry = AutocompleteEntry(optmenu_data, root,
-                                       listboxLength=0, width=60, matchesFunction=matches)
-        self.__pack(self.button('Gerar DAS de: ',
-                    lambda: self.call_func_v1('pgdas', self.entry.get())))
-
-        self.__pack(self.entry)
+        self.__pack(self.selected_client)
 
     # functions
     def optmenu_value(self, _var: tk.StringVar):
@@ -112,8 +111,19 @@ class MainApplication(tk.Frame, Backend):
     # Elements and placements
 
     @ staticmethod
-    def __pack(el, x=50, y=10, fill='x'):
-        el.pack(padx=x, pady=y, fill=fill)
+    def __pack(el, x=50, y=10, fill='x', side=tk.TOP, expand=0):
+        try:
+            x1, x2 = x
+        except TypeError:
+            x1, x2 = x, x
+
+        try:
+            y1, y2 = y
+        except TypeError:
+            y1, y2 = y, y
+
+        el.pack(padx=(x1, x2), pady=(
+            y1, y2), fill=fill, side=side, expand=expand)
 
     @ staticmethod
     def change_state(*args, change_to=None):

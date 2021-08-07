@@ -11,7 +11,7 @@ from default.sets import get_all_valores
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
-
+from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 
 COMPT = get_compt(-1)
 
@@ -26,7 +26,7 @@ TOTAL_CLIENTES = len(list(consultar_compt()))
 
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
-    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas = geral
+    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
 
     if razao_social == __razao_social:
 
@@ -37,7 +37,7 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                 if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV':
                     # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
                     valor_tot = 0
-                    PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                    PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                     compt=COMPT, driver=pgdas_driver)
                 else:
                     all_valores = get_all_valores(
@@ -45,7 +45,7 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                     print(all_valores)
 
                     if all_valores:
-                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot,
+                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                         compt=COMPT, driver=pgdas_driver,
                                         all_valores=all_valores)
                     else:
@@ -63,11 +63,16 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                 # GissGui([razao_social, cnpj, giss_login],
                 #         driver=pgdas_driver, compt=COMPT, first_compt='04-2019')
 
+        # giss_online()
+        # pgdas()
         # Ginfess
-        giss_online()
-        pgdas()
 
-        print(razao_social)
-        if str(ginfess_link) != 'nan':
-            DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
-                               ginfess_link, driver=ginfess_driver, compt=COMPT)
+        # print(razao_social)
+        # if str(ginfess_link) != 'nan':
+        #     DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
+        #                        ginfess_link, driver=ginfess_driver, compt=COMPT)
+
+        
+        # g5 loop
+        
+        G5(razao_social, cnpj, cpf, codigo_simples, valor_tot, imposto_a_calcular)

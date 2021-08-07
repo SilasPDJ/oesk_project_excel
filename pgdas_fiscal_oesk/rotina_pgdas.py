@@ -198,7 +198,6 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)
         """
-
         import pyautogui as pygui
         from time import sleep
         driver = self.driver
@@ -210,27 +209,21 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(5)
-        try:
-            a = pygui.getWindowsWithTitle('gov.br - Acesse sua conta')[0]
-            pygui.click(a.center, clicks=0)
-            pygui.move(100, 140)
-            pygui.click()
-            pygui.move(0, -300)
-            print('sleep')
-            sleep(2.5)
-            pygui.click(duration=.5)
-            driver.back()
-            WebDriverWait(driver, 30).until(
-                expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital'))).click()
-        except AttributeError:
-            initial.click()
-            driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-            driver.back()
-            driver.get("https://cav.receita.fazenda.gov.br/autenticacao/login")
-            ldc = self.webdriverwait_by_id("login-dados-certificado")
 
-            self.click_ac_elementors(ldc.find_elements_by_css_selector("p")[1])
+        a = pygui.getWindowsWithTitle('gov.br - Acesse sua conta')[0]
+        pygui.click(a.center, clicks=0)
+        pygui.move(100, 140)
+        pygui.click()
+        pygui.move(0, -300)
+        print('sleep')
+        sleep(2.5)
+        pygui.click(duration=.5)
 
+        driver.back()
+        WebDriverWait(driver, 30).until(
+            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital'))).click()
+
+        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
         driver.implicitly_wait(10)
         driver.find_elements_by_tag_name("img")[1].click()
 
@@ -394,7 +387,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, driver, all_valores=None):
 
-        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia = args
+        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
 
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
@@ -410,7 +403,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # self.driver.maximize_window;()
         super().__init__(self.driver, self.compt)
-        if __cod_simples is None:
+        [print('\033[1;33m', __cod_simples, '\033[m')for i in range(10)]
+
+        if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
 
             self.loga_cert()
             self.change_ecac_client(__cnpj)
@@ -512,9 +507,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             else:
                 raise ValueError(f'Anexo is invalido {ANEXO}')
 
-            if tres_valores.get("valor_n_retido") != 0:
+            if float(tres_valores.get("valor_n_retido")) != 0:
                 new_seleciona_anexo(sem_ret)
-            if tres_valores.get("valor_retido") != 0:
+            if float(tres_valores.get("valor_retido")) != 0:
                 new_seleciona_anexo(com_ret)
 
         self.find_submit_form()
@@ -531,17 +526,16 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 tres_valores.get("valor_n_retido"))
             v_ret = self.trata_money_excel(tres_valores.get("valor_retido"))
 
-            if tres_valores.get("valor_n_retido") != 0:
+            if float(tres_valores.get("valor_n_retido")) != 0:
                 inputs_text[_count].clear()
                 inputs_text[_count].send_keys(v_n_ret)
                 _count += 1
                 # new_seleciona_anexo(sem_ret)
-            if tres_valores.get("valor_retido") != 0:
+            if float(tres_valores.get("valor_retido")) != 0:
                 inputs_text[_count].clear()
                 inputs_text[_count].send_keys(v_ret)
                 _count += 1
                 # new_seleciona_anexo(com_ret)
-        input('SECURITY')
         # self.find_submit_form()
         self.driver.find_elements_by_class_name('btn-success')[1].click()
 
