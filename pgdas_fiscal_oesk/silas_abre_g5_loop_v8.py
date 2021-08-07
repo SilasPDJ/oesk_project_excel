@@ -30,10 +30,10 @@ class G5(InitialSetting):
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular = args
         __client = __r_social
 
-        if imposto_a_calcular == 'G5_ICMS' and imposto_a_calcular in possible:
+        if imposto_a_calcular == 'G5_ICMS':
             pass
 
-        elif imposto_a_calcular == 'G5_ISS' and imposto_a_calcular in possible:
+        elif imposto_a_calcular == 'G5_ISS':
             self.client_path = self.files_pathit(__client)
             meus_3_valores_atuais = tres_valores_faturados(self.client_path)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem

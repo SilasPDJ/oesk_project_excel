@@ -1,6 +1,7 @@
 # import pgdas_fiscal_oesk
 # from pgdas_fiscal_oesk import rotina_pgdas
 
+from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
@@ -23,6 +24,8 @@ main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
 
 TOTAL_CLIENTES = len(list(consultar_compt()))
+IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
+
 
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
@@ -39,7 +42,7 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                     valor_tot = 0
                     PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                     compt=COMPT, driver=pgdas_driver)
-                else:
+                elif imposto_a_calcular in IMPOSTOS_POSSIVEIS:
                     all_valores = get_all_valores(
                         sem_ret, com_ret, anexo, valor_tot)
                     print(all_valores)
@@ -75,4 +78,6 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
         
         # g5 loop
         
-        G5(razao_social, cnpj, cpf, codigo_simples, valor_tot, imposto_a_calcular)
+        # G5(razao_social, cnpj, cpf, codigo_simples, valor_tot, imposto_a_calcular)
+        if imposto_a_calcular == 'GIA':
+            GIA(razao_social, cnpj, *ginfess_cod.split('//'), compt=COMPT, driver=pgdas_driver)

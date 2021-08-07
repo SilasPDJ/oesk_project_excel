@@ -24,7 +24,7 @@ main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
 
 TOTAL_CLIENTES = len(list(consultar_compt()))
-prossegue = False
+IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
 
 
 class Backend:
@@ -44,22 +44,22 @@ class Backend:
 
             def pgdas():
                 if str(declarado).upper() != 'S':
-                    if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV':
+                    if imposto_a_calcular == 'SEM_MOV' or (valor_tot == 0 and imposto_a_calcular != 'LP'):
                         # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
                         PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                         compt=COMPT, driver=pgdas_driver)
-                    else:
-                        all_valores = get_all_valores(
-                            sem_ret, com_ret, anexo, valor_tot)
-                        print(all_valores)
+                elif imposto_a_calcular in IMPOSTOS_POSSIVEIS:
+                    all_valores = get_all_valores(
+                        sem_ret, com_ret, anexo, valor_tot)
+                    print(all_valores)
 
-                        if all_valores:
-                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                            compt=COMPT, driver=pgdas_driver,
-                                            all_valores=all_valores)
-                        else:
-                            raise ValueError(
-                                f'{razao_social.upper()} possui problemas na planilha')
+                    if all_valores:
+                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                        compt=COMPT, driver=pgdas_driver,
+                                        all_valores=all_valores)
+                    else:
+                        raise ValueError(
+                            f'{razao_social.upper()} possui problemas na planilha')
 
             def giss():
                 if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
