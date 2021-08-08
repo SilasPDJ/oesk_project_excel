@@ -29,22 +29,24 @@ class G5(InitialSetting):
     def __init__(self, *args, compt):
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular = args
         __client = __r_social
-
-        if imposto_a_calcular == 'G5_ICMS':
+        if imposto_a_calcular == 'ICMS':
             pass
 
-        elif imposto_a_calcular == 'G5_ISS':
+        elif imposto_a_calcular == 'ISS':
+            self.compt_used = compt
             self.client_path = self.files_pathit(__client)
+
             meus_3_valores_atuais = tres_valores_faturados(self.client_path)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
 
             registronta = self.registronta(__client, self.compt_used)
+            print(__client)
             input(registronta)
             print(__client)
             if meus_3_valores_atuais and registronta:
-                all_xls_inside = self.files_get_anexos_v3(
-                    __client, file_type='xlsx', compt=self.compt_used)
+                all_xls_inside = self.files_get_anexos_v4(
+                    self.client_path, file_type='xlsx')
                 relacao_notas = all_xls_inside[0] if len(
                     all_xls_inside) == 1 else IndexError()
                 self.activating_client(self.formatar_cnpj(__cnpj))
@@ -61,31 +63,31 @@ class G5(InitialSetting):
                 pygui.write(self.get_xml(__client))
 
                 """IMPORTA ITENS OU NÃO"""
-                if 'LUCRO PRESUMIDO' in __client:
-                    # aqui mais pra frente irei validar melhor SE IMPORTA ITEMS OU NÃO
-                    w = pygui.getActiveWindow()
-                    pygui.click(w.center)
-                    pygui.move(-210, 80)  # Importar itens window 1
-                    pygui.click()
-                    foritab(2, 'tab')
-                    pygui.hotkey('enter')
+                # if 'LUCRO PRESUMIDO' in __client:
+                # aqui mais pra frente irei validar melhor SE IMPORTA ITEMS OU NÃO
+                w = pygui.getActiveWindow()
+                pygui.click(w.center)
+                pygui.move(-210, 80)  # Importar itens window 1
+                pygui.click()
+                foritab(2, 'tab')
+                pygui.hotkey('enter')
 
-                    # window 2, mt legal
-                    sleep(2)
-                    w2 = pygui.getActiveWindow()
-                    pygui.click(w2.center, clicks=0)
-                    pygui.move(65, -160)  # Copiar configuração da nota...?
-                    pygui.click()
-                    pygui.hotkey('tab', 'enter')
-                    sleep(1)
-                    pygui.write('1')
-                    pygui.hotkey('enter')
-                    foritab(15, 'tab')
-                    print('Sleeping 2.5 pra enter, enter')
-                    sleep(2.5)
-                    foritab(2, 'enter', interval=1)
-                    sleep(1)
-                    pygui.hotkey('alt', 'f4')
+                # window 2, mt legal
+                sleep(2)
+                w2 = pygui.getActiveWindow()
+                pygui.click(w2.center, clicks=0)
+                pygui.move(65, -160)  # Copiar configuração da nota...?
+                pygui.click()
+                pygui.hotkey('tab', 'enter')
+                sleep(1)
+                pygui.write('1')
+                pygui.hotkey('enter')
+                foritab(15, 'tab')
+                print('Sleeping 2.5 pra enter, enter')
+                sleep(2.5)
+                foritab(2, 'enter', interval=1)
+                sleep(1)
+                pygui.hotkey('alt', 'f4')
 
                 nfcanceladas = NfCanceled(relacao_notas)
 
@@ -155,7 +157,7 @@ class G5(InitialSetting):
                 """save in adobe"""
 
     def get_xml(self, cliente):
-        b = self.files_get_anexos_v3(cliente, file_type='xml')
+        b = self.files_get_anexos_v4(self.client_path, file_type='xml')
         b = b[0]
         b = b.split('\\')
         file = f'\\\\{b[-1]}'
@@ -177,13 +179,13 @@ class G5(InitialSetting):
         :return: se tiver pdf que tem ISS e REGISTRO
         """
         registronta = False
-        for f in self.files_get_anexos_v3(client, file_type='xml', compt=compt_file):
+        for f in self.files_get_anexos_v4(self.client_path, file_type='xml'):
             return True
 
-        for f in self.files_get_anexos_v3(client, file_type='csv', compt=compt_file):
+        for f in self.files_get_anexos_v4(self.client_path, file_type='csv'):
             return True
 
-        for f in self.files_get_anexos_v3(client, file_type='pdf', compt=compt_file):
+        for f in self.files_get_anexos_v4(self.client_path, file_type='pdf'):
             if 'ISS' in f.upper():
                 registronta = False
                 break

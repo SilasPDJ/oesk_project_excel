@@ -1,4 +1,5 @@
 
+from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import get_compt
@@ -53,7 +54,7 @@ class Backend:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                             compt=COMPT, driver=pgdas_driver)
                         elif imposto_a_calcular == 'LP' and str(ginfess_cod != 'nan'):
-                            input('gia')
+                            # GIA
                             GIA(razao_social, cnpj, *ginfess_cod.split('//'),
                                 compt=COMPT, driver=pgdas_driver)
                         else:
@@ -81,6 +82,11 @@ class Backend:
                 if str(ginfess_link) != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
                                        ginfess_link, driver=ginfess_driver, compt=COMPT)
+
+            def g5():
+                G5(razao_social, cnpj, cpf, codigo_simples,
+                   valor_tot, imposto_a_calcular, compt=COMPT)
+
             if specific == '':
                 eval(f'{FUNC}()')
             else:
@@ -103,13 +109,16 @@ class MainApplication(tk.Frame, Backend):
 
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
-        bt_ginfess = self.button(
-            'Fazer Ginfess', lambda: self.call_func_v2('ginfess', self.selected_client.get()))
+        bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
+            'ginfess', self.selected_client.get()))
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
+        bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
+            'g5', self.selected_client.get()))
         self.__pack(bt_das)
         self.__pack(bt_ginfess)
         self.__pack(bt_giss)
+        self.__pack(bt_g5)
 
         self.__pack(self.selected_client)
 
