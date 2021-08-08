@@ -40,7 +40,7 @@ class G5(InitialSetting):
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
 
-            registronta = self.registronta(__client, self.compt_used)
+            registronta = self.registronta()
             print(__client)
             input(registronta)
             print(__client)
@@ -172,10 +172,8 @@ class G5(InitialSetting):
         print(cnpj)  # 123.456.789-00
         return cnpj
 
-    def registronta(self, client, compt_file):
+    def registronta(self):
         """
-        :param client: CLIENTE
-        :param compt_file: compt_file
         :return: se tiver pdf que tem ISS e REGISTRO
         """
         registronta = False
@@ -229,8 +227,7 @@ class G5(InitialSetting):
         sleep(.7)
         # ativa empresa
 
-        comp = self.first_and_last_day_compt(self.compt_used, '-')[1]
-        pygui.write(comp)
+        pygui.write(self.compt_used)
 
         foritab(6, 'tab')  # PESQUISA
         pygui.hotkey('enter')

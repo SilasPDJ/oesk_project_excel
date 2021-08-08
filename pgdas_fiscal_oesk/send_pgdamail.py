@@ -6,7 +6,7 @@ from default.sets import InitialSetting
 class PgDasmailSender(EmailExecutor, InitialSetting):
     def __init__(self, *args, email, compt, all_valores=None):
 
-        __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
+        a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
         self.__venc_das = "23-08-2021"
         self.compt = compt
@@ -18,7 +18,10 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         print('titulo: ', mail_header)
 
         _valor = self.trata_money_excel(__valor_competencia)
-        input(_valor)
+        print(__valor_competencia)
+        print(__valor_competencia)
+        print(__valor_competencia)
+        print(a)
 
         now_email = email
         now_email = 'silsilinhas@gmail.com'
@@ -36,9 +39,8 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
             das_anx_files = self.files_get_anexos_v4(
                 self.client_path, file_type='pdf',  upload=False)
-            # now_email = 'silsilinhas@gmail.com'
-
             if _valor != 'SEM VALOR DECLARADO':
+
                 if len(das_anx_files) < 4:
                     print(
                         f'\033[1;31mAlgo está errado com {__r_social}\033[m')
@@ -101,4 +103,3 @@ Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+r
 
         """
         return full_mensagem
-

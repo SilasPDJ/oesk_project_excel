@@ -6,7 +6,7 @@ from email.parser import Parser
 # from smtp_project import *
 
 
-class EmailExecutor(EmailsDateScrap, NewSetPaths, ExcelToData, HasJson):
+class EmailExecutor:
     def create_my_login_file(self):
         my_email, my_pass = '', ''
         thispath = os.path.dirname(__file__)
@@ -89,9 +89,33 @@ class EmailExecutor(EmailsDateScrap, NewSetPaths, ExcelToData, HasJson):
 
     def zlist_colours_emails(self):
         path_colours = os.path.dirname(__file__)
-        path_colours = os.path.join(path_colours, 'default/data_treatment')
-        colours = self.load_json(path_colours+'/zlist_colours.json')
-        return colours
+        with open(path_colours+'\\zlist_colours.json') as fcol:
+            colours = json.load(fcol)
+            return colours
+
+    def inside_me_others(self, inside_me, *others):
+        """
+        :param str inside_me:
+        :param str others:
+        :return:
+
+        Cria tags (*others) dentro da inside_me
+        """
+        # pega o final e separa para colocar no meio
+        ff = inside_me.index('</')
+
+        final = inside_me[ff:]
+        returned = inside_me[:ff]
+
+        for other in others:
+            returned += other
+            # input(returned)
+        returned += final
+        return returned
+
+    def wcor(self, cor):
+        r = f' style=color:{cor}'
+        return r
 
     def hora_mensagem(self):
         from datetime import datetime as dt

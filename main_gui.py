@@ -1,4 +1,5 @@
 
+from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
@@ -87,6 +88,10 @@ class Backend:
                 G5(razao_social, cnpj, cpf, codigo_simples,
                    valor_tot, imposto_a_calcular, compt=COMPT)
 
+            def pgdasmail():
+                PgDasmailSender(razao_social, cnpj, cpf, declarado, valor_tot,
+                                imposto_a_calcular, envio, email=email, compt=COMPT, all_valores=[])
+
             if specific == '':
                 eval(f'{FUNC}()')
             else:
@@ -115,10 +120,13 @@ class MainApplication(tk.Frame, Backend):
             'giss', self.selected_client.get()))
         bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
             'g5', self.selected_client.get()))
+        bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(
+            'pgdasmail', self.selected_client.get()))
         self.__pack(bt_das)
         self.__pack(bt_ginfess)
         self.__pack(bt_giss)
         self.__pack(bt_g5)
+        self.__pack(bt_sendpgdas)
 
         self.__pack(self.selected_client)
 
