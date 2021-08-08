@@ -35,14 +35,19 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
 
         # print(razao_social)
         def pgdas():
-            global valor_tot
-            if str(declarado).upper() != 'S':
-                if valor_tot == 0 or imposto_a_calcular == 'SEM_MOV':
-                    # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
-                    valor_tot = 0
-                    PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                    compt=COMPT, driver=pgdas_driver)
-                elif imposto_a_calcular in IMPOSTOS_POSSIVEIS:
+            if str(declarado).upper() != 'S' and str(declarado) != 'OK':
+                print(declarado, valor_tot, imposto_a_calcular)
+                if valor_tot == 0 or str(valor_tot) == 'nan':
+                    if imposto_a_calcular == 'SEM_MOV':
+                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                        compt=COMPT, driver=pgdas_driver)
+                    elif imposto_a_calcular == 'LP' and str(ginfess_cod != 'nan'):
+                        input('gia')
+                        GIA(razao_social, cnpj, *ginfess_cod.split('//'),
+                            compt=COMPT, driver=pgdas_driver)
+                    else:
+                        print('passed', razao_social)
+                elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                     all_valores = get_all_valores(
                         sem_ret, com_ret, anexo, valor_tot)
                     print(all_valores)
@@ -54,9 +59,13 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                     else:
                         raise ValueError(
                             f'{razao_social.upper()} possui problemas na planilha')
+                else:
+                    input(
+                        f'else {imposto_a_calcular} {imposto_a_calcular in IMPOSTOS_POSSIVEIS}')
 
         # Giss Online
         # Auto Giss Online
+
         def giss_online():
             if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
 
@@ -65,7 +74,7 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                         pgdas_driver, COMPT)
                 # GissGui([razao_social, cnpj, giss_login],
                 #         driver=pgdas_driver, compt=COMPT, first_compt='04-2019')
-
+        pgdas()
         # giss_online()
         # pgdas()
         # Ginfess
@@ -75,9 +84,6 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
         #     DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
         #                        ginfess_link, driver=ginfess_driver, compt=COMPT)
 
-        
         # g5 loop
-        
+
         # G5(razao_social, cnpj, cpf, codigo_simples, valor_tot, imposto_a_calcular)
-        if imposto_a_calcular == 'GIA':
-            GIA(razao_social, cnpj, *ginfess_cod.split('//'), compt=COMPT, driver=pgdas_driver)

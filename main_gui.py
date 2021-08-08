@@ -1,4 +1,5 @@
 
+from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
@@ -24,7 +25,7 @@ main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
 
 TOTAL_CLIENTES = len(list(consultar_compt()))
-IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
+IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 
 
 class Backend:
@@ -43,23 +44,32 @@ class Backend:
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
 
             def pgdas():
-                if str(declarado).upper() != 'S':
-                    if imposto_a_calcular == 'SEM_MOV' or (valor_tot == 0 and imposto_a_calcular != 'LP'):
-                        # if imposto_a_calcular == 'SEM_MOV' and e >= 38+4:
-                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                        compt=COMPT, driver=pgdas_driver)
-                elif imposto_a_calcular in IMPOSTOS_POSSIVEIS:
-                    all_valores = get_all_valores(
-                        sem_ret, com_ret, anexo, valor_tot)
-                    print(all_valores)
+                print(razao_social)
 
-                    if all_valores:
-                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                        compt=COMPT, driver=pgdas_driver,
-                                        all_valores=all_valores)
-                    else:
-                        raise ValueError(
-                            f'{razao_social.upper()} possui problemas na planilha')
+                if str(declarado).upper() != 'S' and str(declarado) != 'OK':
+                    print(declarado, valor_tot, imposto_a_calcular)
+                    if valor_tot == 0 or str(valor_tot) == 'nan':
+                        if imposto_a_calcular == 'SEM_MOV':
+                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                            compt=COMPT, driver=pgdas_driver)
+                        elif imposto_a_calcular == 'LP' and str(ginfess_cod != 'nan'):
+                            input('gia')
+                            GIA(razao_social, cnpj, *ginfess_cod.split('//'),
+                                compt=COMPT, driver=pgdas_driver)
+                        else:
+                            print('passed', razao_social)
+                    elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
+                        all_valores = get_all_valores(
+                            sem_ret, com_ret, anexo, valor_tot)
+                        print(all_valores)
+
+                        if all_valores:
+                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                            compt=COMPT, driver=pgdas_driver,
+                                            all_valores=all_valores)
+                        else:
+                            raise ValueError(
+                                f'{razao_social.upper()} possui problemas na planilha')
 
             def giss():
                 if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
@@ -71,14 +81,13 @@ class Backend:
                 if str(ginfess_link) != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
                                        ginfess_link, driver=ginfess_driver, compt=COMPT)
-
-            if specific is None:
+            if specific == '':
                 eval(f'{FUNC}()')
             else:
                 if razao_social == specific:
                     return eval(f'{FUNC}()')
                 else:
-                    print(razao_social, specific, 'teste')
+                    pass
 
 
 class MainApplication(tk.Frame, Backend):

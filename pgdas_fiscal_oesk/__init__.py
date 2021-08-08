@@ -39,12 +39,14 @@ class Consultar(Initial):
 
         cont = 0
         while True:
-            once = razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = [
-                list(d.values())[cont] for d in df]
-            yield once
-            if str(razao_social) == 'nan':
+            try:
+                once = razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = [
+                    list(d.values())[cont] for d in df]
+                yield once
+                if str(razao_social) == 'nan':
+                    break
+            except IndexError:
                 break
-
             cont += 1
 
     @staticmethod
