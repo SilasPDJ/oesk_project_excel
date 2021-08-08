@@ -16,9 +16,8 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         mail_header = f"Fechamentos para apuração do imposto PGDAS, competência: {compt.replace('-', '/')}"
         print('titulo: ', mail_header)
-
         _valor = self.trata_money_excel(__valor_competencia)
-        print(__valor_competencia)
+        print(_valor)
         print(__valor_competencia)
         print(__valor_competencia)
         print(a)
@@ -40,7 +39,6 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             das_anx_files = self.files_get_anexos_v4(
                 self.client_path, file_type='pdf',  upload=False)
             if _valor != 'SEM VALOR DECLARADO':
-
                 if len(das_anx_files) < 4:
                     print(
                         f'\033[1;31mAlgo está errado com {__r_social}\033[m')
@@ -75,7 +73,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 {ntt('h2', f'{self.hora_mensagem()}, {client}!')}
 {ntt('h3', 'Seguem anexados:')}
 <h3> 
--> DAS ({ntt('span'+blue,'ISS' if 'ISS' in tipo_das.upper() else 'ICMS')})
+-> DAS {f"({ntt('span'+blue,tipo_das)})" if valor != 'SEM VALOR DECLARADO' else ''}
 sobre faturamento de {ntt('span style="background-color:yellow; color:green"', 'R$ '+valor)}
 </h3>
 
@@ -95,7 +93,7 @@ sobre faturamento de {ntt('span style="background-color:yellow; color:green"', '
 <hr>
 </h3> 
 <div>
-Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) antes de pagar o documento.
+Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR DECLARADO' else ''}
 <h4>Caso haja qualquer conflito, responda sem hesitar esta mensagem neste e-mail.</h4>
 <h4>Todas as declarações são e continuarão sendo feitas minuciosamente.</h4>
 </div>

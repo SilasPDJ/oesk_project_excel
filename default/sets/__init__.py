@@ -136,19 +136,16 @@ class Initial:
                 return way
 
     def trata_money_excel(self, faturado):
-        try:
-            faturado = f'{float(faturado):,.2f}'
-        except ValueError:
-            print('Já é string')
-        finally:
-            faturado = faturado.lower().strip()
-            if 'nan' in faturado or 'zerou' in faturado:
-                faturado = 'SEM VALOR DECLARADO'
-                return faturado
-            faturado = faturado.replace('.', 'v')
-            faturado = faturado.replace(',', '.')
-            faturado = faturado.replace('v', ',')
+
+        faturado = str(faturado).lower().strip()
+        if 'nan' in faturado or 'zerou' in faturado or float(faturado) == 0:
+            faturado = 'SEM VALOR DECLARADO'
             return faturado
+        faturado = f'{float(faturado):,.2f}'
+        faturado = faturado.replace('.', 'v')
+        faturado = faturado.replace(',', '.')
+        faturado = faturado.replace('v', ',')
+        return faturado
 
 
 class InitialSetting(Initial, Dirs, Now):

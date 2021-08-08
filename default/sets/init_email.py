@@ -10,7 +10,8 @@ class EmailExecutor:
     def create_my_login_file(self):
         my_email, my_pass = '', ''
         thispath = os.path.dirname(__file__)
-        thispath += '\\pgdas_fiscal_oesk\\data_clients_files'
+        thispath = os.path.join(thispath,
+                                '..\\..', 'pgdas_fiscal_oesk\\data_clients_files')
         flpsnm = f'{thispath}\\serverMailLogin.txt'
         try:
             with open(flpsnm) as f:
