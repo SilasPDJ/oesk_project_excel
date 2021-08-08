@@ -39,31 +39,34 @@ class Backend:
     @staticmethod
     def any_to_str(*args):
         for v in args:
-            yield "".join(v)
+            yield "".join(str(v))
 
     def get_data(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+                self.any_to_str(*compt_vals))
+            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                self.any_to_str(*geral))
             yield __razao_social
 
     def call_func_v2(self, FUNC, specific=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
-
-            dividas_ativas = str(dividas_ativas).strip().lower()
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+                self.any_to_str(*compt_vals))
+            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                self.any_to_str(*geral))
+            dividas_ativas = dividas_ativas.strip().lower()
 
             def pgdas():
                 print(razao_social)
 
-                if str(declarado).upper() != 'S' and str(declarado) != 'OK':
+                if declarado.upper() != 'S' and declarado != 'OK':
                     print(declarado, valor_tot, imposto_a_calcular)
-                    if valor_tot == 0 or str(valor_tot) == 'nan':
+                    if valor_tot == 0 or valor_tot == 'nan':
                         if imposto_a_calcular == 'SEM_MOV':
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                             compt=COMPT, driver=pgdas_driver)
-                        elif imposto_a_calcular == 'LP' and str(ginfess_cod != 'nan'):
+                        elif imposto_a_calcular == 'LP' and ginfess_cod != 'nan':
                             # GIA
                             GIA(razao_social, cnpj, *ginfess_cod.split('//'),
                                 compt=COMPT, driver=pgdas_driver)
@@ -83,14 +86,14 @@ class Backend:
                                 f'{razao_social.upper()} possui problemas na planilha')
 
             def giss():
-                if str(giss_login).lower().strip() not in ['ginfess cód', 'não há'] and str(giss_login) != 'nan':
-                    print(str(giss_login))
+                if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
+                    print(giss_login)
                     GissGui([razao_social, cnpj, giss_login],
                             pgdas_driver, COMPT)
 
             def ginfess():
-                if str(ginfess_link) != 'nan':
-                    DownloadGinfessGui(razao_social, cnpj, str(ginfess_cod),
+                if ginfess_link != 'nan':
+                    DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                        ginfess_link, driver=ginfess_driver, compt=COMPT)
 
             def g5():
@@ -109,7 +112,7 @@ class Backend:
 
             def dividasmail():
                 if dividas_ativas != 'não há':
-                    if str(div_envios) in ('', 'nan'):
+                    if div_envios in ('', 'nan'):
                         SendDividas(razao_social, div_envios)
 
             if specific == '':
