@@ -12,7 +12,7 @@ class Consultar(Initial):
         self.ATUAL_COMPT = get_compt(m_cont=-1) if compt is None else compt
 
         self.DADOS_PADRAO = pd.read_excel(
-            self.MAIN_FILE, sheet_name='DADOS_PADRÃO').to_dict()
+            self.MAIN_FILE, sheet_name='DADOS_PADRÃO', dtype=str).to_dict()
 # .to_html
         self.DADOS = self.__lsdv(self.DADOS_PADRAO)
 
@@ -28,7 +28,7 @@ class Consultar(Initial):
 
             if str(razao_social) == 'nan':
                 break
-            yield razao_social, self.treat_documents_values(cnpj), cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac
+            yield razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac
             cont += 1
 
     def consultar_compt(self):
@@ -48,7 +48,3 @@ class Consultar(Initial):
             except IndexError:
                 break
             cont += 1
-
-    @staticmethod
-    def treat_documents_values(arg):
-        return str(int(arg))

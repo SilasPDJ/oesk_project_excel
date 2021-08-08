@@ -193,7 +193,6 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             sleep(5)
 
     # Loga certificado do ecac, padrão
-
     def loga_cert(self):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)

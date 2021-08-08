@@ -57,6 +57,11 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
             print(f'Enviado... p/ {now_email}')
             # input('teste')
+        elif __envio not in ['S', 'OK']:
+            print(__r_social, '\033[1;32m', 'EMAIL JÁ ENVIADO', '\033[m')
+
+        else:
+            print('\033[1;31m', f'ainda não declarado, {__r_social}', '\033[m')
 
     def mail_pgdas_msg(self, client, cnpj, tipo_das, valor):
         colours = self.zlist_colours_emails()

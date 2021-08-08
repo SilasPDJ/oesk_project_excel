@@ -1,4 +1,6 @@
 
+from pgdas_fiscal_oesk.rotinas_dividas import RotinaDividas
+from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 from pgdas_fiscal_oesk.gias import GIA
@@ -34,6 +36,11 @@ class Backend:
     def __init__(self):
         pass
 
+    @staticmethod
+    def any_to_str(*args):
+        for v in args:
+            yield "".join(v)
+
     def get_data(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
@@ -44,6 +51,8 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
+
+            dividas_ativas = str(dividas_ativas).strip().lower()
 
             def pgdas():
                 print(razao_social)
@@ -89,8 +98,19 @@ class Backend:
                    valor_tot, imposto_a_calcular, compt=COMPT)
 
             def pgdasmail():
+                # Eu devo tratar o envio aqui, mas por enquanto ta la
                 PgDasmailSender(razao_social, cnpj, cpf, declarado, valor_tot,
                                 imposto_a_calcular, envio, email=email, compt=COMPT, all_valores=[])
+
+            def dividas_rotina():
+                if dividas_ativas != 'não há':
+                    RotinaDividas(razao_social, cnpj, dividas_ativas,
+                                  compt=COMPT, driver=pgdas_driver, )
+
+            def dividasmail():
+                if dividas_ativas != 'não há':
+                    if str(div_envios) in ('', 'nan'):
+                        SendDividas(razao_social, div_envios)
 
             if specific == '':
                 eval(f'{FUNC}()')
@@ -121,12 +141,18 @@ class MainApplication(tk.Frame, Backend):
         bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
             'g5', self.selected_client.get()))
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(
-            'pgdasmail', self.selected_client.get()))
+            'pgdasmail', self.selected_client.get()), bg='red')
+        bt_dividas_rotina = self.button('Rotina Dívidas', lambda: self.call_func_v2(
+            'dividas_rotina', self.selected_client.get()))
+        bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
+            'dividasmail', self.selected_client.get()), bg='red')
         self.__pack(bt_das)
         self.__pack(bt_ginfess)
         self.__pack(bt_giss)
         self.__pack(bt_g5)
         self.__pack(bt_sendpgdas)
+        self.__pack(bt_dividas_rotina)
+        self.__pack(bt_dividasmail)
 
         self.__pack(self.selected_client)
 
