@@ -200,3 +200,33 @@ class InitialSetting(Initial, Dirs, Now):
             return save
         except FileNotFoundError:
             print('NÃO CONSEGUI RETORNAR SAVE')
+
+    def first_and_last_day_compt(self, sep='/'):
+        """
+        ELE JÁ PEGA O ANTERIOR MAIS PROX
+        :param str compt:(competencia or whatever). Defaults then call cls.get_compt_only() as default
+        :param sep: separates month/year
+        # É necessario o will_be pois antes dele é botado ao contrário
+        # tipo: 20200430
+        # ano 2020, mes 04, dia 30... (exemplo)
+        :return: ÚLTIMO DIA DO MES
+        """
+        from datetime import date, timedelta
+        from dateutil.relativedelta import relativedelta
+
+        compt = self.compt
+        ill_split = ''.join([v for v in compt if v not in '0123456789'])
+        mes, ano = compt.split(ill_split)
+        mes, ano = int(mes), int(ano)
+        #  - timedelta(days=1)
+        # + relativedelta(months=1)
+
+        last_now = date(ano, mes, 1) + relativedelta(months=1)
+        last_now -= timedelta(days=1)
+        first_now = date(ano, mes, 1)
+
+        z, a = last_now, first_now
+        br1st = f'{a.day:02d}{sep}{a.month:02d}{sep}{a.year}'
+        brlast = f'{z.day:02d}{sep}{z.month:02d}{sep}{z.year}'
+        print(br1st, brlast)
+        return br1st, brlast

@@ -413,7 +413,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         if not self.compt_already_declared(self.compt):
 
             if __valor_competencia == 0:
-                self.declaracao_sem_movimento(str(__valor_competencia))
+                self.declaracao_sem_movimento(__valor_competencia)
 
             else:
 

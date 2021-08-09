@@ -227,7 +227,7 @@ class G5(InitialSetting):
         sleep(.7)
         # ativa empresa
 
-        pygui.write(self.compt_used)
+        pygui.write(self.first_and_last_day_compt('')[1])
 
         foritab(6, 'tab')  # PESQUISA
         pygui.hotkey('enter')
