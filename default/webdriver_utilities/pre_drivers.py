@@ -91,7 +91,7 @@ def default_qrcode_driver(path=''):
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
         "safebrowsing_for_trusted_sources_enabled": False,
-        "safebrowsing.enabled": False,
+        "safebrowsing.enabled": True,
         'profile.default_content_setting_values.automatic_downloads': 1
 
     })
@@ -123,7 +123,7 @@ def pgdas_driver(path=''):
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
         "safebrowsing_for_trusted_sources_enabled": False,
-        "safebrowsing.enabled": False,
+        "safebrowsing.enabled": True,
         'profile.default_content_setting_values.automatic_downloads': 1
 
     })
