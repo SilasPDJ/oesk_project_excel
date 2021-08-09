@@ -339,7 +339,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         de.click()
         self.send_keys_anywhere(Keys.BACKSPACE, 10)
         write = '01/09'
-        first, last = self.first_and_last_day_compt()
+        first, last = self.first_and_last_day_compt(self.compt)
         self.send_keys_anywhere(first)
         driver.implicitly_wait(2.5)
         self.send_keys_anywhere(Keys.TAB)

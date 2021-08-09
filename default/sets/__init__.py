@@ -201,7 +201,7 @@ class InitialSetting(Initial, Dirs, Now):
         except FileNotFoundError:
             print('NÃO CONSEGUI RETORNAR SAVE')
 
-    def first_and_last_day_compt(self, sep='/'):
+    def first_and_last_day_compt(self, compt, sep='/'):
         """
         ELE JÁ PEGA O ANTERIOR MAIS PROX
         :param str compt:(competencia or whatever). Defaults then call cls.get_compt_only() as default
