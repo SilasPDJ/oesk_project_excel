@@ -45,6 +45,7 @@ class G5(InitialSetting):
             input(registronta)
             print(__client)
             if meus_3_valores_atuais and registronta:
+                self.abre_programa('G5')
                 all_xls_inside = self.files_get_anexos_v4(
                     self.client_path, file_type='xlsx')
                 relacao_notas = all_xls_inside[0] if len(
@@ -65,29 +66,30 @@ class G5(InitialSetting):
                 """IMPORTA ITENS OU NÃO"""
                 # if 'LUCRO PRESUMIDO' in __client:
                 # aqui mais pra frente irei validar melhor SE IMPORTA ITEMS OU NÃO
-                w = pygui.getActiveWindow()
-                pygui.click(w.center)
-                pygui.move(-210, 80)  # Importar itens window 1
-                pygui.click()
-                foritab(2, 'tab')
-                pygui.hotkey('enter')
+                if 'LUCRO PRESUMIDO' in __client:
+                    w = pygui.getActiveWindow()
+                    pygui.click(w.center)
+                    pygui.move(-210, 80)  # Importar itens window 1
+                    pygui.click()
+                    foritab(2, 'tab')
+                    pygui.hotkey('enter')
 
-                # window 2, mt legal
-                sleep(2)
-                w2 = pygui.getActiveWindow()
-                pygui.click(w2.center, clicks=0)
-                pygui.move(65, -160)  # Copiar configuração da nota...?
-                pygui.click()
-                pygui.hotkey('tab', 'enter')
-                sleep(1)
-                pygui.write('1')
-                pygui.hotkey('enter')
-                foritab(15, 'tab')
-                print('Sleeping 2.5 pra enter, enter')
-                sleep(2.5)
-                foritab(2, 'enter', interval=1)
-                sleep(1)
-                pygui.hotkey('alt', 'f4')
+                    # window 2, mt legal
+                    sleep(2)
+                    w2 = pygui.getActiveWindow()
+                    pygui.click(w2.center, clicks=0)
+                    pygui.move(65, -160)  # Copiar configuração da nota...?
+                    pygui.click()
+                    pygui.hotkey('tab', 'enter')
+                    sleep(1)
+                    pygui.write('1')
+                    pygui.hotkey('enter')
+                    foritab(15, 'tab')
+                    print('Sleeping 2.5 pra enter, enter')
+                    sleep(2.5)
+                    foritab(2, 'enter', interval=1)
+                    sleep(1)
+                    pygui.hotkey('alt', 'f4')
 
                 nfcanceladas = NfCanceled(relacao_notas)
 

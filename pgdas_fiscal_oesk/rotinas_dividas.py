@@ -82,9 +82,9 @@ class RotinaDividas(InitialSetting, WDShorcuts):
             WebDriverWait(self.driver, 10).until(
                 expected_conditions.number_of_windows_to_be(3))
             driver.switch_to.window(driver.window_handles[2])
-
-            driver.execute_script(
-                "PrimeFaces.addSubmitParam('cabecalho',{'cabecalho:j_idt45':'cabecalho:j_idt45'}).submit('cabecalho');")
+            sleep(10)
+            driver.get(
+                "https://sisparnet.pgfn.fazenda.gov.br/sisparInternet/autenticacao.jsf")
             self.click_elements_by_tt('DEFERIDO E CONSOLIDADO')
             sleep(1)
             WebDriverWait(self.driver, 20).until(
