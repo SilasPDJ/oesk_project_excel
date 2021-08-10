@@ -214,7 +214,6 @@ class InitialSetting(Initial, Dirs, Now):
         from datetime import date, timedelta
         from dateutil.relativedelta import relativedelta
 
-        compt = self.compt
         ill_split = ''.join([v for v in compt if v not in '0123456789'])
         mes, ano = compt.split(ill_split)
         mes, ano = int(mes), int(ano)
