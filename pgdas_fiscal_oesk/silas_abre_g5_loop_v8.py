@@ -31,8 +31,7 @@ class G5(InitialSetting):
         __client = __r_social
         if imposto_a_calcular == 'ICMS':
             pass
-
-        elif imposto_a_calcular == 'ISS' and "ok" != nf_out.lower() != "s":
+        elif imposto_a_calcular == 'ISS':
             self.compt_used = compt
             self.client_path = self.files_pathit(__client)
 
@@ -44,7 +43,7 @@ class G5(InitialSetting):
             print(__client)
             input(registronta)
             print(__client)
-            if meus_3_valores_atuais and registronta:
+            if meus_3_valores_atuais and registronta and "ok" != nf_out.lower() != "s":
                 self.abre_programa('G5')
                 all_xls_inside = self.files_get_anexos_v4(
                     self.client_path, file_type='xlsx')

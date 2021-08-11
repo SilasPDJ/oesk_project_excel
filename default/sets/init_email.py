@@ -22,13 +22,10 @@ class EmailExecutor:
             print('You need to add an email, I recommend you use a dedicated one')
             my_email = input('\033[1;31m INPUT YOUR TEST EMAIL: ')
             my_pass = input('\033[1;31m INPUT YOUR TEST PASSWORD: \033[m')
-
-            if my_email != '' and my_pass != '':
-                with open(flpsnm, 'w') as f:
-                    f.write(f'{my_email}\n{my_pass}')
-
-            else:
-                print('nada retornado')
+            os.makedirs(os.path.dirname(flpsnm))
+            with open(flpsnm, 'w') as f:
+                f.write(f'{my_email}\n{my_pass}')
+            input(os.path.realpath(flpsnm))
         finally:
             return my_email, my_pass
 
@@ -73,7 +70,7 @@ class EmailExecutor:
         from email.header import Header
         from email import encoders
         """
-        :param w: Write 
+        :param w: Write
         :return: return written
         """
         if 'plain' != html_plain.lower().strip() != 'html':
