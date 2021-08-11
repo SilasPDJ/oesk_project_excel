@@ -83,7 +83,10 @@ class Backend:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                             compt=COMPT, driver=pgdas_driver,
                                             all_valores=all_valores)
-                        else:
+                        elif all_valores is False:
+                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                            compt=COMPT, driver=pgdas_driver)
+                        else:  # None
                             raise ValueError(
                                 f'{razao_social.upper()} possui problemas na planilha')
 

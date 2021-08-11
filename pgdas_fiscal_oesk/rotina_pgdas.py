@@ -372,7 +372,6 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, driver, all_valores=None):
 
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
-
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
         # competencia declarada
@@ -411,7 +410,6 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # declara compt de acordo com o valor
         if not self.compt_already_declared(self.compt):
-
             if __valor_competencia == 0:
                 self.declaracao_sem_movimento(__valor_competencia)
 

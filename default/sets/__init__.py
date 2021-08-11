@@ -69,7 +69,10 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot):
         # Se o valor não foi escrito, é considerado 0
 
         anx = anexo[c]
-        soma_total += float(sr) + float(cr)
+        try:
+            soma_total += float(sr) + float(cr)
+        except ValueError:
+            return False
         all_valores.append({'valor_n_retido': sr,
                             'valor_retido': cr, 'anexo': anx})
 

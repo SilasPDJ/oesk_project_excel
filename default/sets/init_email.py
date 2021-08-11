@@ -25,7 +25,6 @@ class EmailExecutor:
             os.makedirs(os.path.dirname(flpsnm))
             with open(flpsnm, 'w') as f:
                 f.write(f'{my_email}\n{my_pass}')
-            input(os.path.realpath(flpsnm))
         finally:
             return my_email, my_pass
 
