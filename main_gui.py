@@ -142,7 +142,7 @@ class MainApplication(tk.Frame, Backend):
 
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
-        bt_ginfess = self.button('Fazer GIAS', lambda: self.call_func_v2(
+        bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v2(
             'gias', self.selected_client.get()))
         bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
             'ginfess', self.selected_client.get()))
