@@ -155,7 +155,7 @@ class GIA(InitialSetting, WDShorcuts):
         [pygui.click(menuX, menuY, duration=2.5) for i in range(1)]
         sleep(2)
         pygui.hotkey('tab', 'enter', interval=.25)
-        foritab(2, 'tab')
+        pygui.hotkey('tab', 'down', 'tab')
         pygui.write(ie, interval=.1)
         foritab(2, 'tab', 'enter')
         pygui.hotkey('tab', 'tab', 'enter')

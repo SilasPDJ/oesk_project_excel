@@ -55,6 +55,8 @@ class Backend:
                 self.any_to_str(*compt_vals))
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
+            envio = envio.upper()
+            email = email.strip()
             dividas_ativas = dividas_ativas.strip().lower()
 
             def pgdas():
@@ -86,8 +88,9 @@ class Backend:
                                 f'{razao_social.upper()} possui problemas na planilha')
 
             def gias():
-                GIA(razao_social, cnpj, *ginfess_cod.split('//'),
-                    compt=COMPT, driver=pgdas_driver)
+                if imposto_a_calcular == 'LP' and ginfess_cod != 'nan':
+                    GIA(razao_social, cnpj, *ginfess_cod.split('//'),
+                        compt=COMPT, driver=pgdas_driver)
                 # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
 
             def giss():
