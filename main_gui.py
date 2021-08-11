@@ -85,6 +85,11 @@ class Backend:
                             raise ValueError(
                                 f'{razao_social.upper()} possui problemas na planilha')
 
+            def gias():
+                GIA(razao_social, cnpj, *ginfess_cod.split('//'),
+                    compt=COMPT, driver=pgdas_driver)
+                # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
+
             def giss():
                 if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
                     print(giss_login)
@@ -137,6 +142,8 @@ class MainApplication(tk.Frame, Backend):
 
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
+        bt_ginfess = self.button('Fazer GIAS', lambda: self.call_func_v2(
+            'gias', self.selected_client.get()))
         bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
             'ginfess', self.selected_client.get()))
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
@@ -150,6 +157,7 @@ class MainApplication(tk.Frame, Backend):
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
         self.__pack(bt_das)
+        self.__pack(bt_gias)
         self.__pack(bt_ginfess)
         self.__pack(bt_giss)
         self.__pack(bt_g5)
