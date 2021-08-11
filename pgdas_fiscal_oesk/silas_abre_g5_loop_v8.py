@@ -27,12 +27,12 @@ import os
 class G5(InitialSetting):
 
     def __init__(self, *args, compt):
-        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular = args
+        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out = args
         __client = __r_social
         if imposto_a_calcular == 'ICMS':
             pass
 
-        elif imposto_a_calcular == 'ISS':
+        elif imposto_a_calcular == 'ISS' and "ok" != nf_out.lower() != "s":
             self.compt_used = compt
             self.client_path = self.files_pathit(__client)
 

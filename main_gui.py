@@ -98,7 +98,7 @@ class Backend:
 
             def g5():
                 G5(razao_social, cnpj, cpf, codigo_simples,
-                   valor_tot, imposto_a_calcular, compt=COMPT)
+                   valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
