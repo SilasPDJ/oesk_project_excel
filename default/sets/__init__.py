@@ -73,8 +73,11 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot):
         all_valores.append({'valor_n_retido': sr,
                             'valor_retido': cr, 'anexo': anx})
 
-    if soma_total == valor_tot:
+    if float(soma_total) == float(valor_tot):
         return all_valores
+    else:
+        print(soma_total, type(soma_total), valor_tot, type(valor_tot))
+        print('Vou retornar None')
 
 
 class Initial:
