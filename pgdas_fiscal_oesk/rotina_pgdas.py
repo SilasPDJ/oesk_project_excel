@@ -410,6 +410,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # declara compt de acordo com o valor
         if not self.compt_already_declared(self.compt):
+            __valor_competencia = 0 if float(
+                __valor_competencia) == 0 else __valor_competencia
+
             if __valor_competencia == 0:
                 self.declaracao_sem_movimento(__valor_competencia)
 

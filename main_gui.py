@@ -17,7 +17,8 @@ from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 import tkinter as tk
 from default.interact.autocomplete_entry import AutocompleteEntry, matches
 from threading import Thread
-
+import os
+import subprocess
 
 COMPT = get_compt(-1)
 
@@ -78,7 +79,6 @@ class Backend:
                         all_valores = get_all_valores(
                             sem_ret, com_ret, anexo, valor_tot)
                         print(all_valores)
-
                         if all_valores:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                             compt=COMPT, driver=pgdas_driver,
@@ -146,6 +146,8 @@ class MainApplication(tk.Frame, Backend):
         self.selected_client = AutocompleteEntry(optmenu_data, root,
                                                  listboxLength=0, width=60, matchesFunction=matches)
 
+        bt_abre_pasta = self.button(
+            'Abre pasta de: ', self.abre_pasta, bg='lightblue')
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
         bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v2(
@@ -162,6 +164,7 @@ class MainApplication(tk.Frame, Backend):
             'dividas_rotina', self.selected_client.get()))
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
+        self.__pack(bt_abre_pasta)
         self.__pack(bt_das)
         self.__pack(bt_gias)
         self.__pack(bt_ginfess)
@@ -174,8 +177,14 @@ class MainApplication(tk.Frame, Backend):
         self.__pack(self.selected_client)
 
     # functions
-    def optmenu_value(self, _var: tk.StringVar):
-        return _var.get()
+    def abre_pasta(self):
+        folder = "\\".join(main_folder.split('/')[:-1])
+        folder = os.path.join(
+            folder, COMPT[3:], COMPT, self.selected_client.get())
+        print(folder)
+
+        subprocess.Popen(f'explorer "{folder}"')
+        self.selected_client
 
     # Elements and placements
 
