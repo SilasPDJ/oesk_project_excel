@@ -23,7 +23,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         print(a)
 
         now_email = email
-        now_email = 'silsilinhas@gmail.com'
+        # now_email = 'silsilinhas@gmail.com'
 
         if now_email == '':
             print('wtf')
@@ -87,7 +87,7 @@ sobre faturamento de {ntt('span style="background-color:yellow; color:green"', '
             {
     f'''
     <h3>
-        -> A data de vencimento do boleto é: {ntt('span' + red, self.__venc_das)}
+        -> A previsão da data de vencimento do boleto é: {ntt('span' + red, self.__venc_das)}
     </h3>
     <h4> 
         -> O arquivo do boleto contém as iniciais "{ntt('span'+red,'PGDASD-DAS')}"

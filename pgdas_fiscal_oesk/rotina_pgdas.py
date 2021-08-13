@@ -413,7 +413,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             __valor_competencia = 0 if float(
                 __valor_competencia) == 0 else __valor_competencia
 
-            if __valor_competencia == 0:
+            if float(__valor_competencia) == 0:
                 self.declaracao_sem_movimento(__valor_competencia)
 
             else:
