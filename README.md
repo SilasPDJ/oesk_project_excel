@@ -4,7 +4,7 @@
 
 - [x] Interface GUI contemplando diversas funcionalidades
 - [x] "default" package com as seguintes funcionalidade que podem ser reutilizadas por outros sistemas
-## default package
+## "default" package  
 - ### sets
   * Criação automática de diretórios (pathmanager.py)
   * Envio automático de emails (init_email.py)
