@@ -66,8 +66,9 @@ class GissGui(InitialSetting, WDShorcuts):
                     print("no alert, sem alerta, exceptado")
                     break
             for loop_compt in self.ate_atual_compt(first_compt):
-                driver.get(
-                    'https://www10.gissonline.com.br/interna/default.cfm')
+                # driver.get(
+                #     'https://www10.gissonline.com.br/interna/default.cfm')
+                driver.refresh()
                 month, year = loop_compt.split('-')
 
                 self.calls_write_date = partial(
@@ -79,6 +80,11 @@ class GissGui(InitialSetting, WDShorcuts):
                 except NoSuchElementException:
                     driver.execute_script(
                         "window.location.href=('/tomador/tomador.asp');")
+                # principal MENU frame...
+                # a = driver.find_elements_by_tag_name("iframe")[0]
+                # driver.switch_to.frame(a)
+                # driver.execute_script(
+                #     "javascript: clickTomador(); FunImg('6');")
 
                 constr = False
                 try:
@@ -138,6 +144,15 @@ class GissGui(InitialSetting, WDShorcuts):
             except (NoSuchElementException, IndexError):
                 print(
                     'Provavelmente já foi declarada... Ou tem que encerrar sem movimento')
+            except UnexpectedAlertPresentException as e:
+                # Não é possível encerrar pelo motivo in abaixo...
+                texto = e.alert_text
+                if "Empresa Não Incide I.S.S.Q.N" in texto:
+                    driver.switch_to.alert.accept()
+                    pass
+                else:
+                    raise e
+
                 # .................
         except NoSuchElementException:
             print('Exception line 140, sem PRESTADOR')

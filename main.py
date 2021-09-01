@@ -87,3 +87,5 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
         # g5 loop
 
         # G5(razao_social, cnpj, cpf, codigo_simples, valor_tot, imposto_a_calcular)
+# teste
+# Set-ExecutionPolicy AllSigned
