@@ -39,6 +39,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             # Checka o certificado ginfess, somente
 
             # if city in 'ABC':
+            self.__driver__name = driver.__name__
             self.driver = driver(self.client_path)
             super().__init__(self.driver)
             driver = self.driver
@@ -236,12 +237,13 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     self.client_path, add='GINFESS'))
             else:
                 print(__r_social)
+                driver.execute_script("javascript:location.reload();")
                 self.send_keys_anywhere(__cnpj)
                 self.send_keys_anywhere(Keys.TAB)
                 self.send_keys_anywhere(_ginfess_cod)
                 self.send_keys_anywhere(Keys.TAB)
 
-                if driver.__name__ == "pgdas_driver":
+                if self.__driver__name == "pgdas_driver":
                     press_keys_b4('f9')
                     driver.save_screenshot(self.certif_feito(
                         self.client_path, add='GINFESS'))
