@@ -148,7 +148,8 @@ class GissGui(InitialSetting, WDShorcuts):
                 # Não é possível encerrar pelo motivo in abaixo...
                 texto = e.alert_text
                 if "Empresa Não Incide I.S.S.Q.N" in texto:
-                    driver.switch_to.alert.accept()
+                    # driver.switch_to.alert.accept()
+                    # não posso aceitar pq não é encontrado
                     pass
                 else:
                     raise e

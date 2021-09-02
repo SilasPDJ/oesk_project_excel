@@ -65,7 +65,7 @@ class Backend:
 
                 if declarado.upper() != 'S' and declarado != 'OK':
                     print(declarado, valor_tot, imposto_a_calcular)
-                    if valor_tot == 0 or valor_tot == 'nan':
+                    if float(valor_tot) == 0 or valor_tot == 'nan':
                         if imposto_a_calcular == 'SEM_MOV':
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                             compt=COMPT, driver=pgdas_driver)
@@ -106,6 +106,11 @@ class Backend:
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                        ginfess_link, driver=ginfess_driver, compt=COMPT)
+
+            def ginfess_show():
+                if ginfess_link != 'nan':
+                    DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
+                                       ginfess_link, driver=pgdas_driver, compt=COMPT)
 
             def g5():
                 G5(razao_social, cnpj, cpf, codigo_simples,
@@ -154,6 +159,8 @@ class MainApplication(tk.Frame, Backend):
             'gias', self.selected_client.get()))
         bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
             'ginfess', self.selected_client.get()))
+        bt_ginfess_show = self.button('Fazer Ginfess Interface', lambda: self.call_func_v2(
+            'ginfess_show', self.selected_client.get()), bg="gray")
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
         bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
@@ -168,6 +175,7 @@ class MainApplication(tk.Frame, Backend):
         self.__pack(bt_das)
         self.__pack(bt_gias)
         self.__pack(bt_ginfess)
+        self.__pack(bt_ginfess_show)
         self.__pack(bt_giss)
         self.__pack(bt_g5)
         self.__pack(bt_sendpgdas)

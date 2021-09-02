@@ -235,15 +235,17 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 self.driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
             else:
-
+                print(__r_social)
                 self.send_keys_anywhere(__cnpj)
                 self.send_keys_anywhere(Keys.TAB)
                 self.send_keys_anywhere(_ginfess_cod)
                 self.send_keys_anywhere(Keys.TAB)
 
-                press_keys_b4('f9')
-                driver.save_screenshot(self.certif_feito(
-                    self.client_path, add='GINFESS'))
+                if driver.__name__ == "pgdas_driver":
+                    press_keys_b4('f9')
+                    driver.save_screenshot(self.certif_feito(
+                        self.client_path, add='GINFESS'))
+
             [(print(f'Sleeping before close {i}'), sleep(1))
              for i in range(5, -1, -1)]
 
@@ -581,7 +583,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
                 import pytesseract
                 from PIL import Image
-                pytesseract.pytesseract.tesseract_cmd = r"J:\NEVER\tesseract.exe"
+                pytesseract.pytesseract.tesseract_cmd = r"O:\NEVER\tesseract.exe"
                 r = img_name
                 text = pytesseract.image_to_string(r)
                 print(text)
