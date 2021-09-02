@@ -528,6 +528,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         redFill = PatternFill(start_color='FFFF0000',
                               end_color='FFFF0000',
                               fill_type='solid')
+        #  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        with_class.insert(0, '')
         for table, row in zip(with_class, ws['A']):
             if 'notaCancelada' in table:
                 row.fill = redFill
