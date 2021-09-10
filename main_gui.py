@@ -65,16 +65,10 @@ class Backend:
 
                 if declarado.upper() != 'S' and declarado != 'OK':
                     print(declarado, valor_tot, imposto_a_calcular)
-                    if float(valor_tot) == 0 or valor_tot == 'nan':
-                        if imposto_a_calcular == 'SEM_MOV':
-                            PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                            compt=COMPT, driver=pgdas_driver)
-                        elif imposto_a_calcular == 'LP' and ginfess_cod != 'nan':
-                            # GIA
-                            GIA(razao_social, cnpj, *ginfess_cod.split('//'),
-                                compt=COMPT, driver=pgdas_driver)
-                        else:
-                            print('passed', razao_social)
+                    if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
+                        # if imposto_a_calcular == 'SEM_MOV':
+                        PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                        compt=COMPT, driver=pgdas_driver)
                     elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                         all_valores = get_all_valores(
                             sem_ret, com_ret, anexo, valor_tot)
