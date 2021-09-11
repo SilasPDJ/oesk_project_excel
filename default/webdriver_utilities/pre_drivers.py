@@ -136,6 +136,39 @@ def pgdas_driver(path=''):
     return driver
 
 
+def pgdas_driver_ua(path=''):
+    """
+    :param path: default path atual
+    :return: o driver para fechar no loop
+    """
+    from user_agent import generate_user_agent as random
+    user_agent = random()
+    chrome_options = Options()
+    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--verbose')
+    # profile chrome_options.add_argument("user-data-dir=C:\\Users\\AtechM_03\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 2")
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_experimental_option("prefs", {
+        "download.default_directory": path,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing_for_trusted_sources_enabled": False,
+        "safebrowsing.enabled": True,
+        'profile.default_content_setting_values.automatic_downloads': 1
+
+    })
+    chrome_options.add_argument(f'user-agent={user_agent}')
+
+    chromedriver = link
+    # real_path_for_chromedriver()
+    # vindo do ginfess_driver [magic]
+    driver = webdriver.Chrome(
+        executable_path=chromedriver, options=chrome_options)
+    return driver
+
+
 def ginfess_driver(path=''):
     """
     :param path: default path atual

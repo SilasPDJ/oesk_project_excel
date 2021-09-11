@@ -4,14 +4,14 @@ from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 from pgdas_fiscal_oesk.gias import GIA
-from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
 from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
 
 from default.sets import get_all_valores
 
-# from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
-from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao
+from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
+# from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
@@ -69,18 +69,18 @@ class Backend:
                     if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
                         # if imposto_a_calcular == 'SEM_MOV':
                         PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                        compt=COMPT, driver=pgdas_driver)
+                                        compt=COMPT, driver=pgdas_driver_ua)
                     elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                         all_valores = get_all_valores(
                             sem_ret, com_ret, anexo, valor_tot)
                         print(all_valores)
                         if all_valores:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                            compt=COMPT, driver=pgdas_driver,
+                                            compt=COMPT, driver=pgdas_driver_ua,
                                             all_valores=all_valores)
                         elif all_valores is False:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                            compt=COMPT, driver=pgdas_driver)
+                                            compt=COMPT, driver=pgdas_driver_ua)
                         else:  # None
                             raise ValueError(
                                 f'{razao_social.upper()} possui problemas na planilha')
