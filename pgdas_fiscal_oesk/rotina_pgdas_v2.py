@@ -197,9 +197,21 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)
         """
+        from random import randint, uniform
         import pyautogui as pygui
         from time import sleep
+        from functools import partial
+
+        __ = partial(uniform, 1.01, 1.99)
+        randsleep = partial(uniform, 1.01, 2.99)
+        def randsleep2(n1, n2): return uniform(n1, n2)
+        # from selenium.webdriver import Chrome
+
         driver = self.driver
+        # driver.set_window_position(1912, -8)
+        pos = (1912, -8), (0, 0), (0, 0)
+        driver.set_window_position(*pos[randint(0, 1)])
+        driver.set_window_size(randint(900, 1350), randint(550, 1000))
 
         driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
 
@@ -207,28 +219,28 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
 
         print('ativando janela acima, logando certificado abaixo, linhas 270')
-        sleep(5)
+        sleep(randsleep2(5, 7))
 
         a = pygui.getWindowsWithTitle('gov.br - Acesse sua conta')[0]
-        pygui.click(a.center, clicks=0)
-        pygui.move(100, 140)
+        pygui.click(a.center, clicks=0, interval=randsleep())
+        pygui.move(100, 140, duration=randsleep())
         pygui.click()
-        pygui.move(0, -300)
+        pygui.move(0, -300, duration=randsleep())
         print('sleep')
-        sleep(2.5)
-        pygui.click(duration=.5)
-
+        sleep(randsleep())
+        pygui.click(duration=randsleep())
+        sleep(duration=randsleep())
         driver.back()
-        WebDriverWait(driver, 30).until(
+        sleep(randsleep())
+        WebDriverWait(driver, randsleep2(20, 30)).until(
             expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital'))).click()
-
-        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-        driver.implicitly_wait(10)
-        driver.find_elements_by_tag_name("img")[1].click()
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
+        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+        driver.implicitly_wait(10)
+        driver.find_elements_by_tag_name("img")[1].click()
 
         def elem_with_text(elem, searched):
             _tag = driver.find_element_by_xpath(
@@ -370,8 +382,11 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, driver, all_valores=None):
+        new_args = args[0]
+        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = new_args
 
-        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
+        # Só vou poder usar certificado com certificado............................
+
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
         # competencia declarada
@@ -381,18 +396,16 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
         # drivers declarados
-        self.driver = driver
-
+        self.driver = driver(self.client_path)
         # self.driver.maximize_window()
 
         # self.driver.maximize_window;()
         super().__init__(self.driver, self.compt)
-        self.enable_download_in_headless_chrome(self.client_path)
         [print('\033[1;33m', __cod_simples, '\033[m')for i in range(10)]
 
         if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
-
-            self.loga_cert()
+            if new_args == args[0]:
+                self.loga_cert()
             self.change_ecac_client(__cnpj)
         else:
             self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
@@ -409,7 +422,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # loga e digita competencia de acordo com o BD
         self.compt_typist(self.compt)
-        input('teste')
+
         # declara compt de acordo com o valor
         if not self.compt_already_declared(self.compt):
             __valor_competencia = 0 if float(
