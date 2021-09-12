@@ -167,6 +167,7 @@ class WDShorcuts:
         :param download_dir: where do you want to download it?
         :return: change download_dir any moment during driver execution
         """
+        download_dir = download_dir.replace('/', '\\')
         driver = self.__arg_driver
         # add missing support for chrome "send_command"  to selenium webdriver
         driver.command_executor._commands["send_command"] = (

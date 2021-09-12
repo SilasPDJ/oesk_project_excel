@@ -1,4 +1,5 @@
 # dale
+from random import randint
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
@@ -197,42 +198,52 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)
         """
+        from win10toast import ToastNotifier
+        driver = self.driver
+        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+
+        toaster = ToastNotifier()
+        toaster.show_toast(
+            "PGDAS ECAC", "Faça login uma vez e o resto deixa comigo! Pressione F9 para continuar", duration=10)
+        print('PRESSIONE F9 para continuar')
+
+        press_key_b4('f9')
+
         from random import randint, uniform
-        import pyautogui as pygui
-        from time import sleep
         from functools import partial
-        from threading import Thread
+        # import pyautogui as pygui
+        from time import sleep
+        # from threading import Thread
 
         __ = partial(uniform, 1.01, 1.99)
         randsleep = partial(uniform, 1.01, 2.99)
         def randsleep2(n1, n2): return uniform(n1, n2)
-        from selenium.webdriver import Chrome
+        # from selenium.webdriver import Chrome
 
-        driver = self.driver
-        # driver.set_window_position(1912, -8)
-        pos = (1912, -8), (0, 0), (0, 0)
-        driver.set_window_position(*pos[randint(0, 1)])
-        driver.set_window_size(randint(900, 1350), randint(550, 1000))
+        # # driver.set_window_position(1912, -8)
+        # pos = (1912, -8), (0, 0), (0, 0)
+        # driver.set_window_position(*pos[randint(0, 1)])
+        # driver.set_window_size(randint(900, 1350), randint(550, 1000))
 
-        driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
-        # 17bd6f43454
-        initial = WebDriverWait(driver, 30).until(
-            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'T')
-        sleep(2)
-        make_login = initial.get_attribute("href")
-        driver.maximize_window()
-        driver.execute_script("window.open()")
-        driver.switch_to.window(driver.window_handles[1])
-        a = Thread(target=lambda: driver.get(make_login))
-        a.start()
-        sleep(randsleep2(0.71, 2.49))
-        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
-         for i in range(3)]
-        pygui.hotkey('ctrl', 'w')
-        # driver.close()
-        driver.switch_to.window(driver.window_handles[0])
-        initial.click()
+        # driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
+        # # 17bd6f43454
+        # initial = WebDriverWait(driver, 30).until(
+        #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
+        # driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'T')
+        # sleep(2)
+        # make_login = initial.get_attribute("href")
+        # driver.maximize_window()
+        # driver.execute_script("window.open()")
+        # driver.switch_to.window(driver.window_handles[1])
+        # a = Thread(target=lambda: driver.get(make_login))
+        # a.start()
+        # sleep(randsleep2(0.71, 2.49))
+        # [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
+        #  for i in range(3)]
+        # pygui.hotkey('ctrl', 'w')
+        # # driver.close()
+        # driver.switch_to.window(driver.window_handles[0])
+        # initial.click()
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(randsleep2(3, 7))
         driver.get("https://cav.receita.fazenda.gov.br/ecac/")
@@ -243,9 +254,13 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
-        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-        driver.implicitly_wait(10)
-        driver.find_elements_by_tag_name("img")[1].click()
+
+        for i in range(2):
+            driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+            driver.implicitly_wait(10)
+
+            driver.find_elements_by_tag_name("img")[1].click()
+            sleep(randint(3, 5))
 
         def elem_with_text(elem, searched):
             _tag = driver.find_element_by_xpath(
@@ -389,31 +404,24 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, driver):
         for __cli__ in args:
             __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac, all_valores = __cli__
-
-            # Só vou poder usar certificado com certificado............................
-
-            # __anexo,  __valor_n_ret, __valor_ret, already_declared
-
-            # competencia declarada
             self.compt = compt
 
             self.client_path = self.files_pathit(
                 __r_social.strip(), self.compt)
-            # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
             # drivers declarados
-            self.driver = driver(self.client_path)
-            # self.driver.maximize_window()
-
-            # self.driver.maximize_window;()
-            super().__init__(self.driver, self.compt)
             [print('\033[1;33m', __cod_simples, '\033[m')for i in range(10)]
 
             if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
                 if __cli__ == args[0]:
+                    self.driver = driver()
+                    super().__init__(self.driver, self.compt)
+                    self.enable_download_in_headless_chrome(self.client_path)
                     self.loga_cert()
                 self.change_ecac_client(__cnpj)
             else:
+                self.driver = driver(self.client_path)
+                super().__init__(self.driver, self.compt)
                 self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
             if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
                 print("pressione f9 para continuar")

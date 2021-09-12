@@ -1,6 +1,8 @@
 # import pgdas_fiscal_oesk
 # from pgdas_fiscal_oesk import rotina_pgdas
 
+from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
+from default.webdriver_utilities.wbs import WDShorcuts
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import get_compt
@@ -85,5 +87,21 @@ list_ecac, list_normal = pgdas()
 
 PgdasDeclaracao(*list_ecac, compt=COMPT, driver=pgdas_driver)
 
-input(list_ecac)
-input(list_normal)
+
+# PgdasDeclaracao(*list_normal, compt=COMPT, driver=pgdas_driver)
+
+
+# driver = pgdas_driver()
+# wds = WDShorcuts(driver)
+# wds.enable_download_in_headless_chrome('O:/OneDrive/_FISCAL-2021')
+# driver.get(
+#     'file:///O:/OneDrive/Imagens/Saxofone%20soprano%20151%20HC%20-%20S.%20B.pdf')
+
+# input('teste')
+# wds.enable_download_in_headless_chrome('O:\HACKING')
+
+# input('teste 2')
+
+
+# input(list_ecac)
+# input(list_normal)
