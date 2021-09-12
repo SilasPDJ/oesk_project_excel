@@ -201,11 +201,12 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         import pyautogui as pygui
         from time import sleep
         from functools import partial
+        from threading import Thread
 
         __ = partial(uniform, 1.01, 1.99)
         randsleep = partial(uniform, 1.01, 2.99)
         def randsleep2(n1, n2): return uniform(n1, n2)
-        # from selenium.webdriver import Chrome
+        from selenium.webdriver import Chrome
 
         driver = self.driver
         # driver.set_window_position(1912, -8)
@@ -214,26 +215,30 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver.set_window_size(randint(900, 1350), randint(550, 1000))
 
         driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
-
+        # 17bd6f43454
         initial = WebDriverWait(driver, 30).until(
             expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-
+        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'T')
+        sleep(2)
+        make_login = initial.get_attribute("href")
+        driver.maximize_window()
+        driver.execute_script("window.open()")
+        driver.switch_to.window(driver.window_handles[1])
+        a = Thread(target=lambda: driver.get(make_login))
+        a.start()
+        sleep(randsleep2(0.71, 2.49))
+        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
+         for i in range(3)]
+        pygui.hotkey('ctrl', 'w')
+        # driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        initial.click()
         print('ativando janela acima, logando certificado abaixo, linhas 270')
-        sleep(randsleep2(5, 7))
-
-        a = pygui.getWindowsWithTitle('gov.br - Acesse sua conta')[0]
-        pygui.click(a.center, clicks=0, interval=randsleep())
-        pygui.move(100, 140, duration=randsleep())
-        pygui.click()
-        pygui.move(0, -300, duration=randsleep())
-        print('sleep')
-        sleep(randsleep())
-        pygui.click(duration=randsleep())
-        sleep(duration=randsleep())
-        driver.back()
-        sleep(randsleep())
-        WebDriverWait(driver, randsleep2(20, 30)).until(
-            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital'))).click()
+        sleep(randsleep2(3, 7))
+        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+        sleep(randsleep2(3, 7))
+        # driver.execute_script("validarRecaptcha('frmLoginCert')")
+        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
@@ -381,63 +386,64 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
-    def __init__(self, *args, compt, driver, all_valores=None):
-        new_args = args[0]
-        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = new_args
+    def __init__(self, *args, compt, driver):
+        for __cli__ in args:
+            __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac, all_valores = __cli__
 
-        # Só vou poder usar certificado com certificado............................
+            # Só vou poder usar certificado com certificado............................
 
-        # __anexo,  __valor_n_ret, __valor_ret, already_declared
+            # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
-        # competencia declarada
-        self.compt = compt
+            # competencia declarada
+            self.compt = compt
 
-        self.client_path = self.files_pathit(__r_social.strip(), self.compt)
-        # self.client_path = self.pathit(self.compt, main_path, __r_social)
+            self.client_path = self.files_pathit(
+                __r_social.strip(), self.compt)
+            # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
-        # drivers declarados
-        self.driver = driver(self.client_path)
-        # self.driver.maximize_window()
+            # drivers declarados
+            self.driver = driver(self.client_path)
+            # self.driver.maximize_window()
 
-        # self.driver.maximize_window;()
-        super().__init__(self.driver, self.compt)
-        [print('\033[1;33m', __cod_simples, '\033[m')for i in range(10)]
+            # self.driver.maximize_window;()
+            super().__init__(self.driver, self.compt)
+            [print('\033[1;33m', __cod_simples, '\033[m')for i in range(10)]
 
-        if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
-            if new_args == args[0]:
-                self.loga_cert()
-            self.change_ecac_client(__cnpj)
-        else:
-            self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
-        if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
-            print("pressione f9 para continuar")
-            press_keys_b4("f9")
-            try:
-                self.driver.find_element_by_name(
-                    "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
-            except NoSuchElementException:
-                self.driver.refresh
-        self.current_url = self.driver.current_url
-        self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
+            if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
+                if __cli__ == args[0]:
+                    self.loga_cert()
+                self.change_ecac_client(__cnpj)
+            else:
+                self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
+            if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
+                print("pressione f9 para continuar")
+                press_keys_b4("f9")
+                try:
+                    self.driver.find_element_by_name(
+                        "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
+                except NoSuchElementException:
+                    self.driver.refresh
+            self.current_url = self.driver.current_url
+            self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
 
-        # loga e digita competencia de acordo com o BD
-        self.compt_typist(self.compt)
+            # loga e digita competencia de acordo com o BD
+            self.compt_typist(self.compt)
 
-        # declara compt de acordo com o valor
-        if not self.compt_already_declared(self.compt):
-            __valor_competencia = 0 if float(
-                __valor_competencia) == 0 else __valor_competencia
+            # declara compt de acordo com o valor
+            if not self.compt_already_declared(self.compt):
+                __valor_competencia = 0 if float(
+                    __valor_competencia) == 0 else __valor_competencia
 
-            if float(__valor_competencia) == 0:
-                self.declaracao_sem_movimento(__valor_competencia)
+                if float(__valor_competencia) == 0:
+                    self.declaracao_sem_movimento(__valor_competencia)
+
+                else:
+
+                    self.declaracao_anexos(
+                        all_valores, __valor_competencia, __cnpj)
 
             else:
-
-                self.declaracao_anexos(
-                    all_valores, __valor_competencia, __cnpj)
-
-        else:
-            print('is already declared')
+                print('is already declared')
 
     def declaracao_sem_movimento(self, valor_zerado):
         driver = self.driver
