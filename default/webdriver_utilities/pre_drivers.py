@@ -142,7 +142,7 @@ def pgdas_driver_ua(path=''):
     :return: o driver para fechar no loop
     """
     from user_agent import generate_user_agent as random
-    user_agent = random()
+    # user_agent = random()
     chrome_options = Options()
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
@@ -159,7 +159,7 @@ def pgdas_driver_ua(path=''):
         'profile.default_content_setting_values.automatic_downloads': 1
 
     })
-    chrome_options.add_argument(f'user-agent={user_agent}')
+    # chrome_options.add_argument(f'user-agent={user_agent}')
 
     chromedriver = link
     # real_path_for_chromedriver()

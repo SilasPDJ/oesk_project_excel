@@ -239,7 +239,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver.get("https://cav.receita.fazenda.gov.br/ecac/")
         sleep(randsleep2(3, 7))
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
-        self.find
+        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""

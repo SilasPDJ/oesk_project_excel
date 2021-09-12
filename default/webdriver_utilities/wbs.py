@@ -73,10 +73,11 @@ class WDShorcuts:
         action = ActionChains(driver=driver)
 
         for e, arg in enumerate(args):
-            if tortil == 'title':
-                elem = self.contains_title(arg)
-            else:
+            if tortil == 'text':
                 elem = self.contains_text(arg)
+
+            else:
+                elem = self.contains_title(arg, ta=tortil)
 
             x, y = xy = elem.location.values()
             action.move_to_element(elem)
@@ -96,9 +97,9 @@ class WDShorcuts:
         el = driver.find_element_by_xpath(f'//*[contains(text(),"{item}")]')
         return el
 
-    def contains_title(self, item):
+    def contains_title(self, item, ta='title'):
         driver = self.__arg_driver
-        el = driver.find_element_by_css_selector(f"[title*='{item}']")
+        el = driver.find_element_by_css_selector(f"[{ta}*='{item}']")
         return el
 
     def tags_wait(self, *tags):
