@@ -248,18 +248,15 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         sleep(randsleep2(3, 7))
         driver.get("https://cav.receita.fazenda.gov.br/ecac/")
         sleep(randsleep2(3, 7))
-        # driver.execute_script("validarRecaptcha('frmLoginCert')")
-        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        # self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
 
-        for i in range(2):
+        for i in range(randint(1, 2)):
             driver.get("https://cav.receita.fazenda.gov.br/ecac/")
             driver.implicitly_wait(10)
-
-            driver.find_elements_by_tag_name("img")[1].click()
             sleep(randint(3, 5))
 
         def elem_with_text(elem, searched):
@@ -399,6 +396,12 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         else:
             return True
 
+    def sair_com_seguranca(self):
+        self.driver.get('https://cav.receita.fazenda.gov.br/ecac/')
+        self.webdriverwait_by_id('sairSeguranca').click()
+        self.driver.close()
+        self.driver.quit()
+
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, driver):
@@ -452,6 +455,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
             else:
                 print('is already declared')
+                
+        self.sair_com_seguranca()
 
     def declaracao_sem_movimento(self, valor_zerado):
         driver = self.driver
