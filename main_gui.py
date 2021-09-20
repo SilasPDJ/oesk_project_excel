@@ -124,7 +124,8 @@ class Backend:
             def dividasmail():
                 if dividas_ativas != 'não há':
                     if div_envios in ('', 'nan'):
-                        SendDividas(razao_social, div_envios)
+                        SendDividas(razao_social, div_envios,
+                                    email=email, compt=COMPT)
 
             if specific == '':
                 eval(f'{FUNC}()')

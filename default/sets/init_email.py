@@ -47,6 +47,8 @@ class EmailExecutor:
             server.login(sm, sp)
             envia_mail = MIMEMultipart('mixed')
             envia_mail['Subject'] = Header(header, 'utf-8')
+            envia_mail['To'] = to
+
             envia_mail.attach(attached_msg)
             if pdf_files is not None:
                 for pdf in pdf_files:

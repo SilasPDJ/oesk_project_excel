@@ -19,7 +19,7 @@ class SendDividas(EmailExecutor, InitialSetting):
         dividas_pdf_files = self.files_get_anexos_v4(
             self.client_path, file_type='pdf',  upload=False)
         qtd_arquivos = len(dividas_pdf_files)
-        mail_header = f"com vencimento previsto para o dia: {self.venc_boletos.replace('-', '/')}"
+        mail_header = f"com vencimento previsto para o dia: {self.venc_boletos().replace('-', '/')}"
 
         mail_header = mail_header.replace('30', '31')
 
