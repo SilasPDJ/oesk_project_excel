@@ -54,6 +54,7 @@ class Backend:
     def full_pgdas(self):
         LIST_ECAC = []
         LIST_NORMAL = []
+        SEM_MOV_ONLY = {"simples": [], "ecac": []}
 
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
@@ -63,6 +64,7 @@ class Backend:
             envio = envio.upper()
             email = email.strip()
             dividas_ativas = dividas_ativas.strip().lower()
+            proc_ecac = proc_ecac.lower()
 
             print(razao_social)
 
@@ -87,16 +89,29 @@ class Backend:
 
             if declarado.upper() != 'S' and declarado != 'OK':
                 print(declarado, valor_tot, imposto_a_calcular)
+                # float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan'] or...
+                # não há certeza de quem das outras planilhas ta sem mov
+                if imposto_a_calcular == "SEM_MOV":
+                    if proc_ecac == "sim":
+                        append_me(SEM_MOV_ONLY['ecac'])
+                    else:
+                        append_me(SEM_MOV_ONLY['simples'])
 
-                if proc_ecac.lower() == "sim":
+                elif proc_ecac == "sim":
                     append_me(LIST_ECAC)
+
                 else:
                     append_me(LIST_NORMAL)
 
             # PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
             #             compt=COMPT, driver=pgdas_driver)
             # Não tem mais arg all_valores (está embutido)
-        full = LIST_NORMAL + LIST_ECAC
+
+        SEM_MOV_ONLY['simples']
+
+        full = SEM_MOV_ONLY['simples'] + \
+            SEM_MOV_ONLY['ecac'] + LIST_NORMAL + LIST_ECAC
+
         # return LIST_ECAC, LIST_NORMAL
         return full
         # PgdasDeclaracao(*list_ecac, compt=COMPT, driver=pgdas_driver)
