@@ -11,7 +11,7 @@ from pgdas_fiscal_oesk import Consultar
 from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
-# from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao
+from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao as PgdasDeclaracaoFull
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
@@ -50,6 +50,58 @@ class Backend:
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             yield __razao_social
+
+    def full_pgdas(self):
+        LIST_ECAC = []
+        LIST_NORMAL = []
+
+        for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+                self.any_to_str(*compt_vals))
+            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                self.any_to_str(*geral))
+            envio = envio.upper()
+            email = email.strip()
+            dividas_ativas = dividas_ativas.strip().lower()
+
+            print(razao_social)
+
+            def append_me(obj_list):
+                if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
+                    # if imposto_a_calcular == 'SEM_MOV':
+                    obj_list.append((razao_social, cnpj, cpf,
+                                    codigo_simples, valor_tot, proc_ecac, None))
+                elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
+                    all_valores = get_all_valores(
+                        sem_ret, com_ret, anexo, valor_tot)
+
+                    if all_valores:
+                        obj_list.append(
+                            (razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac, all_valores))
+                    elif all_valores is False:
+                        obj_list.append((razao_social, cnpj, cpf,
+                                        codigo_simples, valor_tot, proc_ecac, None))
+                    else:  # None
+                        raise ValueError(
+                            f'{razao_social.upper()} possui problemas na planilha')
+
+            if declarado.upper() != 'S' and declarado != 'OK':
+                print(declarado, valor_tot, imposto_a_calcular)
+
+                if proc_ecac.lower() == "sim":
+                    append_me(LIST_ECAC)
+                else:
+                    append_me(LIST_NORMAL)
+
+            # PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+            #             compt=COMPT, driver=pgdas_driver)
+            # Não tem mais arg all_valores (está embutido)
+        full = LIST_NORMAL + LIST_ECAC
+        # return LIST_ECAC, LIST_NORMAL
+        return full
+        # PgdasDeclaracao(*list_ecac, compt=COMPT, driver=pgdas_driver)
+
+        # list_ecac, list_normal = full_pgdas()
 
     def call_func_v2(self, FUNC, specific=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
@@ -95,12 +147,12 @@ class Backend:
                 if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
                     print(giss_login)
                     GissGui([razao_social, cnpj, giss_login],
-                            pgdas_driver, COMPT)
+                            ginfess_driver, COMPT)
 
             def ginfess():
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                                       ginfess_link, driver=ginfess_driver, compt=COMPT)
+                                       ginfess_link, driver=pgdas_driver, compt=COMPT)
 
             def ginfess_show():
                 if ginfess_link != 'nan':
@@ -151,6 +203,11 @@ class MainApplication(tk.Frame, Backend):
             'Abre pasta de: ', self.abre_pasta, bg='lightblue')
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
+        bt_das_full = self.button('Gerar PGDAS FULL', lambda:
+                                  PgdasDeclaracaoFull(
+                                      *self.full_pgdas(), compt=COMPT, driver=pgdas_driver),
+                                  bg='darkgray')
+
         bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v2(
             'gias', self.selected_client.get()))
         bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
@@ -169,6 +226,7 @@ class MainApplication(tk.Frame, Backend):
             'dividasmail', self.selected_client.get()), bg='red')
         self.__pack(bt_abre_pasta)
         self.__pack(bt_das)
+        self.__pack(bt_das_full)
         self.__pack(bt_gias)
         self.__pack(bt_ginfess)
         self.__pack(bt_ginfess_show)

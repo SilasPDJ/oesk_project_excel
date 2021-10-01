@@ -244,6 +244,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 self.send_keys_anywhere(Keys.TAB)
 
                 if self.__driver__name == "pgdas_driver":
+                    from win10toast import ToastNotifier
+                    ToastNotifier().show_toast("Pressione F9 para continuar", duration=10)
+
                     press_keys_b4('f9')
                     driver.save_screenshot(self.certif_feito(
                         self.client_path, add='GINFESS'))
