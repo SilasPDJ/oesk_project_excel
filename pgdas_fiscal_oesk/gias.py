@@ -53,8 +53,6 @@ class GIA(InitialSetting, WDShorcuts):
         # pygui.hotkey('alt', 'tab')
         print(IE)
         #
-        self._client_path = self.files_pathit('GIA_' + __r_social)
-        _client_path = self._client_path
 
         try:
             fecha_janela_contribuintes_gia()
@@ -76,9 +74,9 @@ class GIA(InitialSetting, WDShorcuts):
         self.save_novagia_pdf()
 
         # if certificado...
-        if True:
+        if not self.certifs_exist('GiaScreenShoot', 1):
 
-            self.driver = driver(_client_path)
+            self.driver = driver(self.client_path)
             driver = self.driver
             super().__init__(self.driver)
             driver.get(
@@ -130,8 +128,8 @@ class GIA(InitialSetting, WDShorcuts):
 
     def save_save_img2pdf(self):
         from PIL import Image
-        path1 = f'{self._client_path}/GiaScreenShoot.png'
-        path2 = f'{self._client_path}/Recibo_{self.compt_used}.pdf'
+        path1 = f'{self.client_path}/GiaScreenShoot.png'
+        path2 = f'{self.client_path}/Recibo_{self.compt_used}.pdf'
         self.driver.save_screenshot(path1)
         image1 = Image.open(path1)
         try:
@@ -145,7 +143,7 @@ class GIA(InitialSetting, WDShorcuts):
         pathinit = r'C:\Users\user\Documents\SEFAZ\GIA\TNormal'
         pathinit += f'\\{os.listdir(pathinit)[0]}'
         # copy(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal\{}".format(os.listdir(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal")[0]), r"C:\Users\user\OneDrive\_FISCAL-2021\2021\01-2021\GIA_Tharles Marli")
-        copy(pathinit, self._client_path)
+        copy(pathinit, self.client_path)
 
     def pt1_gia_software(self, ie, cpt_write):
         cpt_write = "".join(cpt_write.split('-'))
@@ -155,7 +153,7 @@ class GIA(InitialSetting, WDShorcuts):
         [pygui.click(menuX, menuY, duration=2.5) for i in range(1)]
         sleep(2)
         pygui.hotkey('tab', 'enter', interval=.25)
-        pygui.hotkey('tab', 'down', 'tab')
+        pygui.hotkey('tab', 'tab')
         pygui.write(ie, interval=.1)
         foritab(2, 'tab', 'enter')
         pygui.hotkey('tab', 'tab', 'enter')
@@ -168,7 +166,7 @@ class GIA(InitialSetting, WDShorcuts):
 
     def clieninput_filepath(self, filetype='sfz'):
 
-        dir_searched_now = self._client_path
+        dir_searched_now = self.client_path
         file = [os.path.join(dir_searched_now, fname) for fname in os.listdir(
             dir_searched_now) if fname.lower().endswith(filetype)]
 
@@ -231,3 +229,18 @@ class GIA(InitialSetting, WDShorcuts):
         return p1path
 
         # CONTMATIC_PATH = p1path + r'\Microsoft\Windows\Start Menu\Programs\Contmatic Phoenix'
+
+    # def gerar_cert(self, arq):
+    #     import os
+    #     save = os.path.join(self.client_path, arq)
+    #     self.driver.save_screenshot(save)
+
+    def certifs_exist(self, startswith, at_least=2):
+        arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
+        arqs_search = [
+            self.path_leaf(f, True) for f in arqs_search]
+        arqs_search = [f for f in arqs_search if f.startswith(startswith)]
+
+        if len(arqs_search) >= at_least:
+            return True
+        return False
