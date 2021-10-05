@@ -91,6 +91,7 @@ class Backend:
                 print(declarado, valor_tot, imposto_a_calcular)
                 # float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan'] or...
                 # não há certeza de quem das outras planilhas ta sem mov
+                # mas isso não é uma coisa que interfere
                 if imposto_a_calcular == "SEM_MOV":
                     if proc_ecac == "sim":
                         append_me(SEM_MOV_ONLY['ecac'])
@@ -154,7 +155,7 @@ class Backend:
 
             def gias():
                 if imposto_a_calcular == 'LP' and ginfess_cod != 'nan':
-                    GIA(razao_social, cnpj, *ginfess_cod.split('//'),
+                    GIA(razao_social, proc_ecac.replace('.', ''), *ginfess_cod.split('//'),
                         compt=COMPT, driver=pgdas_driver)
                 # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
 
