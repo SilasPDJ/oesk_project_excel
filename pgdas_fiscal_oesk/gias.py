@@ -18,6 +18,7 @@ possible = ['GIA']
 
 
 class GIA(InitialSetting, WDShorcuts):
+    OPENED = False
 
     def __init__(self, *args, compt, driver):
 
@@ -33,7 +34,6 @@ class GIA(InitialSetting, WDShorcuts):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
         # drivers declarados
-        self.driver = driver(self.client_path)
         menuX, menuY = 20, 27
 
         def fecha_janela_contribuintes_gia():
@@ -42,39 +42,42 @@ class GIA(InitialSetting, WDShorcuts):
             pygui.hotkey('left', 'enter')
         # self.GIA()
 
-        #
-        # mudei do for pra ca
-        self.abre_programa(self.get_env_for_path(
-            '\\Desktop\\GIA.exe'), path=True)
-
-        IE = __cnpj
-        my_print = login
-        print(my_print)
-        # pygui.hotkey('alt', 'tab')
-        print(IE)
-        #
-
-        try:
-            fecha_janela_contribuintes_gia()
-        except IndexError:
-            print('Não precisei fechar')
-        self.pt1_gia_software(IE, self.compt_used)
-
-        pygui.doubleClick(menuX+35, menuY)
-        # consistir
-        sleep(3)
-        pygui.click(menuX, menuY)
-        sleep(.5)
-        foritab(2, 'up')
-        pygui.hotkey('enter')
-        pygui.click(x=836, y=394)
-        foritab(7, 'tab')
-        pygui.hotkey('enter', 'enter', interval=.25)
-        pygui.hotkey('enter')
-        self.save_novagia_pdf()
-
         # if certificado...
         if not self.certifs_exist('GiaScreenShoot', 1):
+            #
+            # mudei do for pra ca
+            if not self.OPENED:
+                self.abre_programa(self.get_env_for_path(
+                    '\\Desktop\\GIA.exe'), path=True)
+                self.OPENED = True
+            else:
+                pygui.getWindowsWithTitle('GIA')[0].activate()
+
+            IE = __cnpj
+            my_print = login
+            print(my_print)
+            # pygui.hotkey('alt', 'tab')
+            print(IE)
+            #
+
+            try:
+                fecha_janela_contribuintes_gia()
+            except IndexError:
+                print('Não precisei fechar')
+            self.pt1_gia_software(IE, self.compt_used)
+
+            pygui.doubleClick(menuX+35, menuY)
+            # consistir
+            sleep(3)
+            pygui.click(menuX, menuY)
+            sleep(.5)
+            foritab(2, 'up')
+            pygui.hotkey('enter')
+            pygui.click(x=836, y=394)
+            foritab(7, 'tab')
+            pygui.hotkey('enter', 'enter', interval=.25)
+            pygui.hotkey('enter')
+            self.save_novagia_pdf()
 
             self.driver = driver(self.client_path)
             driver = self.driver

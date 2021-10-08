@@ -79,7 +79,14 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                         pgdas_driver, COMPT)
                 # GissGui([razao_social, cnpj, giss_login],
                 #         driver=pgdas_driver, compt=COMPT, first_compt='04-2019')
-        pgdas()
+        # pgdas()
+
+        # JUNIOR
+        if nf_out.lower() == 'ok' and declarado not in ['S', 'OK']:
+            from pgdas_fiscal_oesk.silas_jr import JR
+            JR(razao_social, cnpj, cpf, codigo_simples,
+               valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
+
         # giss_online()
         # pgdas()
         # Ginfess

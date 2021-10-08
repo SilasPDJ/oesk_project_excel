@@ -154,7 +154,7 @@ class Backend:
                                 f'{razao_social.upper()} possui problemas na planilha')
 
             def gias():
-                if imposto_a_calcular == 'LP' and ginfess_cod != 'nan':
+                if imposto_a_calcular == 'LP' and ginfess_cod != 'nan' and declarado != 'S':
                     GIA(razao_social, proc_ecac.replace('.', ''), *ginfess_cod.split('//'),
                         compt=COMPT, driver=pgdas_driver)
                 # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
