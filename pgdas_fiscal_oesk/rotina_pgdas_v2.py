@@ -419,8 +419,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 if __cli__ == args[0]:
                     self.driver = driver()
                     super().__init__(self.driver, self.compt)
-                    self.enable_download_in_headless_chrome(self.client_path)
                     self.loga_cert()
+                self.enable_download_in_headless_chrome(self.client_path)
                 self.change_ecac_client(__cnpj)
             else:
                 self.driver = driver(self.client_path)
@@ -455,7 +455,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
             else:
                 print('is already declared')
-                
+
         self.sair_com_seguranca()
 
     def declaracao_sem_movimento(self, valor_zerado):
