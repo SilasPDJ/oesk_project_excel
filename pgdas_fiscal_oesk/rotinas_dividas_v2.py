@@ -15,6 +15,7 @@ from random import randint, uniform
 class RotinaDividas(InitialSetting, WDShorcuts):
     def __init__(self, *args, compt, driver):
         for __cli__ in args:
+            input(__cli__)
             __r_social, __cnpj, simples_or_ativa = __cli__
 
             simples_or_ativa = simples_or_ativa.lower().strip()
@@ -23,11 +24,14 @@ class RotinaDividas(InitialSetting, WDShorcuts):
                 'Dívidas_Simples_' + __r_social, compt)
             __client_path = self.client_path
 
-            self.driver = driver(__client_path)
-            super().__init__(self.driver)
-            driver = self.driver
             if __cli__ == args[0]:
+                self.driver = driver()
+                super().__init__(self.driver, self.compt)
                 self.loga_cert()
+            if not hasattr(self, 'driver'):
+                raise AttributeError('Sem driver')
+
+            self.enable_download_in_headless_chrome(self.client_path)
             self.change_ecac_client(__cnpj)
 
             driver.find_element_by_id('linkHome').click()
@@ -184,7 +188,7 @@ class RotinaDividas(InitialSetting, WDShorcuts):
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
-
+        # Merge me after with others like me...
         for i in range(randint(1, 2)):
             driver.get("https://cav.receita.fazenda.gov.br/ecac/")
             driver.implicitly_wait(10)

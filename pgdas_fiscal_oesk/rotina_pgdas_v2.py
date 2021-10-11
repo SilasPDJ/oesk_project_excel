@@ -253,7 +253,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
-
+        # Merge me after with others like me...
         for i in range(randint(1, 2)):
             driver.get("https://cav.receita.fazenda.gov.br/ecac/")
             driver.implicitly_wait(10)

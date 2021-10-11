@@ -1,5 +1,5 @@
 
-from pgdas_fiscal_oesk.rotinas_dividas import RotinaDividas
+from pgdas_fiscal_oesk.rotinas_dividas_v2 import RotinaDividas
 from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
@@ -36,6 +36,9 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 
 class Backend:
     def __init__(self):
+        pass
+
+    class ForFulls:
         pass
 
     @staticmethod
@@ -330,6 +333,6 @@ if __name__ == "__main__":
     b = MainApplication(root)
     b.pack(side="top", fill="both", expand=True)
 
-    root.geometry('500x500')
+    root.geometry('500x600')
 
     root.mainloop()
