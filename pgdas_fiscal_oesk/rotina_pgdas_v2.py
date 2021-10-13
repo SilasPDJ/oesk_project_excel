@@ -405,9 +405,9 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, driver):
+        self.compt = compt
         for __cli__ in args:
             __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac, all_valores = __cli__
-            self.compt = compt
 
             self.client_path = self.files_pathit(
                 __r_social.strip(), self.compt)

@@ -14,22 +14,26 @@ from random import randint, uniform
 
 class RotinaDividas(InitialSetting, WDShorcuts):
     def __init__(self, *args, compt, driver):
+        self.compt = compt
         for __cli__ in args:
-            input(__cli__)
             __r_social, __cnpj, simples_or_ativa = __cli__
-
             simples_or_ativa = simples_or_ativa.lower().strip()
 
             self.client_path = self.files_pathit(
                 'Dívidas_Simples_' + __r_social, compt)
             __client_path = self.client_path
-
             if __cli__ == args[0]:
                 self.driver = driver()
-                super().__init__(self.driver, self.compt)
+                driver = self.driver
+                super().__init__(self.driver)
                 self.loga_cert()
             if not hasattr(self, 'driver'):
                 raise AttributeError('Sem driver')
+            # Se já foi feito...
+            arqs_search = self.files_get_anexos_v4(self.client_path, 'pdf')
+            if len(arqs_search) >= 1:
+                continue
+            # ...
 
             self.enable_download_in_headless_chrome(self.client_path)
             self.change_ecac_client(__cnpj)
@@ -188,11 +192,6 @@ class RotinaDividas(InitialSetting, WDShorcuts):
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
-        # Merge me after with others like me...
-        for i in range(randint(1, 2)):
-            driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-            driver.implicitly_wait(10)
-            sleep(randint(3, 5))
 
         def elem_with_text(elem, searched):
             _tag = driver.find_element_by_xpath(
@@ -200,9 +199,6 @@ class RotinaDividas(InitialSetting, WDShorcuts):
             return _tag
 
         self.tags_wait('html', 'span')
-        sleep(5)
-        # nextcl = elem_with_text("span", "Alterar perfil de acesso")
-        # nextcl.click()
         btn_perfil = WebDriverWait(self.driver, 20).until(
             expected_conditions.presence_of_element_located((By.ID, 'btnPerfil')))
         self.click_ac_elementors(btn_perfil)
@@ -235,8 +231,6 @@ class RotinaDividas(InitialSetting, WDShorcuts):
         sleep(2)
         while True:
             try:
-                # don't need anymore
-                # break
                 driver.find_element_by_xpath(
                     '//span[@class="glyphicon glyphicon-off"]').click()
                 driver.refresh()
@@ -254,8 +248,4 @@ class RotinaDividas(InitialSetting, WDShorcuts):
         sleep(3)
         driver.switch_to.default_content()
         """I GOT IT"""
-        # chegou em todo mundo...
-
-        driver.get(
-            'https://sinac.cav.receita.fazenda.gov.br/simplesnacional/aplicacoes/atspo/pgdasd2018.app/')
-        driver.implicitly_wait(5)
+        # c

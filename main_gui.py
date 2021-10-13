@@ -38,9 +38,6 @@ class Backend:
     def __init__(self):
         pass
 
-    class ForFulls:
-        pass
-
     @staticmethod
     def any_to_str(*args):
         for v in args:
@@ -118,9 +115,19 @@ class Backend:
 
         # return LIST_ECAC, LIST_NORMAL
         return full
-        # PgdasDeclaracao(*list_ecac, compt=COMPT, driver=pgdas_driver)
 
-        # list_ecac, list_normal = full_pgdas()
+    def full_dividas(self):
+        for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+                self.any_to_str(*compt_vals))
+            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                self.any_to_str(*geral))
+            envio = envio.upper()
+            email = email.strip()
+            dividas_ativas = dividas_ativas.strip().lower()
+            proc_ecac = proc_ecac.lower()
+            if dividas_ativas != 'não há':
+                yield razao_social, cnpj, dividas_ativas
 
     def call_func_v2(self, FUNC, specific=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
@@ -187,11 +194,6 @@ class Backend:
                 PgDasmailSender(razao_social, cnpj, cpf, declarado, valor_tot,
                                 imposto_a_calcular, envio, email=email, compt=COMPT, all_valores=[])
 
-            def dividas_rotina():
-                if dividas_ativas != 'não há':
-                    RotinaDividas(razao_social, cnpj, dividas_ativas,
-                                  compt=COMPT, driver=pgdas_driver, )
-
             def dividasmail():
                 if dividas_ativas != 'não há':
                     if div_envios in ('', 'nan'):
@@ -239,8 +241,8 @@ class MainApplication(tk.Frame, Backend):
             'g5', self.selected_client.get()))
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(
             'pgdasmail', self.selected_client.get()), bg='red')
-        bt_dividas_rotina = self.button('Rotina Dívidas', lambda: self.call_func_v2(
-            'dividas_rotina', self.selected_client.get()))
+        bt_dividas_rotina = self.button('Rotina FULL Dívidas', lambda: RotinaDividas(
+            *self.full_dividas(), compt=COMPT, driver=pgdas_driver), bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
         self.__pack(bt_abre_pasta)
