@@ -1,5 +1,6 @@
 # dale
 from default.sets import InitialSetting
+from default.webdriver_utilities.pre_drivers import pgdas_driver
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import *
 
@@ -20,7 +21,7 @@ possible = ['GIA']
 class GIA(InitialSetting, WDShorcuts):
     OPENED = False
 
-    def __init__(self, *args, compt, driver):
+    def __init__(self, *args, compt):
 
         __r_social, __cnpj, login, senha = args
 
@@ -79,8 +80,7 @@ class GIA(InitialSetting, WDShorcuts):
             pygui.hotkey('enter')
             self.save_novagia_pdf()
 
-            self.driver = driver(self.client_path)
-            driver = self.driver
+            self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             driver.get(
                 'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')

@@ -3,12 +3,14 @@ from random import randint
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
 
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+
 from time import sleep
 # from . import *
 # qualquer coisa me devolve
@@ -404,7 +406,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
-    def __init__(self, *args, compt, driver):
+    def __init__(self, *args, compt):
         self.compt = compt
         for __cli__ in args:
             __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac, all_valores = __cli__
@@ -417,13 +419,13 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
             if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
                 if __cli__ == args[0]:
-                    self.driver = driver()
+                    self.driver = driver = pgdas_driver_ua()
                     super().__init__(self.driver, self.compt)
                     self.loga_cert()
                 self.enable_download_in_headless_chrome(self.client_path)
                 self.change_ecac_client(__cnpj)
             else:
-                self.driver = driver(self.client_path)
+                self.driver = driver = pgdas_driver_ua(self.client_path)
                 super().__init__(self.driver, self.compt)
                 self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
             if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":

@@ -9,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
 from time import sleep
 # from . import *
 # qualquer coisa me devolve
@@ -440,7 +441,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
-    def __init__(self, *args, compt, driver, all_valores=None):
+    def __init__(self, *args, compt, all_valores=None):
 
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
@@ -452,7 +453,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
         # drivers declarados
-        self.driver = driver(self.client_path)
+        self.driver = pgdas_driver_ua(self.client_path)
         # self.driver.maximize_window()
 
         # self.driver.maximize_window;()

@@ -147,18 +147,18 @@ class Backend:
                     if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
                         # if imposto_a_calcular == 'SEM_MOV':
                         PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                        compt=COMPT, driver=pgdas_driver_ua)
+                                        compt=COMPT)
                     elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                         all_valores = get_all_valores(
                             sem_ret, com_ret, anexo, valor_tot)
                         print(all_valores)
                         if all_valores:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                            compt=COMPT, driver=pgdas_driver_ua,
+                                            compt=COMPT,
                                             all_valores=all_valores)
                         elif all_valores is False:
                             PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                            compt=COMPT, driver=pgdas_driver_ua)
+                                            compt=COMPT,)
                         else:  # None
                             raise ValueError(
                                 f'{razao_social.upper()} possui problemas na planilha')
@@ -173,7 +173,7 @@ class Backend:
                 if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
                     print(giss_login)
                     GissGui([razao_social, cnpj, giss_login],
-                            ginfess_driver, COMPT)
+                            compt=COMPT)
 
             def ginfess():
                 if ginfess_link != 'nan':
@@ -226,7 +226,7 @@ class MainApplication(tk.Frame, Backend):
             'pgdas', self.selected_client.get()))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
                                   PgdasDeclaracaoFull(
-                                      *self.full_pgdas(), compt=COMPT, driver=pgdas_driver),
+                                      *self.full_pgdas(), compt=COMPT),
                                   bg='darkgray')
 
         bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v2(
@@ -242,7 +242,7 @@ class MainApplication(tk.Frame, Backend):
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(
             'pgdasmail', self.selected_client.get()), bg='red')
         bt_dividas_rotina = self.button('Rotina FULL Dívidas', lambda: RotinaDividas(
-            *self.full_dividas(), compt=COMPT, driver=pgdas_driver), bg='darkgray')
+            *self.full_dividas(), compt=COMPT), bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
         self.__pack(bt_abre_pasta)

@@ -1,5 +1,6 @@
 # dale
 from default.sets import InitialSetting
+from default.webdriver_utilities.pre_drivers import pgdas_driver
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
 
@@ -13,7 +14,7 @@ from random import randint, uniform
 
 
 class RotinaDividas(InitialSetting, WDShorcuts):
-    def __init__(self, *args, compt, driver):
+    def __init__(self, *args, compt):
         self.compt = compt
         for __cli__ in args:
             __r_social, __cnpj, simples_or_ativa = __cli__
@@ -23,8 +24,7 @@ class RotinaDividas(InitialSetting, WDShorcuts):
                 'Dívidas_Simples_' + __r_social, compt)
             __client_path = self.client_path
             if __cli__ == args[0]:
-                self.driver = driver()
-                driver = self.driver
+                self.driver = driver = pgdas_driver()
                 super().__init__(self.driver)
                 self.loga_cert()
             if not hasattr(self, 'driver'):
