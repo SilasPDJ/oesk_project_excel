@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from .pathmanager import Dirs
 from .now import Now
 import os
@@ -7,8 +7,7 @@ import os
 
 
 def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
-    from datetime import date, datetime
-    from datetime import timedelta
+    from datetime import timedelta, datetime
     from dateutil.relativedelta import relativedelta
     month = datetime.now().month
     year = datetime.now().year
@@ -159,7 +158,6 @@ class InitialSetting(Initial, Dirs, Now):
     @classmethod
     def files_pathit(cls, pasta_client, insyear=None, ano=None):
         from dateutil import relativedelta as du_rl
-        from datetime import date
 
         """[summary]
 
@@ -207,7 +205,7 @@ class InitialSetting(Initial, Dirs, Now):
         except FileNotFoundError:
             print('NÃO CONSEGUI RETORNAR SAVE')
 
-    def first_and_last_day_compt(self, compt, sep='/'):
+    def first_and_last_day_compt(self, compt, sep='/', zdate_wontbe_greater=False):
         """
         ELE JÁ PEGA O ANTERIOR MAIS PROX
         :param str compt:(competencia or whatever). Defaults then call cls.get_compt_only() as default
@@ -229,9 +227,20 @@ class InitialSetting(Initial, Dirs, Now):
         last_now = date(ano, mes, 1) + relativedelta(months=1)
         last_now -= timedelta(days=1)
         first_now = date(ano, mes, 1)
-
         z, a = last_now, first_now
+
+        if zdate_wontbe_greater:
+            # last_only
+            _check, _dia_hj = self.__check_date_greater_than_today(z)
+            if _check:
+                z = _dia_hj
+
         br1st = f'{a.day:02d}{sep}{a.month:02d}{sep}{a.year}'
         brlast = f'{z.day:02d}{sep}{z.month:02d}{sep}{z.year}'
         print(br1st, brlast)
         return br1st, brlast
+
+    def __check_date_greater_than_today(self, mydt: date):
+        from datetime import datetime as dt
+        dia_hj = dt.now()
+        return mydt.day > dia_hj.day, dia_hj

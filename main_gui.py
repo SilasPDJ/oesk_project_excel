@@ -21,7 +21,7 @@ from threading import Thread
 import os
 import subprocess
 
-COMPT = get_compt(-1)
+COMPT = get_compt(0)
 
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
@@ -178,12 +178,12 @@ class Backend:
             def ginfess():
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                                       ginfess_link, driver=pgdas_driver, compt=COMPT)
+                                       ginfess_link,  compt=COMPT)
 
             def ginfess_show():
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                                       ginfess_link, driver=pgdas_driver, compt=COMPT)
+                                       ginfess_link, compt=COMPT,  show_driver=True)
 
             def g5():
                 G5(razao_social, cnpj, cpf, codigo_simples,

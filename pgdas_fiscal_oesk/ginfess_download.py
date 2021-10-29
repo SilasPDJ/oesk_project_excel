@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import *
+
+from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from time import sleep
 from default.webdriver_utilities.pre_drivers import ginfess_driver
 from openpyxl import Workbook
@@ -23,7 +25,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
     # only static methods from JsonDateWithDataImprove
 
-    def __init__(self, *dados, driver, compt):
+    def __init__(self, *dados, compt,  show_driver=False):
+        # driver
         __r_social, __cnpj, _ginfess_cod, link = dados
 
         self.compt = compt
@@ -37,10 +40,15 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
         elif self.check_done(self.client_path, '.png', startswith='GINFESS'):
             # Checka o certificado ginfess, somente
-
+            if show_driver:
+                driver = pgdas_driver
+                self.__driver__name = driver.__name__
+                self.driver = driver = pgdas_driver(self.client_path)
+            else:
+                driver = ginfess_driver
+                self.__driver__name = driver.__name__
+                driver = self.driver = ginfess_driver(self.client_path)
             # if city in 'ABC':
-            self.__driver__name = driver.__name__
-            self.driver = driver(self.client_path)
             super().__init__(self.driver)
             driver = self.driver
             driver.maximize_window()
@@ -118,7 +126,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 }
                 """)
 
-                driver.execute_script("abre_arquivo('dmm/_menuPeriodo.php');")
+                driver.execute_script(
+                    "abre_arquivo('dmm/_menuPeriodo.php');")
 
                 driver.implicitly_wait(5)
 
@@ -346,7 +355,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         de.click()
         self.send_keys_anywhere(Keys.BACKSPACE, 10)
         write = '01/09'
-        first, last = self.first_and_last_day_compt(self.compt)
+        first, last = self.first_and_last_day_compt(
+            self.compt, zdate_wontbe_greater=True)
         self.send_keys_anywhere(first)
         driver.implicitly_wait(2.5)
         self.send_keys_anywhere(Keys.TAB)
