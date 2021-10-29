@@ -33,7 +33,7 @@ class GissGui(InitialSetting, WDShorcuts):
         self.client_path = self.files_pathit(
             __r_social.strip(), compt)
 
-        if not self.certifs_exist():
+        if not self.certifs_exist('giss'):
             self.driver = driver(self.client_path)
             driver = self.driver
             super().__init__(self.driver)
@@ -105,11 +105,11 @@ class GissGui(InitialSetting, WDShorcuts):
             driver.close()
         print('GISS encerrado!')
 
-    def certifs_exist(self, at_least=2):
+    def certifs_exist(self, startswith, at_least=2):
         arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
         arqs_search = [
             self.path_leaf(f, True) for f in arqs_search]
-        arqs_search = [f for f in arqs_search if f.startswith('giss')]
+        arqs_search = [f for f in arqs_search if f.startswith(startswith)]
 
         if len(arqs_search) >= at_least:
             return True
@@ -117,7 +117,6 @@ class GissGui(InitialSetting, WDShorcuts):
 
     def gerar_cert(self, arq):
         import os
-        arq = 'gissoline.png' if arq is None else arq
         save = os.path.join(self.client_path, arq)
         self.driver.save_screenshot(save)
 

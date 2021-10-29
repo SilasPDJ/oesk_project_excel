@@ -157,6 +157,12 @@ class WDShorcuts:
         return WebDriverWait(driver, time).until(
             expected_conditions.presence_of_element_located((By.ID, el_id)))
 
+    def webdriverwait(self, by, el, time=10):
+        # will be that instead of by_id
+        driver = self.__arg_driver
+        return WebDriverWait(driver, time).until(
+            expected_conditions.presence_of_element_located((by, el)))
+
     def webdriverwait_by_tag(self, el, time=30):
         driver = self.__arg_driver
         return WebDriverWait(driver, time).until(
