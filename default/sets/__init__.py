@@ -233,7 +233,7 @@ class InitialSetting(Initial, Dirs, Now):
             # last_only
             _check, _dia_hj = self.__check_date_greater_than_today(z)
             if _check:
-                z = _dia_hj
+                z = last_now
 
         br1st = f'{a.day:02d}{sep}{a.month:02d}{sep}{a.year}'
         brlast = f'{z.day:02d}{sep}{z.month:02d}{sep}{z.year}'

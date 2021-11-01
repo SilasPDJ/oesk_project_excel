@@ -48,13 +48,21 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 driver = ginfess_driver
                 self.__driver__name = driver.__name__
                 driver = self.driver = ginfess_driver(self.client_path)
-            # if city in 'ABC':
-            super().__init__(self.driver)
-            driver = self.driver
-            driver.maximize_window()
 
+            driver.maximize_window()
             self.driver.get(link)
+            if self.driver.title != 'NFS-e' and 'tremembe' not in self.driver.current_url:
+                self.driver.quit()
+                driver = pgdas_driver
+                self.__driver__name = driver.__name__
+                self.driver = driver = pgdas_driver(self.client_path)
+            self.driver.get(link)
+            # escolhe driver
+            print('tremembe' not in self.driver.current_url)
             # for
+            driver = self.driver
+            super().__init__(self.driver)
+            # if city in 'ABC':
             if self.driver.title == 'NFS-e':
                 # links das cidades
 
@@ -136,7 +144,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 sleep(5)
 
                 iframe = driver.find_element_by_id('main')
-                driver.switch_to_frame(iframe)
+                driver.switch_to.frame(iframe)
                 driver.find_element_by_name('btnAlterar').click()
                 driver.implicitly_wait(5)
 
@@ -158,10 +166,10 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 driver.implicitly_wait(10)
 
                 # iframe = driver.find_element_by_id('iframe')
-                # driver.switch_to_frame(iframe)
+                # driver.switch_to.frame(iframe)
 
                 self.tag_with_text('td', 'Encerramento').click()
-                # driver.switch_to_alert().accept()
+                # driver.switch_to.alert().accept()
 
                 # driver.get('../fechamento/prestado.php')
                 driver.find_element_by_xpath(
@@ -170,7 +178,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 try:
                     driver.find_element_by_id('btnSalvar').click()
                     driver.implicitly_wait(5)
-                    driver.switch_to_alert().accept()
+                    driver.switch_to.alert().accept()
                     driver.implicitly_wait(5)
                     # driver.back()
                 except (NoSuchElementException, NoAlertPresentException):
@@ -187,7 +195,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     driver.execute_script(
                         "abre_arquivo('dmm/_menuPeriodo.php');")
                     iframe = driver.find_element_by_id('main')
-                    driver.switch_to_frame(iframe)
+                    driver.switch_to.frame(iframe)
                     driver.find_element_by_name('btnAlterar').click()
                     driver.find_element_by_name('btnOk').click()
 
@@ -208,7 +216,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 print(f'path_zip-> {path_zip}')
                 self.unzip_folder(path_zip)
 
-                driver.switch_to_default_content()
+                driver.switch_to.default_content()
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
 

@@ -21,7 +21,7 @@ from threading import Thread
 import os
 import subprocess
 
-COMPT = get_compt(0)
+COMPT = get_compt(-1)
 
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
