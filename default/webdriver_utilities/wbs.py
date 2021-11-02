@@ -54,7 +54,7 @@ class WDShorcuts:
         for arg in args:
             action.move_to_element(arg)
             action.click()
-        # x, y = xy = driver.find_element_by_tag_name('label').location.values()
+        # x, y = xy = driver.find_element(By.TAG_NAME, 'label').location.values()
         action.perform()
         driver.implicitly_wait(pause)
 
@@ -88,18 +88,18 @@ class WDShorcuts:
 
     def tag_with_text(self, tag, searched):
         driver = self.__arg_driver
-        td_tag = driver.find_element_by_xpath(
-            f"//{tag}[contains(text(),'{searched.rstrip()}')]")
+        td_tag = driver.find_element(By.XPATH,
+                                     f"//{tag}[contains(text(),'{searched.rstrip()}')]")
         return td_tag
 
     def contains_text(self, item):
         driver = self.__arg_driver
-        el = driver.find_element_by_xpath(f'//*[contains(text(),"{item}")]')
+        el = driver.find_element(By.XPATH, f'//*[contains(text(),"{item}")]')
         return el
 
     def contains_title(self, item, ta='title'):
         driver = self.__arg_driver
-        el = driver.find_element_by_css_selector(f"[{ta}*='{item}']")
+        el = driver.find_element(By.CSS_SELECTOR, f"[{ta}*='{item}']")
         return el
 
     def tags_wait(self, *tags):
@@ -141,7 +141,7 @@ class WDShorcuts:
         """
         driver = self.__arg_driver
 
-        # driver.find_element_by_xpath('//div[@class=""')
+        # driver.find_element(By.XPATH, '//div[@class=""')
         try:
             driver.implicitly_wait(10)
             driver.execute_script(
