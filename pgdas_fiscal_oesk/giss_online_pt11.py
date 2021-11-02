@@ -1,6 +1,7 @@
 # dale
+from bs4 import BeautifulSoup
 from default.sets import InitialSetting
-from default.webdriver_utilities.pre_drivers import ginfess_driver
+from default.webdriver_utilities.pre_drivers import ginfess_driver, pgdas_driver
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
 
@@ -35,7 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist('giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = ginfess_driver(self.client_path)
+            self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -129,6 +131,8 @@ class GissGui(InitialSetting, WDShorcuts):
         driver = self.driver
         if not constr:
             self.calls_write_date()
+
+        self.__check_prestador_guias()
         try:
             driver.find_element_by_xpath(
                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
@@ -187,6 +191,71 @@ class GissGui(InitialSetting, WDShorcuts):
                     driver.find_element_by_link_text('OK').click()
 
         # pressione "ESC" para continuar
+    def __check_prestador_guias(self):
+        def __download_prestador_guias():
+            tb = self.driver.find_element_by_tag_name('table')
+            __meses_guias = tb.find_elements(By.TAG_NAME, 'a')
+            MESES, GUIAS = (
+                [mes for mes in __meses_guias if mes.text != ''],
+                [guia for guia in __meses_guias if guia.text == '']
+            )
+            # [print(mes.text) for mes in meses]
+            # [print(guia) for guia in guias]
+
+            # SOUP to compare values part
+            soup = BeautifulSoup(tb.get_attribute('innerHTML'), 'html.parser')
+            rows = soup.find_all('tr')
+            vals_pagos, vals_abertos = [], []
+            for row in rows[1:]:
+                def trata_val(v):
+                    try:
+                        return float(v.replace(',', '.'))
+                    except ValueError:
+                        print('value error')
+                        return v
+                _vcobs, _vrecs = [r for r in row.find_all('td')[5:7]]
+                vals_pagos.append(trata_val(_vcobs.text))
+                vals_abertos.append(trata_val(_vrecs.text))
+
+            vals_pendentes = []
+
+            [print(val, type(val)) for val in vals_pagos]
+            for cont, (val_pago, val_em_aberto) in enumerate(zip(vals_pagos, vals_abertos)):
+                if val_em_aberto != 0:
+                    print(val_em_aberto)
+                    vals_pendentes.append(cont)
+            input(vals_pendentes)
+
+        driver = self.driver
+        driver.switch_to.default_content()
+        iframe = driver.find_element_by_xpath("//iframe[@name='header']")
+        driver.switch_to.frame(iframe)
+        sleep(2)
+        # driver.find_element_by_xpath(
+        #     '//img[contains(@src,"bt_menu__05_off.jpg")]').click()
+        driver.switch_to.default_content()
+        iframe = driver.find_element_by_xpath("//iframe[@name='principal']")
+        driver.switch_to.frame(iframe)
+        el = self.tag_with_text('a', 'Conta Corrente')
+
+        el.click()
+        # year_selected = self.tag_with_text('font', self.compt_atual.split('-')[-1])
+        # self.click_ac_elementors(year_selected)
+        self.click_elements_by_tt(self.compt_atual.split('-')[-1])
+
+        # tabela com as guias
+        # table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
+        table = self.driver.find_elements_by_tag_name('table')[1]
+        iframe = table.find_element_by_xpath("//iframe[@name='conteudo']")
+        self.driver.switch_to.frame(iframe)
+
+        __download_prestador_guias()
+        input('deu certo?')
+
+        # driver.find_element(By.ID, )
+
+        driver.switch_to.default_content()
+        driver.switch_to.default_content()
 
     def constr_civil(self):
         # parei nessa belezinha aqui, tomador e prestador tão ok
