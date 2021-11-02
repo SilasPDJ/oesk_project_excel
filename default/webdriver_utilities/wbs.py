@@ -151,22 +151,11 @@ class WDShorcuts:
         else:
             print('certo')
 
-    def webdriverwait_by_id(self, el_id, time=10):
-
-        driver = self.__arg_driver
-        return WebDriverWait(driver, time).until(
-            expected_conditions.presence_of_element_located((By.ID, el_id)))
-
     def webdriverwait_el_by(self, by, el, time=10):
         # will be that instead of by_id
         driver = self.__arg_driver
         return WebDriverWait(driver, time).until(
             expected_conditions.presence_of_element_located((by, el)))
-
-    def webdriverwait_by_tag(self, el, time=30):
-        driver = self.__arg_driver
-        return WebDriverWait(driver, time).until(
-            expected_conditions.presence_of_element_located((By.TAG_NAME, el)))
 
     def enable_download_in_headless_chrome(self, download_dir):
         """

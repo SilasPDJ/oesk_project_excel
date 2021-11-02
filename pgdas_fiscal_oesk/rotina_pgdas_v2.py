@@ -330,14 +330,14 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
     def compt_typist(self, compt):
         driver = self.driver
         self.tags_wait('body', 'input')
-        # self.webdriverwait_by_tag()
+        # self.webdriverwait_el_by(By.TAG_NAME, )
         onlif = 'declaracao'
         if onlif not in driver.current_url:
             driver.execute_script(
                 f"""window.location.href += '{onlif}?clear=1'""")
 
         driver.implicitly_wait(10)
-        periodo = self.webdriverwait_by_id('pa', 20)
+        periodo = self.webdriverwait_el_by(By.ID, 'pa', 20)
         periodo.send_keys(compt)
         self.find_submit_form()
 
@@ -347,7 +347,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         VALOR_ZERADO = 0
         valor_total = 0 if valor_total is None else valor_total
 
-        self.webdriverwait_by_tag("input")
+        self.webdriverwait_el_by(By.TAG_NAME, "input")
         self.send_keys_anywhere(valor_total)
         self.send_keys_anywhere(Keys.TAB)
         self.send_keys_anywhere(VALOR_ZERADO)
@@ -400,7 +400,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
     def sair_com_seguranca(self):
         self.driver.get('https://cav.receita.fazenda.gov.br/ecac/')
-        self.webdriverwait_by_id('sairSeguranca').click()
+        self.webdriverwait_el_by(By.ID, 'sairSeguranca').click()
         self.driver.close()
         self.driver.quit()
 
@@ -466,10 +466,10 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         self.compt_typist_valtotal(valor_zerado)
 
         # transmitir
-        self.webdriverwait_by_tag('button')
+        self.webdriverwait_el_by(By.TAG_NAME, 'button')
         self.find_submit_form()
-        self.webdriverwait_by_tag("body", 30)
-        self.webdriverwait_by_tag("body", 30)
+        self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
+        self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
         self.find_submit_form()
 
         self.certif_feito(self.client_path, add="-SemMovimento")
@@ -489,7 +489,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         valor_competencia = self.trata_money_excel(valor_competencia)
         self.compt_typist_valtotal(valor_competencia)
 
-        exibe_tutti = self.webdriverwait_by_id('btn-exibe-todos', 30)
+        exibe_tutti = self.webdriverwait_el_by(By.ID, 'btn-exibe-todos', 30)
         exibe_tutti.click()
 
         for tres_valores in __valores_de_anexos:

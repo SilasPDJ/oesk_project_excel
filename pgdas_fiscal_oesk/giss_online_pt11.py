@@ -235,7 +235,7 @@ class GissGui(InitialSetting, WDShorcuts):
             self.driver.save_screenshot(
                 f'{self.client_path}/{__meses}-GUIASpendentes-giss.png')
             GUIAS[-1].click()  # the last one
-            self.webdriverwait_by_tag('a').click()  # download...
+            self.webdriverwait_el_by(By.TAG_NAME, 'a').click()  # download...
             print('Downlaod da ultima guia funcional')
             print('~'*10, f'meses abertos: {__meses}')
 
