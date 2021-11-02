@@ -36,8 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist('giss'):
-            # self.driver = driver = ginfess_driver(self.client_path)
-            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -133,6 +133,7 @@ class GissGui(InitialSetting, WDShorcuts):
             self.calls_write_date()
 
         self.__check_prestador_guias()
+        input('teste volto pra onde')
         try:
             driver.find_element_by_xpath(
                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
@@ -217,20 +218,29 @@ class GissGui(InitialSetting, WDShorcuts):
                 vals_pagos.append(trata_val(_vcobs.text))
                 vals_abertos.append(trata_val(_vrecs.text))
 
+            # get indexes for GUIAS
             vals_pendentes = []
-
-            [print(val, type(val)) for val in vals_pagos]
             for cont, (val_pago, val_em_aberto) in enumerate(zip(vals_pagos, vals_abertos)):
                 if val_em_aberto != 0:
-                    print(val_em_aberto)
+                    # print(val_em_aberto)
                     vals_pendentes.append(cont)
-            input(vals_pendentes)
+            # gera guias a pagar
+            __meses = []  # for naming certificate of existing guias file
+            for indx in vals_pendentes:
+                guia, mes = GUIAS[indx], MESES[indx].text
+                __meses.append(mes)
+                # generate guia
+                # guia.click()
+            __meses = "_".join(__meses)
+            self.driver.save_screenshot(
+                f'{self.client_path}/{__meses}-GUIASpendentes-giss.png')
+            GUIAS[-1].click()  # the last one
+            self.webdriverwait_by_tag('a').click()  # download...
+            print('Downlaod da ultima guia funcional')
+            print('~'*10, f'meses abertos: {__meses}')
 
         driver = self.driver
-        driver.switch_to.default_content()
-        iframe = driver.find_element_by_xpath("//iframe[@name='header']")
-        driver.switch_to.frame(iframe)
-        sleep(2)
+
         # driver.find_element_by_xpath(
         #     '//img[contains(@src,"bt_menu__05_off.jpg")]').click()
         driver.switch_to.default_content()
@@ -250,12 +260,15 @@ class GissGui(InitialSetting, WDShorcuts):
         self.driver.switch_to.frame(iframe)
 
         __download_prestador_guias()
-        input('deu certo?')
 
         # driver.find_element(By.ID, )
-
         driver.switch_to.default_content()
         driver.switch_to.default_content()
+        iframe = driver.find_element_by_xpath("//iframe[@name='header']")
+        driver.switch_to.frame(iframe)
+        driver.execute_script('javascript: clickPrestador(); ')
+        driver.switch_to.default_content()
+        input('deu certo?')
 
     def constr_civil(self):
         # parei nessa belezinha aqui, tomador e prestador tão ok
