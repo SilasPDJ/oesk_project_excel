@@ -108,9 +108,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 while True:
                     driver.implicitly_wait(5)
 
-                    ccm = driver.find_element_by_id('ccm')
-                    senha = driver.find_element_by_id('senha')
-                    confirma = driver.find_element_by_id('confirma')
+                    ccm = driver.find_element(By.ID, 'ccm')
+                    senha = driver.find_element(By.ID, 'senha')
+                    confirma = driver.find_element(By.ID, 'confirma')
                     ccm.send_keys(zero_um[0])
 
                     for el in ccm, senha, confirma:
@@ -119,7 +119,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     senha.send_keys(zero_um[1])
                     trem_cod = self.captcha_hacking()
                     confirma.send_keys(trem_cod)
-                    # driver.find_element_by_id('btnOk').click()
+                    # driver.find_element(By.ID, 'btnOk').click()
                     if 'login.php' in driver.current_url:
                         driver.refresh()
                         driver.implicitly_wait(6)
@@ -143,40 +143,40 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
                 sleep(5)
 
-                iframe = driver.find_element_by_id('main')
+                iframe = driver.find_element(By.ID, 'main')
                 driver.switch_to.frame(iframe)
-                driver.find_element_by_name('btnAlterar').click()
+                driver.find_element(By.NAME, 'btnAlterar').click()
                 driver.implicitly_wait(5)
 
                 # handelling select
                 compt = self.compt
                 mes, ano = compt.split('-')
 
-                driver.find_element_by_name('ano').clear()
-                driver.find_element_by_name('ano').send_keys(ano)
+                driver.find_element(By.NAME, 'ano').clear()
+                driver.find_element(By.NAME, 'ano').send_keys(ano)
                 mes = self.nome_mes(int(mes))
 
-                driver.find_element_by_xpath(
-                    f"//select[@name='mes']/option[text()='{mes}']").click()
-                # driver.find_element_by_name('ano').send_keys(ano)
+                driver.find_element(By.XPATH,
+                                    f"//select[@name='mes']/option[text()='{mes}']").click()
+                # driver.find_element(By.NAME, 'ano').send_keys(ano)
 
                 driver.implicitly_wait(5)
-                driver.find_element_by_id('btnOk').click()
+                driver.find_element(By.ID, 'btnOk').click()
 
                 driver.implicitly_wait(10)
 
-                # iframe = driver.find_element_by_id('iframe')
+                # iframe = driver.find_element(By.ID, 'iframe')
                 # driver.switch_to.frame(iframe)
 
                 self.tag_with_text('td', 'Encerramento').click()
                 # driver.switch_to.alert().accept()
 
                 # driver.get('../fechamento/prestado.php')
-                driver.find_element_by_xpath(
-                    '//a[contains(@href,"../fechamento/prestado.php")]').click()
+                driver.find_element(By.XPATH,
+                                    '//a[contains(@href,"../fechamento/prestado.php")]').click()
                 driver.implicitly_wait(10)
                 try:
-                    driver.find_element_by_id('btnSalvar').click()
+                    driver.find_element(By.ID, 'btnSalvar').click()
                     driver.implicitly_wait(5)
                     driver.switch_to.alert().accept()
                     driver.implicitly_wait(5)
@@ -194,10 +194,10 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     """)
                     driver.execute_script(
                         "abre_arquivo('dmm/_menuPeriodo.php');")
-                    iframe = driver.find_element_by_id('main')
+                    iframe = driver.find_element(By.ID, 'main')
                     driver.switch_to.frame(iframe)
-                    driver.find_element_by_name('btnAlterar').click()
-                    driver.find_element_by_name('btnOk').click()
+                    driver.find_element(By.NAME, 'btnAlterar').click()
+                    driver.find_element(By.NAME, 'btnOk').click()
 
                     # ############### validar driver.back()
 
@@ -208,8 +208,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 self.tags_wait('body')
 
                 driver.implicitly_wait(2)
-                driver.find_element_by_id('todos').click()
-                driver.find_element_by_id('btnExportar').click()
+                driver.find_element(By.ID, 'todos').click()
+                driver.find_element(By.ID, 'btnExportar').click()
                 driver.switch_to.alert.accept()
 
                 path_zip = self.client_path
@@ -221,19 +221,19 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     self.client_path, add='GINFESS'))
 
             elif self.driver.current_url == 'https://app.siappa.com.br/issqn_itupeva/servlet/com.issqnwebev3v2.login':
-                self.driver.find_element_by_id('vUSR_COD').send_keys(__cnpj)
-                self.driver.find_element_by_css_selector(
-                    '[type="password"]').send_keys(_ginfess_cod)
+                self.driver.find_element(By.ID, 'vUSR_COD').send_keys(__cnpj)
+                self.driver.find_element(By.CSS_SELECTOR,
+                                         '[type="password"]').send_keys(_ginfess_cod)
                 # d = Chrome().
                 press_keys_b4('f9')
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
             elif self.driver.current_url == 'https://bragancapaulista.giap.com.br/apex/pmbp/f?p=994:101':
                 a = __login, __senha = _ginfess_cod.split('//')
-                self.driver.find_element_by_id(
-                    'P101_USERNAME').send_keys(__login)
-                self.driver.find_element_by_css_selector(
-                    '[type="password"]').send_keys(str(__senha))
+                self.driver.find_element(By.ID,
+                                         'P101_USERNAME').send_keys(__login)
+                self.driver.find_element(By.CSS_SELECTOR,
+                                         '[type="password"]').send_keys(str(__senha))
                 self.click_ac_elementors(self.tag_with_text('span', 'ENTRAR'))
 
                 # CONSULTAR
@@ -242,10 +242,10 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     "javascript:apex.submit('EMISSAO NOTA');")
                 mes, ano = self.compt.split('-')
                 mes = self.nome_mes(int(mes))
-                self.driver.find_element_by_xpath(
-                    f"//select[@name='P26_MES']/option[text()='{mes}']").click()
-                self.driver.find_element_by_xpath(
-                    f"//select[@name='P26_ANO']/option[text()='{ano}']").click()
+                self.driver.find_element(By.XPATH,
+                                         f"//select[@name='P26_MES']/option[text()='{mes}']").click()
+                self.driver.find_element(By.XPATH,
+                                         f"//select[@name='P26_ANO']/option[text()='{ano}']").click()
                 # CONSULTAR
                 self.driver.execute_script(
                     "apex.submit({request:'P26_BTN_CONSULTAR'});")
@@ -281,18 +281,18 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         driver = self.driver
 
         def label_with_text(searched):
-            label = driver.find_element_by_xpath(
-                f"//label[contains(text(),'{searched.rstrip()}')]")
+            label = driver.find_element(By.XPATH,
+                                        f"//label[contains(text(),'{searched.rstrip()}')]")
             return label
 
         def button_with_text(searched):
-            bt = driver.find_element_by_xpath(
-                f"//button[contains(text(),'{searched.rstrip()}')]")
+            bt = driver.find_element(By.XPATH,
+                                     f"//button[contains(text(),'{searched.rstrip()}')]")
             return bt
 
         def a_with_text(searched):
-            link_tag = driver.find_element_by_xpath(
-                f"//a[contains(text(),'{searched.rstrip()}')]")
+            link_tag = driver.find_element(By.XPATH,
+                                           f"//a[contains(text(),'{searched.rstrip()}')]")
             return link_tag
 
         self.wait_main_tags()
@@ -310,7 +310,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 button_with_text('OK').click()
             except (NoSuchElementException, ElementClickInterceptedException):
                 pass
-            driver.find_element_by_xpath('//img[@src="imgs/001.gif"]').click()
+            driver.find_element(By.XPATH, '//img[@src="imgs/001.gif"]').click()
         except (NoSuchElementException, ElementClickInterceptedException):
             pass
         name_c = 'x-window-dlg', 'ext-el-mask', 'x-shadow'
@@ -334,7 +334,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         # print('mandando teclas...')
         label_with_text("CNPJ:").click()
         self.send_keys_anywhere(__cnpj)
-        passwd = driver.find_element_by_xpath("//input[@type='password']")
+        passwd = driver.find_element(By.XPATH, "//input[@type='password']")
 
         self.tags_wait('body', 'img')
         passwd.clear()
@@ -384,7 +384,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         try:
             try:
                 # self.del_dialog_box('x-shadow')
-                xsh = driver.find_element_by_class_name('x-shadow')
+                xsh = driver.find_element(By.CLASS_NAME, 'x-shadow')
                 if 'block' in xsh.get_attribute('style'):
                     self.del_dialog_box('x-shadow')
                     driver.implicitly_wait(10)
@@ -395,8 +395,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             except NoSuchElementException:
                 print('Tem notas')
                 driver.implicitly_wait(10)
-                downloada_xml = driver.find_element_by_xpath(
-                    '//img[@src="imgs/download.png"]')
+                downloada_xml = driver.find_element(By.XPATH,
+                                                    '//img[@src="imgs/download.png"]')
                 try:
                     downloada_xml.click()
                 except ElementClickInterceptedException:
@@ -414,16 +414,15 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         :return: (html_cod): código dele se existe a class ytb-text, scrap_it
         """
         driver = self.driver
-
-        max_value_needed = driver.find_elements_by_class_name('ytb-text')
+        max_value_needed = driver.find_elements(By.CLASS_NAME, 'ytb-text')
         max_value_needed = max_value_needed[1].text[-1]
         print(max_value_needed)
         self.tags_wait('input', 'body')
 
         cont_export = 1
 
-        xml_pages = driver.find_element_by_xpath(
-            '//input[@class="x-tbar-page-number"]')
+        xml_pages = driver.find_element(By.XPATH,
+                                        '//input[@class="x-tbar-page-number"]')
         driver.implicitly_wait(5)
         number_in_pages = xml_pages.get_attribute('value')
 
@@ -448,8 +447,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
             # // div[ @ id = 'a'] // a[ @class ='click']
 
-            wanted_wanted = driver.find_elements_by_xpath(
-                "//div[contains(@class, 'x-grid3-row')]")
+            wanted_wanted = driver.find_elements(By.XPATH,
+                                                 "//div[contains(@class, 'x-grid3-row')]")
             print(wanted_wanted[0].text)
             # table = wanted_wanted
 
@@ -622,7 +621,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
         from pyautogui import hotkey
         from pyperclip import paste
-        img = driver.find_element_by_id('div-img-captcha')
+        img = driver.find_element(By.ID, 'div-img-captcha')
         img_name = 'hacking.png'
         img.screenshot(img_name)
         SbFConverter(img_name)

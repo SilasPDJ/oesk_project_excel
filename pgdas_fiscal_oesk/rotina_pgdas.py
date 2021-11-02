@@ -57,7 +57,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                 self.find_submit_form()
                 sleep(3.5)
 
-            comp_clic = driver.find_elements_by_class_name('pa')
+            comp_clic = driver.find_elements(By.CLASS_NAME, 'pa')
             lenc = len(comp_clic) - 1
             comp_clic[lenc].click()
             for i in range(3):
@@ -74,26 +74,26 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             self.get_sub_site(link_gera_das, current_url)
             self.tags_wait('input')
             driver.implicitly_wait(10)
-            periodo = driver.find_element_by_id('pa')
+            periodo = driver.find_element(By.ID, 'pa')
             periodo.send_keys(compt)
             self.find_submit_form()
             sleep(2.5)
-            # if  len(driver.find_elements_by_id('msgBox')) == 0 # CASO NÃO EXISTA O DAS
-            consolida = driver.find_element_by_id('btnConsolidarOutraData')
+            # if  len(driver.find_elements(By.ID, 'msgBox')) == 0 # CASO NÃO EXISTA O DAS
+            consolida = driver.find_element(By.ID, 'btnConsolidarOutraData')
             consolida.click()
             sleep(2.5)
 
             validade_id = 'txtDataValidade'
             driver.execute_script(
                 f"document.getElementById('{validade_id}').focus();")
-            validade_change = driver.find_element_by_id(validade_id)
+            validade_change = driver.find_element(By.ID, validade_id)
             for e, val in enumerate(retifica_p_dia):
                 validade_change.send_keys(val)
                 if e == 0:
                     sleep(.25)
 
             sleep(1)
-            driver.find_element_by_id('btnDataValidade').click()
+            driver.find_element(By.ID, 'btnDataValidade').click()
             # coloquei a validade
             # gerei das
 
@@ -111,7 +111,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             # driver.execute_script("""window.location.href += '/RegimeApuracao/Optar'""")
 
             from selenium.webdriver.support.ui import Select
-            anocalendario = Select(driver.find_element_by_id('anocalendario'))
+            anocalendario = Select(driver.find_element(By.ID, 'anocalendario'))
 
             anocalendario.select_by_value('2021')
             self.find_submit_form()
@@ -119,16 +119,16 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             # competencia
             competencia, caixa = '0', '1'
 
-            driver.find_element_by_css_selector(
-                f"input[type='radio'][value='{competencia}']").click()
+            driver.find_element(By.CSS_SELECTOR,
+                                f"input[type='radio'][value='{competencia}']").click()
             self.find_submit_form()
             sleep(2.5)
-            # driver.find_element_by_id('btnSimConfirm').click()
+            # driver.find_element(By.ID, 'btnSimConfirm').click()
 
             try:
                 driver.implicitly_wait(10)
                 self.click_ac_elementors(
-                    driver.find_element_by_class_name('glyphicon-save'))
+                    driver.find_element(By.CLASS_NAME, 'glyphicon-save'))
             except NoSuchElementException:
                 input('input Não consegui')
             else:
@@ -155,27 +155,27 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             self.tags_wait('html')
             self.tags_wait('input')
 
-            # driver.find_elements_by_xpath("//*[contains(text(), 'CNPJ:')]")[0].click()
+            # driver.find_elements(By.XPATH, "//*[contains(text(), 'CNPJ:')]")[0].click()
             # pygui.hotkey('tab', interval=0.5)
-            cpcp = driver.find_element_by_name(
-                'ctl00$ContentPlaceHolder$txtCNPJ')
+            cpcp = driver.find_element(By.NAME,
+                                       'ctl00$ContentPlaceHolder$txtCNPJ')
             cpcp.clear()
             cpcp.send_keys(CNPJ)
 
-            cpfcpf = driver.find_element_by_name(
-                'ctl00$ContentPlaceHolder$txtCPFResponsavel')
+            cpfcpf = driver.find_element(By.NAME,
+                                         'ctl00$ContentPlaceHolder$txtCPFResponsavel')
             cpfcpf.clear()
             cpfcpf.send_keys(CPF)
 
-            cod = driver.find_element_by_name(
-                'ctl00$ContentPlaceHolder$txtCodigoAcesso')
+            cod = driver.find_element(By.NAME,
+                                      'ctl00$ContentPlaceHolder$txtCodigoAcesso')
             cod.clear()
             cod.send_keys(CodSim)
 
-            cod_caract = driver.find_element_by_id(
-                'txtTexto_captcha_serpro_gov_br')
-            btn_som = driver.find_element_by_id(
-                'btnTocarSom_captcha_serpro_gov_br')
+            cod_caract = driver.find_element(By.ID,
+                                             'txtTexto_captcha_serpro_gov_br')
+            btn_som = driver.find_element(By.ID,
+                                          'btnTocarSom_captcha_serpro_gov_br')
             sleep(2.5)
             btn_som.click()
             sleep(.5)
@@ -184,8 +184,8 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             press_keys_b4('enter')
             while True:
                 try:
-                    submit = driver.find_element_by_xpath(
-                        "//input[@type='submit']").click()
+                    submit = driver.find_element(By.XPATH,
+                                                 "//input[@type='submit']").click()
                     break
                 except (NoSuchElementException, ElementClickInterceptedException):
                     print('sleepin'
@@ -220,7 +220,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         # 17bd6f43454
         initial = WebDriverWait(driver, 30).until(
             expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'T')
+        driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
         sleep(2)
         make_login = initial.get_attribute("href")
 
@@ -277,7 +277,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         # # 17bd6f43454
         # initial = WebDriverWait(driver, 30).until(
         #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-        # driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'T')
+        # driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
         # sleep(2)
         # make_login = initial.get_attribute("href")
         # driver.maximize_window()
@@ -303,8 +303,8 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver = self.driver
 
         def elem_with_text(elem, searched):
-            _tag = driver.find_element_by_xpath(
-                f"//{elem}[contains(text(),'{searched.rstrip()}')]")
+            _tag = driver.find_element(By.XPATH,
+                                       f"//{elem}[contains(text(),'{searched.rstrip()}')]")
             return _tag
 
         self.tags_wait('html', 'span')
@@ -325,7 +325,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         self.send_keys_anywhere(Keys.TAB)
         self.send_keys_anywhere(Keys.ENTER)
         sleep(1)
-        # driver.find_element_by_class_name('access-button').click()
+        # driver.find_element(By.CLASS_NAME, 'access-button').click()
         # sleep(10)
         antigo = driver.current_url
 
@@ -339,14 +339,14 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver.get(antigo)
         driver.get(
             'https://cav.receita.fazenda.gov.br/ecac/Aplicacao.aspx?id=10009&origem=menu')
-        driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+        driver.switch_to.frame(driver.find_element(By.TAG_NAME, "iframe"))
         sleep(2)
         while True:
             try:
                 # don't need anymore
                 # break
-                driver.find_element_by_xpath(
-                    '//span[@class="glyphicon glyphicon-off"]').click()
+                driver.find_element(By.XPATH,
+                                    '//span[@class="glyphicon glyphicon-off"]').click()
                 driver.refresh()
                 break
             except ElementClickInterceptedException:
@@ -395,13 +395,13 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         try:
             self.find_submit_form()
         except NoSuchElementException:
-            driver.find_elements_by_class_name(
-                'btn-success')[1].click()
+            driver.find_element(By.CLASS_NAME,
+                                'btn-success')[1].click()
 
     def compt_already_declared(self, compt):
         driver = self.driver
         try:
-            js_confirm = driver.find_element_by_id('jsMsgBoxConfirm')
+            js_confirm = driver.find_element(By.ID, 'jsMsgBoxConfirm')
             """
             tk_msg('F2 para somente gerar os últimos 3 arquivos de declarações.\n F4 para RETIFICAR'
                    '\nF10 p/ consolidar para ultima data do mês\n\n'
@@ -470,8 +470,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             print("pressione f9 para continuar")
             press_keys_b4("f9")
             try:
-                self.driver.find_element_by_name(
-                    "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
+                self.driver.find_element(By.NAME,
+                                         "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
             except NoSuchElementException:
                 self.driver.refresh
         self.current_url = self.driver.current_url
@@ -575,8 +575,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # Porém preciso checar caso tenha mais de um anexo
         # Além disso, preciso somar caso os anexos se repitam, porém pretendo
         # fazer isso no backend
-        inputs_text = self.driver.find_elements_by_css_selector(
-            "input[type='text']")
+        inputs_text = self.driver.find_elements(By.CSS_SELECTOR,
+                                                "input[type='text']")
         _count = 0
         for tres_valores in __valores_de_anexos:
             v_n_ret = self.trata_money_excel(
@@ -594,31 +594,31 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 _count += 1
                 # new_seleciona_anexo(com_ret)
         # self.find_submit_form()
-        self.driver.find_elements_by_class_name('btn-success')[1].click()
+        self.driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
         self.driver.implicitly_wait(30)
         sleep(3.5)
         try:
             self.find_submit_form()
         except NoSuchElementException:
-            driver.find_elements_by_class_name('btn-success')[1].click()
+            driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
         self.driver.implicitly_wait(30)
 
         for i in range(2):
-            driver.find_elements_by_class_name('btn-success')[1].click()
+            driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
             sleep(2)
         # self.driver.save_screenshot(self.certif_feito(self.client_path))
-        driver.find_elements_by_class_name('btn-success')[2].click()
+        driver.find_elements(By.CLASS_NAME, 'btn-success')[2].click()
 
-        # driver.find_elements_by_class_name('btn-success')[1].click()
+        # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
         # TODO Gera DAS, pode virar um método???
         # self.get_sub_site(self.link_gera_das, self.current_url)
 
         # self.send_keys_anywhere(self.compt)
         # self.send_keys_anywhere(Keys.ENTER)
-        # driver.find_elements_by_class_name('btn-success')[1].click()
+        # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
         self.simples_and_ecac_utilities(2, self.compt)

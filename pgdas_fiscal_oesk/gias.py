@@ -84,13 +84,13 @@ class GIA(InitialSetting, WDShorcuts):
             super().__init__(self.driver)
             driver.get(
                 'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')
-            llg = driver.find_element_by_id(
-                'ConteudoPagina_txtUsuario')
+            llg = driver.find_element(By.ID,
+                                      'ConteudoPagina_txtUsuario')
             llg.clear()
             llg.send_keys(login)
 
-            ssn = driver.find_element_by_xpath(
-                "//input[@type='password']")
+            ssn = driver.find_element(By.XPATH,
+                                      "//input[@type='password']")
             ssn.clear()
             ssn.send_keys(senha)
 
@@ -101,24 +101,24 @@ class GIA(InitialSetting, WDShorcuts):
             # self.find_submit_form()
             # enter entrar
             sleep(5)
-            driver.find_element_by_link_text('Nova GIA').click()
+            driver.find_element(By.LINK_TEXT, 'Nova GIA').click()
             sleep(3)
-            driver.find_element_by_partial_link_text(
-                'Documentos Fiscais (Normal, Substit. e Coligida)').click()
+            driver.find_element(By.PARTIAL_LINK_TEXT,
+                                'Documentos Fiscais (Normal, Substit. e Coligida)').click()
             sleep(2)
-            driver_clicks = driver.find_elements_by_xpath(
-                "//input[@type='file']")
+            driver_clicks = driver.find_elements(By.XPATH,
+                                                 "//input[@type='file']")
 
             driver_clicks[0].send_keys(self.clieninput_filepath())
-            driver.find_elements_by_xpath(
-                "//input[@type='button']")[0].click()
+            driver.find_elements(By.XPATH,
+                                 "//input[@type='button']")[0].click()
             try:
                 driver.switch_to.alert.accept()
             except NoAlertPresentException:
                 print('Sem alerta')
             sleep(5)
             """
-            bt_imprime = driver.find_element_by_css_selector('[alt="Imprimir"]')
+            bt_imprime = driver.find_element(By.CSS_SELECTOR, '[alt="Imprimir"]')
             self.exec_list(click=bt_imprime, enter=pygui)
             print('Glória a Deus f7 p continuar')
             press_key_b4('f7')

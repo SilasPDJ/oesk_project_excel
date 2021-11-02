@@ -49,13 +49,13 @@ class GissGui(InitialSetting, WDShorcuts):
             while True:
                 # TxtIdent
                 self.driver.get(weblink)
-                driver.find_element_by_xpath(
-                    '//input[@name="TxtIdent"]').send_keys(_logar)
-                driver.find_element_by_xpath(
-                    '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
+                driver.find_element(By.XPATH,
+                                    '//input[@name="TxtIdent"]').send_keys(_logar)
+                driver.find_element(By.XPATH,
+                                    '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
                 print(f'Senha: {__senhas[cont_senha]}', end=' ')
                 cont_senha += 1
-                driver.find_element_by_link_text("Acessar").click()
+                driver.find_element(By.LINK_TEXT, "Acessar").click()
                 try:
                     WebDriverWait(driver, 5).until(expected_conditions.alert_is_present(),
                                                    'Timed out waiting for PA creation ' +
@@ -76,22 +76,22 @@ class GissGui(InitialSetting, WDShorcuts):
                 self.calls_write_date = partial(
                     self.write_date_variascompt, month, year)
                 try:
-                    iframe = driver.find_element_by_xpath(
-                        "//iframe[@name='header']")
+                    iframe = driver.find_element(By.XPATH,
+                                                 "//iframe[@name='header']")
                     driver.switch_to.frame(iframe)
                 except NoSuchElementException:
                     driver.execute_script(
                         "window.location.href=('/tomador/tomador.asp');")
                 # principal MENU frame...
-                # a = driver.find_elements_by_tag_name("iframe")[0]
+                # a = driver.find_elements(By.TAG_NAME, "iframe")[0]
                 # driver.switch_to.frame(a)
                 # driver.execute_script(
                 #     "javascript: clickTomador(); FunImg('6');")
 
                 constr = False
                 try:
-                    driver.find_element_by_xpath(
-                        "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
+                    driver.find_element(By.XPATH,
+                                        "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
                     # Try prestador, else = Construção civil
                 except (NoSuchElementException, ElementNotInteractableException):
                     self.constr_civil()
@@ -135,13 +135,13 @@ class GissGui(InitialSetting, WDShorcuts):
         self.__check_prestador_guias()
         input('teste volto pra onde')
         try:
-            driver.find_element_by_xpath(
-                '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
-            # driver.find_elements_by_xpath("//*[contains(text(), 'Encerrar Escrituração ')]")[0].click()
+            driver.find_element(By.XPATH,
+                                '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
+            # driver.find_elements(By.XPATH, "//*[contains(text(), 'Encerrar Escrituração ')]")[0].click()
             try:
                 sleep(2)
-                driver.find_elements_by_xpath(
-                    "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
+                driver.find_elements(By.XPATH,
+                                     "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
                 self.gerar_cert('giss-prestador.png')
                 # PrintScreenFinal(clien)
 
@@ -163,38 +163,38 @@ class GissGui(InitialSetting, WDShorcuts):
             print('Exception line 140, sem PRESTADOR')
             # print("BACKEI. Aqui vai ser a parte 2")
         driver.switch_to.default_content()
-        iframe = driver.find_element_by_xpath("//iframe[@name='header']")
+        iframe = driver.find_element(By.XPATH, "//iframe[@name='header']")
         sleep(2.5)
         driver.switch_to.frame(iframe)
-        driver.find_element_by_xpath(
-            '//img[contains(@src,"bt_menu__06_off.jpg")]').click()
+        driver.find_element(By.XPATH,
+                            '//img[contains(@src,"bt_menu__06_off.jpg")]').click()
         driver.switch_to.default_content()
-        iframe = driver.find_element_by_xpath("//iframe[@name='principal']")
+        iframe = driver.find_element(By.XPATH, "//iframe[@name='principal']")
         driver.switch_to.frame(iframe)
 
         """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TOMADOR """
         cont = 0
         for i in range(2):
             sleep(3)
-            a = driver.find_elements_by_tag_name('a')
+            a = driver.find_elements(By.TAG_NAME, 'a')
             print(len(a))
 
             a[4].click()
             sleep(1.5)
             try:
-                driver.find_elements_by_xpath(
-                    "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
+                driver.find_elements(By.XPATH,
+                                     "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
                 break
             except IndexError:
                 try:
-                    driver.find_element_by_link_text('Menu Principal').click()
+                    driver.find_element(By.LINK_TEXT, 'Menu Principal').click()
                 except NoSuchElementException:
-                    driver.find_element_by_link_text('OK').click()
+                    driver.find_element(By.LINK_TEXT, 'OK').click()
 
         # pressione "ESC" para continuar
     def __check_prestador_guias(self):
         def __download_prestador_guias():
-            tb = self.driver.find_element_by_tag_name('table')
+            tb = self.driver.find_element(By.TAG_NAME, 'table')
             __meses_guias = tb.find_elements(By.TAG_NAME, 'a')
             MESES, GUIAS = (
                 [mes for mes in __meses_guias if mes.text != ''],
@@ -241,10 +241,10 @@ class GissGui(InitialSetting, WDShorcuts):
 
         driver = self.driver
 
-        # driver.find_element_by_xpath(
+        # driver.find_element(By.XPATH,
         #     '//img[contains(@src,"bt_menu__05_off.jpg")]').click()
         driver.switch_to.default_content()
-        iframe = driver.find_element_by_xpath("//iframe[@name='principal']")
+        iframe = driver.find_element(By.XPATH, "//iframe[@name='principal']")
         driver.switch_to.frame(iframe)
         el = self.tag_with_text('a', 'Conta Corrente')
 
@@ -255,8 +255,8 @@ class GissGui(InitialSetting, WDShorcuts):
 
         # tabela com as guias
         # table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
-        table = self.driver.find_elements_by_tag_name('table')[1]
-        iframe = table.find_element_by_xpath("//iframe[@name='conteudo']")
+        table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
+        iframe = table.find_element(By.XPATH, "//iframe[@name='conteudo']")
         self.driver.switch_to.frame(iframe)
 
         __download_prestador_guias()
@@ -264,7 +264,7 @@ class GissGui(InitialSetting, WDShorcuts):
         # driver.find_element(By.ID, )
         driver.switch_to.default_content()
         driver.switch_to.default_content()
-        iframe = driver.find_element_by_xpath("//iframe[@name='header']")
+        iframe = driver.find_element(By.XPATH, "//iframe[@name='header']")
         driver.switch_to.frame(iframe)
         driver.execute_script('javascript: clickPrestador(); ')
         driver.switch_to.default_content()
@@ -275,8 +275,8 @@ class GissGui(InitialSetting, WDShorcuts):
         XPATH = "//*[contains(text(), '- Serviço da Construção Civil')]", "//*[contains(text(), '- Demais Serviços')]"
 
         driver = self.driver
-        driver.find_element_by_xpath(
-            '//img[contains(@src,"bt_menu__06_off.jpg")]').click()
+        driver.find_element(By.XPATH,
+                            '//img[contains(@src,"bt_menu__06_off.jpg")]').click()
         sleep(2)
         driver.switch_to.default_content()
         self.calls_write_date()
@@ -284,18 +284,18 @@ class GissGui(InitialSetting, WDShorcuts):
             driver.switch_to.default_content()
             sleep(2)
 
-            iframe = driver.find_element_by_xpath("//iframe[@name='header']")
+            iframe = driver.find_element(By.XPATH, "//iframe[@name='header']")
             driver.switch_to.frame(iframe)
-            driver.find_element_by_xpath(
-                '//img[contains(@src,"bt_menu__07_off.jpg")]').click()
+            driver.find_element(By.XPATH,
+                                '//img[contains(@src,"bt_menu__07_off.jpg")]').click()
 
             driver.switch_to.default_content()
             sleep(2)
-            iframe = driver.find_element_by_xpath(
-                "//iframe[@name='principal']")
+            iframe = driver.find_element(By.XPATH,
+                                         "//iframe[@name='principal']")
             driver.switch_to.frame(iframe)
 
-            driver.find_element_by_xpath(XPATH[contX]).click()
+            driver.find_element(By.XPATH, XPATH[contX]).click()
             # XPATH
             # input("faça os processos daqui pra baixo")
 
@@ -304,8 +304,8 @@ class GissGui(InitialSetting, WDShorcuts):
                 for i in range(2):
                     sleep(ttt)
                     ttt -= 2.5
-                    driver.find_element_by_xpath(
-                        "//*[contains(text(), 'Encerrar Competência')]").click()
+                    driver.find_element(By.XPATH,
+                                        "//*[contains(text(), 'Encerrar Competência')]").click()
                 try:
                     WebDriverWait(driver, 3).until(expected_conditions.alert_is_present(),
                                                    'Timed out waiting for PA creation ' +
@@ -319,10 +319,10 @@ class GissGui(InitialSetting, WDShorcuts):
                 driver.refresh()
                 # input('drive refresh')
             elif contX == 1:
-                driver.find_element_by_xpath(
-                    "//*[contains(text(), 'Encerrar Escrituração')]").click()
-                driver.find_elements_by_xpath(
-                    "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
+                driver.find_element(By.XPATH,
+                                    "//*[contains(text(), 'Encerrar Escrituração')]").click()
+                driver.find_elements(By.XPATH,
+                                     "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
                 # ENCERRADO
                 sleep(5)
 
@@ -333,11 +333,11 @@ class GissGui(InitialSetting, WDShorcuts):
         # print(f'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {mes}---{ano}')
 
         sleep(5)
-        iframe = driver.find_element_by_xpath("//iframe[@name='principal']")
+        iframe = driver.find_element(By.XPATH, "//iframe[@name='principal']")
         driver.switch_to.frame(iframe)
         self.tags_wait('input')
-        m = driver.find_element_by_xpath('//input[@name="mes"]')
-        a = driver.find_element_by_xpath('//input[@name="ano"]')
+        m = driver.find_element(By.XPATH, '//input[@name="mes"]')
+        a = driver.find_element(By.XPATH, '//input[@name="ano"]')
         m.clear()
         a.clear()
         m.send_keys(mes)

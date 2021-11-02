@@ -38,21 +38,21 @@ class RotinaDividas(InitialSetting, WDShorcuts):
             self.enable_download_in_headless_chrome(self.client_path)
             self.change_ecac_client(__cnpj)
 
-            driver.find_element_by_id('linkHome').click()
+            driver.find_element(By.ID, 'linkHome').click()
 
             if simples_or_ativa == 'simples nacional':
-                driver.find_element_by_link_text(
-                    'Simples Nacional').click()
-                driver.find_element_by_link_text(
-                    'Solicitar, acompanhar e emitir DAS de parcelamento').click()
+                driver.find_element(By.LINK_TEXT,
+                                    'Simples Nacional').click()
+                driver.find_element(By.LINK_TEXT,
+                                    'Solicitar, acompanhar e emitir DAS de parcelamento').click()
 
                 driver.implicitly_wait(10)
 
                 driver.switch_to.frame(
-                    driver.find_element_by_id('frmApp'))
+                    driver.find_element(By.ID, 'frmApp'))
 
-                empel = driver.find_element_by_id(
-                    'ctl00_contentPlaceH_linkButtonEmitirDAS')
+                empel = driver.find_element(By.ID,
+                                            'ctl00_contentPlaceH_linkButtonEmitirDAS')
                 empel.click()
                 WebDriverWait(self.driver, 20).until(
                     expected_conditions.presence_of_element_located(
@@ -67,10 +67,10 @@ class RotinaDividas(InitialSetting, WDShorcuts):
                 driver.switch_to.default_content()
             elif simples_or_ativa == 'dívida ativa':
 
-                driver.find_element_by_link_text(
-                    'Dívida Ativa da União').click()
-                driver.find_element_by_link_text(
-                    'Débitos Inscritos em Dívida Ativa da União').click()
+                driver.find_element(By.LINK_TEXT,
+                                    'Dívida Ativa da União').click()
+                driver.find_element(By.LINK_TEXT,
+                                    'Débitos Inscritos em Dívida Ativa da União').click()
 
                 driver.switch_to.window(driver.window_handles[1])
                 driver.implicitly_wait(10)
@@ -107,11 +107,11 @@ class RotinaDividas(InitialSetting, WDShorcuts):
 
                 sleep(7)
 
-                dris = driver.find_elements_by_css_selector(
-                    ".colunaAlinhaCentro")
+                dris = driver.find_elements(By.CSS_SELECTOR,
+                                            ".colunaAlinhaCentro")
 
-                elemitidos = driver.find_elements_by_css_selector(
-                    f"[title*='Já emitido']")
+                elemitidos = driver.find_elements(By.CSS_SELECTOR,
+                                                  f"[title*='Já emitido']")
                 for el in elemitidos:
                     el.click()
                     sleep(.5)
@@ -168,7 +168,7 @@ class RotinaDividas(InitialSetting, WDShorcuts):
         # # 17bd6f43454
         # initial = WebDriverWait(driver, 30).until(
         #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-        # driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'T')
+        # driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
         # sleep(2)
         # make_login = initial.get_attribute("href")
         # driver.maximize_window()
@@ -194,8 +194,8 @@ class RotinaDividas(InitialSetting, WDShorcuts):
         driver = self.driver
 
         def elem_with_text(elem, searched):
-            _tag = driver.find_element_by_xpath(
-                f"//{elem}[contains(text(),'{searched.rstrip()}')]")
+            _tag = driver.find_element(By.XPATH,
+                                       f"//{elem}[contains(text(),'{searched.rstrip()}')]")
             return _tag
 
         self.tags_wait('html', 'span')
@@ -213,7 +213,7 @@ class RotinaDividas(InitialSetting, WDShorcuts):
         self.send_keys_anywhere(Keys.TAB)
         self.send_keys_anywhere(Keys.ENTER)
         sleep(1)
-        # driver.find_element_by_class_name('access-button').click()
+        # driver.find_element(By.CLASS_NAME, 'access-button').click()
         # sleep(10)
         antigo = driver.current_url
 
@@ -227,12 +227,12 @@ class RotinaDividas(InitialSetting, WDShorcuts):
         driver.get(antigo)
         driver.get(
             'https://cav.receita.fazenda.gov.br/ecac/Aplicacao.aspx?id=10009&origem=menu')
-        driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+        driver.switch_to.frame(driver.find_element(By.TAG_NAME, "iframe"))
         sleep(2)
         while True:
             try:
-                driver.find_element_by_xpath(
-                    '//span[@class="glyphicon glyphicon-off"]').click()
+                driver.find_element(By.XPATH,
+                                    '//span[@class="glyphicon glyphicon-off"]').click()
                 driver.refresh()
                 break
             except ElementClickInterceptedException:
