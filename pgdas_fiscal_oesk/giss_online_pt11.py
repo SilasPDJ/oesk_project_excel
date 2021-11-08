@@ -36,8 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist('giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
-            # self.driver = driver = pgdas_driver(self.client_path)
+            # self.driver = driver = ginfess_driver(self.client_path)
+            self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -133,7 +133,6 @@ class GissGui(InitialSetting, WDShorcuts):
             self.calls_write_date()
 
         self.__check_prestador_guias()
-        input('teste volto pra onde')
         try:
             driver.find_element(By.XPATH,
                                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
@@ -272,7 +271,6 @@ class GissGui(InitialSetting, WDShorcuts):
         driver.switch_to.frame(iframe)
         driver.execute_script('javascript: clickPrestador(); ')
         driver.switch_to.default_content()
-        input('deu certo?')
 
     def constr_civil(self):
         # parei nessa belezinha aqui, tomador e prestador tão ok

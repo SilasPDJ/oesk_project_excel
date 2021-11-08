@@ -166,7 +166,7 @@ class Backend:
             def gias():
                 if imposto_a_calcular == 'LP' and ginfess_cod != 'nan' and declarado != 'S':
                     GIA(razao_social, proc_ecac.replace('.', ''), *ginfess_cod.split('//'),
-                        compt=COMPT, driver=pgdas_driver)
+                        compt=COMPT)
                 # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
 
             def giss():
@@ -207,6 +207,9 @@ class Backend:
                     return eval(f'{FUNC}()')
                 else:
                     pass
+
+            # não abrir mais a GIA de uma vez
+            # TODO: refatorar os programas pra abrir somente 1x
 
 
 class MainApplication(tk.Frame, Backend):

@@ -19,7 +19,6 @@ possible = ['GIA']
 
 
 class GIA(InitialSetting, WDShorcuts):
-    OPENED = False
 
     def __init__(self, *args, compt):
 
@@ -45,14 +44,16 @@ class GIA(InitialSetting, WDShorcuts):
 
         # if certificado...
         if not self.certifs_exist('GiaScreenShoot', 1):
-            #
-            # mudei do for pra ca
-            if not self.OPENED:
+            janelas_gias = pygui.getWindowsWithTitle('GIA')
+            for win in janelas_gias:
+                if win.title == 'GIA':
+                    win.maximize()
+                    win.activate()
+                    break
+            else:
+                # there is no break...
                 self.abre_programa(self.get_env_for_path(
                     '\\Desktop\\GIA.exe'), path=True)
-                self.OPENED = True
-            else:
-                pygui.getWindowsWithTitle('GIA')[0].activate()
 
             IE = __cnpj
             my_print = login
