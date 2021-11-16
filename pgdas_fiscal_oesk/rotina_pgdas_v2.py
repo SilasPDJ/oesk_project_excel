@@ -354,7 +354,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             self.find_submit_form()
         except NoSuchElementException:
             driver.find_elements(By.CLASS_NAME,
-                                'btn-success')[1].click()
+                                 'btn-success')[1].click()
 
     def compt_already_declared(self, compt):
         driver = self.driver
@@ -570,10 +570,14 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         for i in range(2):
             driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
+            sleep(3)
 
-            sleep(2)
-        # self.driver.save_screenshot(self.certif_feito(self.client_path))
-        driver.find_elements(By.CLASS_NAME, 'btn-success')[2].click()
+        try:
+            self.find_submit_form()
+        except NoSuchElementException:
+            driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
+
+        self.driver.save_screenshot(self.certif_feito(self.client_path))
 
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 

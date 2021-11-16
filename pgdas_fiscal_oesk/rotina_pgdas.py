@@ -68,8 +68,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         elif option == 1:
             # gera das
             venc_month_compt = int(month_compt) + 1
-            venc = self.get_last_business_day_of_month(
-                venc_month_compt, int(year_compt))
+            venc = input('Digite o dia: ')
             retifica_p_dia = f'{venc}{venc_month_compt:02d}{year_compt}'
             self.get_sub_site(link_gera_das, current_url)
             self.tags_wait('input')
@@ -100,6 +99,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             driver.implicitly_wait(5)
             self.find_submit_form()
             # GERAR DAS
+            sleep(5)
         else:
             return False
 
@@ -605,12 +605,12 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         self.driver.implicitly_wait(30)
 
-        for i in range(2):
-            driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
+        driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
+        self.click_ac_elementors(driver.find_elements(
+            By.CLASS_NAME, 'btn-success')[1])
 
-            sleep(2)
         # self.driver.save_screenshot(self.certif_feito(self.client_path))
-        driver.find_elements(By.CLASS_NAME, 'btn-success')[2].click()
+        driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
 
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
