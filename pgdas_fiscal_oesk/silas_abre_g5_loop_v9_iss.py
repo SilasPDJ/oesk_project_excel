@@ -42,7 +42,7 @@ class G5(Contimatic):
 
             registronta = self.registronta()
             print(__client)
-            self.abre_ativa_programa('G5')
+            self.abre_ativa_programa('G5 ')  # vscode's cause
             if meus_3_valores_atuais and registronta and "ok" != nf_out.lower() != "s":
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # self.start_walk_menu()
@@ -57,25 +57,38 @@ class G5(Contimatic):
                 # generate pdf
                 sleep(7.5)
                 # self.most_recent_file()
-                print('estou contando com o Adobe, pois o PDF do G5 é aberto nele...')
 
-                all_keys('ctrl', 'shift', 's')
-                input('teste salve')
+                self.save_foxit(__cnpj)
+                # F4
+                # TODO: Salvar dentro do local de salvar relatorio, client_path
 
-    def get_xml(self, cliente):
+    def save_foxit(self, add2file):
+        filename = f"Registro_ISS-{add2file}"
+        all_keys('ctrl', 'shift', 's')
+        sleep(.5)
+        pygui.write(filename)
+        sleep(.25)
+        pygui.hotkey('f4')
+        sleep(.5)
+        pygui.hotkey('ctrl', 'a')
+        pygui.hotkey('delete')
+        pygui.write(self.client_path)
+        pygui.hotkey('enter')
+        sleep(1)
+        pygui.hotkey('f4', 'enter', 'enter', interval=.5)
+        winexplorer = pygui.getActiveWindow()
+        winexplorer.moveRel(0, 0)
+        pygui.click(clicks=0)
+        pygui.hotkey('enter')
+        input('teste')
+
+    def __get_xml(self, cliente):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')
         b = b[0]
         b = b.split('\\')
         file = f'\\\\{b[-1]}'
         final = '\\'.join(b[:-1]) + file
         return final
-
-    def importa_nfs(self):
-        sleep(2.5)
-        w3 = pygui.getActiveWindow()
-        pygui.click(w3.center, clicks=0)
-        pygui.move(0, 150)
-        pygui.click()
 
     def start_walk_menu(self):
         x, y = 30, 30

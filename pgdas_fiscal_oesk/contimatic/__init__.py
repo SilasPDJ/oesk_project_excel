@@ -51,6 +51,7 @@ class Contimatic(InitialSetting):
         :return:
         """
         login, passwd = self.__read_login()
+        # _sname = f'{name} Phoenix'
 
         def faz_login():
             # Faz login em qualquer aplicativo
@@ -70,16 +71,30 @@ class Contimatic(InitialSetting):
                     pygui.hotkey('enter')
                     break
 
-        try:
-            searched = pygui.getWindowsWithTitle(name)[0]
-            ativa_janela(searched)
-            sleep(2)
-        except IndexError:
-            auto_sky_window = pygui.getWindowsWithTitle('Auto.Sky')[0]
-            ativa_janela(auto_sky_window)
-            pygui.write(name)
-            pygui.hotkey('enter')
-            faz_login()
+        while True:
+            # with screenshot
+            rgb = (103, 203, 234)
+            try:
+                searched = pygui.getWindowsWithTitle(name)
+                searched = searched[0]
+                ativa_janela(searched)
+
+            except IndexError:
+                print('index error')
+                auto_sky_window = pygui.getWindowsWithTitle('Auto.Sky')[0]
+                ativa_janela(auto_sky_window)
+                pygui.write(name)
+                pygui.hotkey('enter')
+                faz_login()
+                sleep(15)
+            finally:
+                sleep(2)
+                if pygui.screenshot().getpixel((1, 1)) != rgb:
+                    print(pygui.screenshot().getpixel((1, 1)))
+                    pygui.click(150, 0, clicks=0)
+                    # just to focus...
+                else:
+                    break
 
     def activating_client(self, client_cnpj):
         x, y = 30, 60

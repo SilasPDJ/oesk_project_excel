@@ -200,7 +200,7 @@ class G5(InitialSetting):
         """
 
         if path is False:
-            programa = contmatic_select_by_name(name)
+            programa = _contmatic_select_by_name(name)
         else:
             programa = name
 
