@@ -83,10 +83,10 @@ class DownloadGinfessGuiSameFolder(InitialSetting, WDShorcuts):
                     driver.implicitly_wait(5)
 
                     # Creation initial
-                    # excel_file = os.path.join(
-                    #     self.client_path, f'{__cnpj}.xlsx')
-                    # self.excel_from_html_above(
-                    #     excel_file, html=self.ginfess_table_valores_html_code())
+                    excel_file = os.path.join(
+                        self.client_path, f'{__r_social[:10]}_{compt}.xlsx')
+                    self.excel_from_html_above(
+                        excel_file, html=self.ginfess_table_valores_html_code())
 
                 except IndexError:
                     print('~' * 30)

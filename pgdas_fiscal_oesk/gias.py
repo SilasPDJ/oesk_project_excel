@@ -3,6 +3,7 @@ from default.sets import InitialSetting
 from default.webdriver_utilities.pre_drivers import pgdas_driver
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import *
+from default.interact import _contmatic_select_by_name
 
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
@@ -204,7 +205,7 @@ class GIA(InitialSetting, WDShorcuts):
         :return: winleft+r open
         """
         if path is False:
-            programa = contmatic_select_by_name(name)
+            programa = _contmatic_select_by_name(name)
         else:
             programa = name
 

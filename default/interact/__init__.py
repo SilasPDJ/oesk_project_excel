@@ -1,6 +1,18 @@
 # SyntaxWarning: import * only allowed at module level
 from time import sleep
 import threading
+from pyautogui import Window, click
+
+
+def ativa_janela(p: Window):
+    """
+    :param p: py32win
+    """
+    # ativa qualquer janela
+    p.restore()
+    p.show()
+    p.activate()
+    click(p.center, clicks=0)
 
 
 def press_key_b4(key: str):
@@ -35,7 +47,8 @@ def press_keys_b4(*keys: str):
                 pass
                 # print(key)
 
-def foritab(n, *hkeys, interval=.13):
+
+def foritab(n, *hkeys, interval=.05):
     import pyautogui as pygui
     """
     :param int n: how many times
@@ -64,7 +77,8 @@ def all_keys(*keys, interval=.13, only1_by1=True):
     for cont, key in enumerate(keys):
         if key in full_hotkey_list:
             if cont > 0 and only1_by1:
-                raise UserWarning("Security warning, SET only1_by1 as False [then you'll be able to use hotkeys with write]")
+                raise UserWarning(
+                    "Security warning, SET only1_by1 as False [then you'll be able to use hotkeys with write]")
 
             list_keys = []
             for kd in keys:
@@ -80,7 +94,7 @@ def all_keys(*keys, interval=.13, only1_by1=True):
             sleep(interval)
 
 
-def contmatic_select_by_name(name):
+def _contmatic_select_by_name(name):
     import os
 
     p1path = os.getenv('APPDATA')
@@ -92,50 +106,7 @@ def contmatic_select_by_name(name):
         print(file)
 
 
-def activate_window(title, where=''):
-    """
-    :param title: nome/name janela/window
-    :param where: optional. Message
-    :return: última janela de um title específico ativada para manipular a princípio o diálogo do sistema operacional
-
-    # done
-    """
-    from pyautogui import getWindowsWithTitle, hotkey, getActiveWindow, keyUp, keyDown
-    # my_window = getWindowsAt(-1055, 0)[0]
-
-    window = getWindowsWithTitle(title)
-    window = window[0]
-
-    # print(window.right, window.top, '..', window.title)
-    # window.move(1055, 0)
-    sleep(2)
-    msg = f'{window.title}.\n\n {where.upper() if where != "" else ""}'
-    # self.mensagem(msg)
-    tk_msg(msg)
-    tabs = ['tab']
-    while True:
-
-        sleep(2)
-        try:
-            var = getActiveWindow().title
-            var = var.lower()
-            win_logic = window.title.lower()
-            print(var, window.title)
-            if var == win_logic:
-                break
-            else:
-                keyDown('alt')
-                for tab in tabs:
-                    hotkey(tab)
-                sleep(.5)
-                keyUp('alt')
-                tabs.append('tab')
-        except AttributeError:
-            print('window not found')
-            pass
-
-
-def tk_msg(mensagem:str, time=7):
+def tk_msg(mensagem: str, time=7):
     """
     chamada em activate_driver_window
     :param mensagem: text displayed
