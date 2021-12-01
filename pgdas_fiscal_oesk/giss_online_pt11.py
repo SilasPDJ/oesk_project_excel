@@ -133,6 +133,8 @@ class GissGui(InitialSetting, WDShorcuts):
             self.calls_write_date()
 
         self.__check_prestador_guias()
+
+        driver.switch_to.frame('principal')
         try:
             driver.find_element(By.XPATH,
                                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()

@@ -2,7 +2,8 @@
 from pgdas_fiscal_oesk.rotinas_dividas_v2 import RotinaDividas
 from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
-from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
+# from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
+from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
 from default.sets import get_compt
@@ -14,7 +15,6 @@ from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao as PgdasDeclaracaoFull
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
-from pgdas_fiscal_oesk.ginfess_download_same_folder import DownloadGinfessGuiSameFolder
 
 import tkinter as tk
 from default.interact.autocomplete_entry import AutocompleteEntry, matches
@@ -22,7 +22,7 @@ from threading import Thread
 import os
 import subprocess
 
-COMPT = get_compt(0)
+COMPT = get_compt(-1)
 
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
@@ -181,11 +181,6 @@ class Backend:
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                        ginfess_link,  compt=COMPT)
 
-            def ginfess_same_folder():
-                if ginfess_link != 'nan':
-                    DownloadGinfessGuiSameFolder(razao_social, cnpj, ginfess_cod,
-                                                 ginfess_link, compt=COMPT)
-
             def g5():
                 G5(razao_social, cnpj, cpf, codigo_simples,
                    valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
@@ -237,8 +232,7 @@ class MainApplication(tk.Frame, Backend):
             'gias', self.selected_client.get()))
         bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
             'ginfess', self.selected_client.get()))
-        bt_ginfess_same_folder = self.button('Fazer Ginfess SAME FOLDER', lambda: self.call_func_v2(
-            'ginfess_same_folder', self.selected_client.get()), bg="gray")
+
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
         bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
@@ -254,7 +248,7 @@ class MainApplication(tk.Frame, Backend):
         self.__pack(bt_das_full)
         self.__pack(bt_gias)
         self.__pack(bt_ginfess)
-        self.__pack(bt_ginfess_same_folder)
+
         self.__pack(bt_giss)
         self.__pack(bt_g5)
         self.__pack(bt_sendpgdas)

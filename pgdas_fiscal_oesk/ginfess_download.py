@@ -34,11 +34,11 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
         # Checa se já existe certificado
-        if _ginfess_cod.lower() == 'não há':
+        if _ginfess_cod.lower() == 'não há' or link == 'https://santoandre.ginfes.com.br/' or link == 'https://saocaetano.ginfes.com.br/':
             # removi o ja_imported
             print(
                 f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
-        elif self.check_done(self.client_path, '.png', startswith='GINFESS'):
+        elif self.check_done(self.client_path, '.png', startswith=__r_social):
             # Checka o certificado ginfess, somente
             if show_driver:
                 driver = pgdas_driver
@@ -95,7 +95,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     print('~' * 30)
 
                 driver.save_screenshot(self.certif_feito(
-                    self.client_path, add='GINFESS'))
+                    self.client_path, add=__r_social))
                 # coloquei tudo no dele
 
             elif self.driver.current_url == 'https://tremembe.sigiss.com.br/tremembe/contribuinte/login.php':
@@ -249,7 +249,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 # CONSULTAR
                 self.driver.execute_script(
                     "apex.submit({request:'P26_BTN_CONSULTAR'});")
-
+                print('Digite f9 para continuar')
+                press_key_b4('f9')
                 self.driver.save_screenshot(self.certif_feito(
                     self.client_path, add='GINFESS'))
             else:
