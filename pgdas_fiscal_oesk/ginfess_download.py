@@ -34,7 +34,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
         # Checa se já existe certificado
-        if _ginfess_cod.lower() == 'não há' or link == 'https://santoandre.ginfes.com.br/' or link == 'https://saocaetano.ginfes.com.br/':
+        if _ginfess_cod.lower() == 'não há':
             # removi o ja_imported
             print(
                 f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')

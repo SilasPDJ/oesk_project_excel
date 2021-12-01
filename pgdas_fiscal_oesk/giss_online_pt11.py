@@ -36,8 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist('giss'):
-            # self.driver = driver = ginfess_driver(self.client_path)
-            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -208,31 +208,35 @@ class GissGui(InitialSetting, WDShorcuts):
             soup = BeautifulSoup(tb.get_attribute('innerHTML'), 'html.parser')
             rows = soup.find_all('tr')
             vals_pagos, vals_abertos = [], []
-            for row in rows[1:]:
-                def trata_val(v):
-                    try:
-                        return float(v.replace(',', '.'))
-                    except ValueError:
-                        print('value error')
-                        return v
-                _vcobs, _vrecs = [r for r in row.find_all('td')[5:7]]
-                vals_pagos.append(trata_val(_vcobs.text))
-                vals_abertos.append(trata_val(_vrecs.text))
+            # pois, alguns são diferentes...
+            try:
+                for row in rows[1:]:
+                    def trata_val(v):
+                        try:
+                            return float(v.replace(',', '.'))
+                        except ValueError:
+                            print('value error')
+                            return v
+                    _vcobs, _vrecs = [r for r in row.find_all('td')[5:7]]
+                    vals_pagos.append(trata_val(_vcobs.text))
+                    vals_abertos.append(trata_val(_vrecs.text))
 
-            # get indexes for GUIAS
-            vals_pendentes = []
-            for cont, (val_pago, val_em_aberto) in enumerate(zip(vals_pagos, vals_abertos)):
-                if val_em_aberto != 0:
-                    # print(val_em_aberto)
-                    vals_pendentes.append(cont)
-            # gera guias a pagar
-            __meses = []  # for naming certificate of existing guias file
-            for indx in vals_pendentes:
-                guia, mes = GUIAS[indx], MESES[indx].text
-                __meses.append(mes)
-                # generate guia
-                # guia.click()
-            __meses = "_".join(__meses)
+                # get indexes for GUIAS
+                vals_pendentes = []
+                for cont, (val_pago, val_em_aberto) in enumerate(zip(vals_pagos, vals_abertos)):
+                    if val_em_aberto != 0:
+                        # print(val_em_aberto)
+                        vals_pendentes.append(cont)
+                # gera guias a pagar
+                __meses = []  # for naming certificate of existing guias file
+                for indx in vals_pendentes:
+                    guia, mes = GUIAS[indx], MESES[indx].text
+                    __meses.append(mes)
+                    # generate guia
+                    # guia.click()
+                __meses = "_".join(__meses)
+            except ValueError:
+                __meses = None
             self.driver.save_screenshot(
                 f'{self.client_path}/{__meses}-GUIASpendentes-giss.png')
             try:
@@ -251,23 +255,26 @@ class GissGui(InitialSetting, WDShorcuts):
         driver.switch_to.default_content()
         iframe = driver.find_element(By.XPATH, "//iframe[@name='principal']")
         driver.switch_to.frame(iframe)
-        el = self.tag_with_text('a', 'Conta Corrente')
+        try:
+            el = self.tag_with_text('a', 'Conta Corrente')
 
-        el.click()
-        # year_selected = self.tag_with_text('font', self.compt_atual.split('-')[-1])
-        # self.click_ac_elementors(year_selected)
-        self.click_elements_by_tt(self.compt_atual.split('-')[-1])
+            el.click()
+            # year_selected = self.tag_with_text('font', self.compt_atual.split('-')[-1])
+            # self.click_ac_elementors(year_selected)
+            self.click_elements_by_tt(self.compt_atual.split('-')[-1])
 
-        # tabela com as guias
-        # table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
-        table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
-        iframe = table.find_element(By.XPATH, "//iframe[@name='conteudo']")
-        self.driver.switch_to.frame(iframe)
+            # tabela com as guias
+            # table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
+            table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
+            iframe = table.find_element(By.XPATH, "//iframe[@name='conteudo']")
+            self.driver.switch_to.frame(iframe)
 
-        __download_prestador_guias()
+            __download_prestador_guias()
 
-        # driver.find_element(By.ID, )
-        driver.switch_to.default_content()
+            # driver.find_element(By.ID, )
+            driver.switch_to.default_content()
+        except NoSuchElementException:
+            pass
         driver.switch_to.default_content()
         iframe = driver.find_element(By.XPATH, "//iframe[@name='header']")
         driver.switch_to.frame(iframe)
