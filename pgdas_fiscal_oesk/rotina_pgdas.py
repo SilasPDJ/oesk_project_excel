@@ -476,6 +476,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 self.driver.refresh
         self.current_url = self.driver.current_url
         self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
+        self.opta_script() if self.m() == 12 else None
 
         # loga e digita competencia de acordo com o BD
         self.compt_typist(self.compt)

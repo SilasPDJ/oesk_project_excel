@@ -6,6 +6,8 @@ from os import path
 
 
 class Contimatic(InitialSetting):
+    def __init__(self, client_path):
+        self.client_path = client_path
 
     def registronta(self):
         """
@@ -13,10 +15,10 @@ class Contimatic(InitialSetting):
         """
         registronta = False
         for f in self.files_get_anexos_v4(self.client_path, file_type='xml'):
-            return True
+            registronta = True
 
         for f in self.files_get_anexos_v4(self.client_path, file_type='csv'):
-            return True
+            registronta = True
 
         for f in self.files_get_anexos_v4(self.client_path, file_type='pdf'):
             if 'ISS' in f.upper():
@@ -91,14 +93,14 @@ class Contimatic(InitialSetting):
                 sleep(2)
                 if pygui.screenshot().getpixel((1, 1)) != rgb:
                     print(pygui.screenshot().getpixel((1, 1)))
-                    pygui.click(150, 0, clicks=0)
+                    pygui.click(150, 0)
                     # just to focus...
                 else:
                     break
 
     def activating_client(self, client_cnpj):
         x, y = 30, 60
-        sleep(2)
+        sleep(5)
         pygui.click(x, y)
         sleep(.7)
         # ativa empresa

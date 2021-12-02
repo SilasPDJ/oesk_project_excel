@@ -1,4 +1,5 @@
 # dale
+from re import search
 import openpyxl
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
@@ -19,17 +20,26 @@ from openpyxl.utils.cell import coordinate_from_string
 from openpyxl.utils import get_column_letter as gcl
 import pandas as pd
 import os
+from shutil import copy2
 
 
-class DownloadGinfessGuiSameFolder(InitialSetting, WDShorcuts):
+class Export2SameFolder(InitialSetting, WDShorcuts):
 
-    # only static methods from JsonDateWithDataImprove
+    # extesions lowercase, always
+    extensions = ['xml', 'csv']
 
     def __init__(self, *dados, compt,  show_driver=False):
         # driver
-        __r_social, __cnpj, _ginfess_cod, link = dados
+        __r_social, __cnpj = dados
 
         self.compt = compt
         # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
         self.future_path = self.files_pathit('NOTA_DE_SERVICOS', self.compt)
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
+
+        # Copia os arquivos com as seguintes extensões: self.extensions
+        for ext in self.extensions:
+            _searcheds = [os.path.join(self.client_path, file) for file in os.listdir(
+                self.client_path) if file.lower().endswith(ext)]
+
+            [copy2(file, self.future_path) for file in _searcheds]
