@@ -42,7 +42,7 @@ class G5(Contimatic):
 
             print(__client)
             self.abre_ativa_programa('G5 ')  # vscode's cause
-            input(self.registronta())
+
             if self.registronta() and "ok" != nf_out.lower() != "s":
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # self.start_walk_menu()
@@ -83,7 +83,7 @@ class G5(Contimatic):
         sleep(2)
         pygui.hotkey('return', 'return', duration=1, interval=1)
 
-        pygui.hotkey('alt', 'f4')
+        # pygui.hotkey('alt', 'f4')
 
     def __get_xml(self, cliente):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')

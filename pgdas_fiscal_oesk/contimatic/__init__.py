@@ -11,7 +11,7 @@ class Contimatic(InitialSetting):
 
     def registronta(self):
         """
-        :return: se tiver pdf que tem ISS e REGISTRO
+        :return: True: prossegue, False: não prosssegue
         """
         registronta = False
         for f in self.files_get_anexos_v4(self.client_path, file_type='xml'):
@@ -107,12 +107,12 @@ class Contimatic(InitialSetting):
 
         pygui.write(self.first_and_last_day_compt(self.compt_used, '')[1])
 
-        foritab(6, 'tab')  # PESQUISA
+        foritab(6, 'tab', interval=0.13)  # PESQUISA
         pygui.hotkey('enter')
         sleep(1.5)
         all_keys('shift', 'tab')
         sleep(1)
-        foritab(6, 'down')  # PESQUISAR POR CGC[CNPJ]
+        foritab(6, 'down', interval=0.13)  # PESQUISAR POR CGC[CNPJ]
         sleep(.5)
         foritab(1, 'tab')  # Digite a frase contida no texto
         all_keys(client_cnpj)

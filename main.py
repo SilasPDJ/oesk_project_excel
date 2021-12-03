@@ -15,6 +15,8 @@ from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 from pgdas_fiscal_oesk.silas_jr import JR
 from pgdas_fiscal_oesk.export2same_folder import Export2SameFolder
+import os
+
 
 COMPT = get_compt(-1)
 
@@ -54,10 +56,13 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
                 JR(razao_social, cnpj, cpf, codigo_simples,
                    valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
         else:
-            Export2SameFolder(razao_social, cnpj, compt=COMPT)
-
+            if imposto_a_calcular == 'ISS':
+                Export2SameFolder(razao_social, cnpj,
+                                  compt=COMPT).iss()
+            # export.unzip_folder()
             # g5 loop
 
             # G5(razao_social, cnpj, cpf, codigo_simples, valor_tot, imposto_a_calcular)
             # teste
             # Set-ExecutionPolicy AllSigned
+Export2SameFolder('', '', compt=COMPT).icms()

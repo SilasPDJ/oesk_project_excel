@@ -1,7 +1,7 @@
 # dale
 from re import search
 import openpyxl
-from default.sets import InitialSetting
+# from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
 from selenium.webdriver import Chrome
@@ -22,24 +22,60 @@ import pandas as pd
 import os
 from shutil import copy2
 
+from pgdas_fiscal_oesk.contimatic import Contimatic
 
-class Export2SameFolder(InitialSetting, WDShorcuts):
+
+class Export2SameFolder(Contimatic):
 
     # extesions lowercase, always
     extensions = ['xml', 'csv']
 
-    def __init__(self, *dados, compt,  show_driver=False):
+    def __init__(self, *dados, compt):
         # driver
         __r_social, __cnpj = dados
 
         self.compt = compt
         # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
-        self.future_path = self.files_pathit('NOTA_DE_SERVICOS', self.compt)
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
         # Copia os arquivos com as seguintes extensões: self.extensions
+    def iss(self):
+        future_path = self.files_pathit('NOTA_DE_SERVICOS', self.compt)
+
         for ext in self.extensions:
             _searcheds = [os.path.join(self.client_path, file) for file in os.listdir(
                 self.client_path) if file.lower().endswith(ext)]
 
-            [copy2(file, self.future_path) for file in _searcheds]
+            [copy2(file, future_path) for file in _searcheds]
+
+    def icms(self):
+        """
+        * Não precisa de especificar o cliente, pois os ZIP estão fora da pasta deles
+
+        """
+
+        from zipfile import ZipFile, BadZipFile
+
+        future_path = self.files_pathit('NOTA_DE_ICMS', self.compt)
+        previous_path = "\\".join(future_path.split('\\')[:-1])
+
+        filt_zips = filter(lambda file: file.endswith('.zip'),
+                           os.listdir(previous_path))
+        full_zips_path = [os.path.join(previous_path, nfzip)
+                          for nfzip in filt_zips]
+
+        for zipfile in full_zips_path:
+            _file = ZipFile(zipfile, mode='r')
+
+            removext = os.path.splitext(zipfile)[0]
+            zipfile_name = os.path.basename(removext)
+
+            unziped_path = os.path.join(
+                future_path, os.path.basename(zipfile_name))
+
+            _file.extractall(unziped_path)
+            # _file.extract()
+            # self.move_file(_file, future_path)
+            _file.close()
+            input('teste')
+        print(*filt_zips)
