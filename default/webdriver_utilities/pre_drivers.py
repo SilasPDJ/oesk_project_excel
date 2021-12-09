@@ -141,9 +141,13 @@ def pgdas_driver_ua(path=''):
     :param path: default path atual
     :return: o driver para fechar no loop
     """
+
     from user_agent import generate_user_agent as random
     # user_agent = random()
     chrome_options = Options()
+    ua = random()
+    chrome_options.add_argument(f'user-agent={ua}')
+
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument('--no-sandbox')

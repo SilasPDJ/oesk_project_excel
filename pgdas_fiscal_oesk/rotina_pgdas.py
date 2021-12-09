@@ -1,5 +1,5 @@
 # dale
-import threading
+from random import randint
 from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
@@ -56,7 +56,6 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                 self.send_keys_anywhere(year_compt)
                 self.find_submit_form()
                 sleep(3.5)
-
             comp_clic = driver.find_elements(By.CLASS_NAME, 'pa')
             lenc = len(comp_clic) - 1
             comp_clic[lenc].click()
@@ -68,7 +67,8 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         elif option == 1:
             # gera das
             venc_month_compt = int(month_compt) + 1
-            venc = input('Digite o dia: ')
+            venc = self.get_last_business_day_of_month(
+                venc_month_compt, int(year_compt))
             retifica_p_dia = f'{venc}{venc_month_compt:02d}{year_compt}'
             self.get_sub_site(link_gera_das, current_url)
             self.tags_wait('input')
@@ -99,7 +99,6 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             driver.implicitly_wait(5)
             self.find_submit_form()
             # GERAR DAS
-            sleep(5)
         else:
             return False
 
@@ -113,7 +112,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             from selenium.webdriver.support.ui import Select
             anocalendario = Select(driver.find_element(By.ID, 'anocalendario'))
 
-            anocalendario.select_by_value('2021')
+            anocalendario.select_by_value(f'{self.y()+1}')
             self.find_submit_form()
 
             # competencia
@@ -195,7 +194,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             sleep(5)
 
     # Loga certificado do ecac, padrão
-    def __oldloga_cert(self):
+    def loga_cert(self):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)
         """
@@ -205,7 +204,6 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         from functools import partial
         from threading import Thread
 
-        __ = partial(uniform, 1.01, 1.99)
         randsleep = partial(uniform, 1.01, 2.99)
         def randsleep2(n1, n2): return uniform(n1, n2)
         from selenium.webdriver import Chrome
@@ -219,7 +217,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
         # 17bd6f43454
         initial = WebDriverWait(driver, 30).until(
-            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
+            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Seu certificado digital')))
         driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
         sleep(2)
         make_login = initial.get_attribute("href")
@@ -241,66 +239,16 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         sleep(randsleep2(3, 7))
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
-
-    def loga_cert(self):
-        """
-        :return: mixes the two functions above (show_actual_tk_window, mensagem)
-        """
-        from win10toast import ToastNotifier
-        driver = self.driver
-        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-
-        toaster = ToastNotifier()
-        toaster.show_toast(
-            "PGDAS ECAC", "Faça login uma vez e o resto deixa comigo! Pressione F9 para continuar", duration=10)
-        print('PRESSIONE F9 para continuar')
-
-        press_key_b4('f9')
-
-        from random import randint, uniform
-        from functools import partial
-        # import pyautogui as pygui
-        from time import sleep
-        # from threading import Thread
-
-        __ = partial(uniform, 1.01, 1.99)
-        randsleep = partial(uniform, 1.01, 2.99)
-        def randsleep2(n1, n2): return uniform(n1, n2)
-        # from selenium.webdriver import Chrome
-
-        # # driver.set_window_position(1912, -8)
-        # pos = (1912, -8), (0, 0), (0, 0)
-        # driver.set_window_position(*pos[randint(0, 1)])
-        # driver.set_window_size(randint(900, 1350), randint(550, 1000))
-
-        # driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
-        # # 17bd6f43454
-        # initial = WebDriverWait(driver, 30).until(
-        #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Certificado digital')))
-        # driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
-        # sleep(2)
-        # make_login = initial.get_attribute("href")
-        # driver.maximize_window()
-        # driver.execute_script("window.open()")
-        # driver.switch_to.window(driver.window_handles[1])
-        # a = Thread(target=lambda: driver.get(make_login))
-        # a.start()
-        # sleep(randsleep2(0.71, 2.49))
-        # [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
-        #  for i in range(3)]
-        # pygui.hotkey('ctrl', 'w')
-        # # driver.close()
-        # driver.switch_to.window(driver.window_handles[0])
-        # initial.click()
-        print('ativando janela acima, logando certificado abaixo, linhas 270')
-        sleep(randsleep2(3, 7))
-        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-        sleep(randsleep2(3, 7))
-        # self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
         driver = self.driver
+        # Merge me after with others like me...
+        for i in range(randint(1, 2)):
+            driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+            driver.implicitly_wait(10)
+            sleep(randint(3, 5))
 
         def elem_with_text(elem, searched):
             _tag = driver.find_element(By.XPATH,
@@ -395,8 +343,8 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         try:
             self.find_submit_form()
         except NoSuchElementException:
-            driver.find_element(By.CLASS_NAME,
-                                'btn-success')[1].click()
+            driver.find_elements(By.CLASS_NAME,
+                                 'btn-success')[1].click()
 
     def compt_already_declared(self, compt):
         driver = self.driver
@@ -439,10 +387,15 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         else:
             return True
 
+    def sair_com_seguranca(self):
+        self.driver.get('https://cav.receita.fazenda.gov.br/ecac/')
+        self.webdriverwait_el_by(By.ID, 'sairSeguranca').click()
+        self.driver.close()
+        self.driver.quit()
+
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, all_valores=None):
-
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
@@ -606,12 +559,16 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         self.driver.implicitly_wait(30)
 
-        driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
-        self.click_ac_elementors(driver.find_elements(
-            By.CLASS_NAME, 'btn-success')[1])
+        for i in range(2):
+            driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
+            sleep(3)
 
-        # self.driver.save_screenshot(self.certif_feito(self.client_path))
-        driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
+        try:
+            self.find_submit_form()
+        except NoSuchElementException:
+            driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
+
+        self.driver.save_screenshot(self.certif_feito(self.client_path))
 
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
