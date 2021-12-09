@@ -46,7 +46,8 @@ class G5(Contimatic):
             if self.registronta() and "ok" != nf_out.lower() != "s":
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # self.start_walk_menu()
-
+                if tres_valores_faturados(self.client_path):
+                    self.mk_nf_canceladas()
                 sleep(1)
                 # generate PDF relat. Prestados 51
                 self.start_walk_menu()
@@ -84,6 +85,17 @@ class G5(Contimatic):
         pygui.hotkey('return', 'return', duration=1, interval=1)
 
         # pygui.hotkey('alt', 'f4')
+
+    def mk_nf_canceladas(self):
+        nfcanceladas = NfCanceled()
+        sleep(2)
+        self.start_walk_menu()
+        print('right down enter enter')
+        pygui.hotkey('right', 'down', 'enter', 'enter', interval=.5)
+        sleep(2)
+        print('NF canceled')
+
+        nfcanceladas.action()
 
     def __get_xml(self, cliente):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')
