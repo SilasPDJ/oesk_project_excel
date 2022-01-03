@@ -45,17 +45,22 @@ class G5(Contimatic):
 
             if self.registronta() and "ok" != nf_out.lower() != "s":
                 self.activating_client(self.formatar_cnpj(__cnpj))
+                # - SEM IMPORTA NF
                 # self.start_walk_menu()
                 if tres_valores_faturados(self.client_path):
                     self.mk_nf_canceladas()
                 sleep(1)
-                # generate PDF relat. Prestados 51
+                # generate PDF relat. Prestados 56 #51
                 self.start_walk_menu()
                 foritab(3, 'right')
                 foritab(6, 'down')
-
-                foritab(5, 'enter', interval=.25)
+                # foritab(5, 'enter', interval=.25)
+                foritab(1, 'enter', interval=.25)
+                foritab(1, 'enter', interval=.25)
+                foritab(5, 'down', interval=.25)
+                foritab(4, 'enter', interval=.25)
                 # generate pdf
+                
                 sleep(7.5)
                 # self.most_recent_file()
 
@@ -87,7 +92,12 @@ class G5(Contimatic):
         # pygui.hotkey('alt', 'f4')
 
     def mk_nf_canceladas(self):
-        nfcanceladas = NfCanceled()
+        all_xls_inside = self.files_get_anexos_v4(
+            self.client_path, file_type='xlsx')
+        relacao_notas = all_xls_inside[0] if len(
+            all_xls_inside) == 1 else IndexError()
+
+        nfcanceladas = NfCanceled(relacao_notas)
         sleep(2)
         self.start_walk_menu()
         print('right down enter enter')
