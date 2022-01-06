@@ -262,8 +262,8 @@ class MainApplication(tk.Frame, Backend):
         folder = "\\".join(main_folder.split('/')[:-1])
         folder = os.path.join(
             folder, COMPT[3:], COMPT, self.selected_client.get())
-        print(folder)
-
+        if not os.path.exists(folder):
+            os.makedirs(folder)
         subprocess.Popen(f'explorer "{folder}"')
         self.selected_client
 
