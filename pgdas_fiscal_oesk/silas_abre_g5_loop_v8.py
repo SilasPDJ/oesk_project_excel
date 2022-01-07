@@ -50,12 +50,23 @@ class G5(Contimatic):
 
                 # ISS somente
                 timesleep_import = 5.5
+                all_xls_inside = self.files_get_anexos_v4(
+                    self.client_path, file_type='xlsx')
+                relacao_notas = all_xls_inside[0] if len(
+                    all_xls_inside) == 1 else IndexError()
+                self.nfcanceladas = NfCanceled(relacao_notas)
+
                 if tres_valores_faturados(self.client_path):
-                    timesleep_import = self.mk_nf_canceladas()
+                    timesleep_import = self.nfcanceladas.conta_qtd_nfs()
                 sleep(timesleep_import)
-                pygui.hotkey('alt', 'f4')
+                [pygui.hotkey('shift', 'tab') for i in range(2)]
+                pygui.hotkey('enter')
+                sleep(1)
+                self.mk_nf_canceladas()
+
                 self.gera_relatorio_iss()
                 self.save_foxit(__cnpj)
+                sleep(3)
                 # F4
                 # TODO: Salvar dentro do local de salvar relatorio, client_path
 
@@ -87,7 +98,7 @@ class G5(Contimatic):
         foritab(1, 'alt', 'right')
         foritab(2, 'down')
         foritab(1, 'right', 'up', 'up', 'enter')
-        sleep(2)
+        sleep(5)
 
         preenche_arqpath()
         exe_bt_executar()
@@ -131,24 +142,14 @@ class G5(Contimatic):
         # pygui.hotkey('alt', 'f4')
 
     def mk_nf_canceladas(self) -> int:
-        """
-        # Retorna a quantidade de nfs
-        """
-        all_xls_inside = self.files_get_anexos_v4(
-            self.client_path, file_type='xlsx')
-        relacao_notas = all_xls_inside[0] if len(
-            all_xls_inside) == 1 else IndexError()
 
-        nfcanceladas = NfCanceled(relacao_notas)
         sleep(2)
         self.start_walk_menu()
         print('right down enter enter')
         pygui.hotkey('right', 'down', 'enter', 'enter', interval=.5)
         sleep(2)
         print('NF canceled')
-
-        nfcanceladas.action()
-        return nfcanceladas.conta_qtd_nfs()
+        self.nfcanceladas.action()
 
     def __get_xml(self):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')

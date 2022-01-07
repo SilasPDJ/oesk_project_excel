@@ -60,7 +60,6 @@ class G5(Contimatic):
                 foritab(5, 'down', interval=.25)
                 foritab(4, 'enter', interval=.25)
                 # generate pdf
-                
                 sleep(7.5)
                 # self.most_recent_file()
 

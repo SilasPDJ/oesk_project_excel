@@ -67,6 +67,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         elif option == 1:
             # gera das
             venc_month_compt = int(month_compt) + 1
+            # TODO: get last business day of month...
             venc = self.get_last_business_day_of_month(
                 venc_month_compt, int(year_compt))
             retifica_p_dia = f'{venc}{venc_month_compt:02d}{year_compt}'
