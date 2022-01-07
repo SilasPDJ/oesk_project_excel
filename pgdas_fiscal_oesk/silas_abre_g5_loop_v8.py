@@ -46,30 +46,67 @@ class G5(Contimatic):
             if self.registronta() and "ok" != nf_out.lower() != "s":
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # - IMPORTA NF
+                self.importa_nfs_iss()
 
-
-                # self.start_walk_menu()
+                # ISS somente
+                timesleep_import = 5.5
                 if tres_valores_faturados(self.client_path):
-                    self.mk_nf_canceladas()
-                sleep(1)
-                # generate PDF relat. Prestados 56 #51
-                self.start_walk_menu()
-                foritab(3, 'right')
-                foritab(6, 'down')
-                # foritab(5, 'enter', interval=.25)
-                foritab(1, 'enter', interval=.25)
-                foritab(1, 'enter', interval=.25)
-                foritab(5, 'down', interval=.25)
-                foritab(4, 'enter', interval=.25)
-                # generate pdf
-                
-                sleep(7.5)
-                # self.most_recent_file()
-
+                    timesleep_import = self.mk_nf_canceladas()
+                sleep(timesleep_import)
+                pygui.hotkey('alt', 'f4')
+                self.gera_relatorio_iss()
                 self.save_foxit(__cnpj)
                 # F4
                 # TODO: Salvar dentro do local de salvar relatorio, client_path
-    
+
+    def importa_nfs_iss(self):
+        def exe_bt_executar(import_items=True):
+            if import_items:
+                pygui.click(pygui.getActiveWindow().center, clicks=0)
+                pygui.move(-206, 87)
+                pygui.click()
+
+            pygui.click(pygui.getActiveWindow().center, clicks=0)
+            pygui.move(-25, 150)
+            pygui.click()
+            for _ in range(3):
+                sleep(2)
+                pygui.hotkey('enter')
+
+        def preenche_arqpath():
+            pygui.click(pygui.getActiveWindow().center, clicks=0)
+            sleep(1)
+            pygui.move(0, -225)
+            pygui.click(duration=1)
+            arqpath = self.__get_xml()
+            print(arqpath)
+            foritab(2, 'space', 'backspace')
+            sleep(1)
+            pygui.write(arqpath)
+
+        foritab(1, 'alt', 'right')
+        foritab(2, 'down')
+        foritab(1, 'right', 'up', 'up', 'enter')
+        sleep(2)
+
+        preenche_arqpath()
+        exe_bt_executar()
+
+    def gera_relatorio_iss(self):
+        sleep(1)
+        # generate PDF relat. Prestados 56 #51
+        self.start_walk_menu()
+        foritab(3, 'right')
+        foritab(6, 'down')
+        # foritab(5, 'enter', interval=.25)
+        foritab(1, 'enter', interval=.25)
+        foritab(1, 'enter', interval=.25)
+        foritab(5, 'down', interval=.25)
+        foritab(4, 'enter', interval=.25)
+        # generate pdf
+
+        sleep(7.5)
+
     def save_foxit(self, add2file):
         filename = f"Registro_ISS-{add2file}"
         all_keys('ctrl', 'shift', 's')
@@ -93,7 +130,10 @@ class G5(Contimatic):
 
         # pygui.hotkey('alt', 'f4')
 
-    def mk_nf_canceladas(self):
+    def mk_nf_canceladas(self) -> int:
+        """
+        # Retorna a quantidade de nfs
+        """
         all_xls_inside = self.files_get_anexos_v4(
             self.client_path, file_type='xlsx')
         relacao_notas = all_xls_inside[0] if len(
@@ -108,8 +148,9 @@ class G5(Contimatic):
         print('NF canceled')
 
         nfcanceladas.action()
+        return nfcanceladas.conta_qtd_nfs()
 
-    def __get_xml(self, cliente):
+    def __get_xml(self):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')
         b = b[0]
         b = b.split('\\')
