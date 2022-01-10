@@ -228,6 +228,8 @@ class MainApplication(tk.Frame, Backend):
             'Abre pasta de: ', self.abre_pasta, bg='lightblue')
         bt_copia_cnpj = self.button(
             'Copia CNPJ', lambda: self.get_dataclipboard('cnpj'), bg='lightblue')
+        bt_copia_email = self.button(
+            'Copia EMAIL', lambda: self.get_dataclipboard('email'), bg='lightblue')
 
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
@@ -251,18 +253,9 @@ class MainApplication(tk.Frame, Backend):
             *self.full_dividas(), compt=COMPT), bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
-        self.__pack(bt_abre_pasta)
-        self.__pack(bt_copia_cnpj)
-        self.__pack(bt_das)
-        self.__pack(bt_das_full)
-        self.__pack(bt_gias)
-        self.__pack(bt_ginfess)
 
-        self.__pack(bt_giss)
-        self.__pack(bt_g5)
-        self.__pack(bt_sendpgdas)
-        self.__pack(bt_dividas_rotina)
-        self.__pack(bt_dividasmail)
+        self.__pack(bt_abre_pasta, bt_copia_cnpj, bt_copia_email, bt_das, bt_das_full, bt_gias, bt_ginfess,
+                    bt_giss, bt_g5, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
 
         self.__pack(self.selected_client)
 
@@ -278,6 +271,9 @@ class MainApplication(tk.Frame, Backend):
 
     def get_dataclipboard(self, campo: str):
         whoses_cnpj = self.selected_client.get()
+        if whoses_cnpj == '':
+            whoses_cnpj = 'Oesk Contabil'
+
         cnpjs = list(self.get_data(campo))
         whoses = list(self.get_data())
         whoindex = whoses.index(whoses_cnpj)
@@ -286,7 +282,7 @@ class MainApplication(tk.Frame, Backend):
     # Elements and placements
 
     @ staticmethod
-    def __pack(el, x=50, y=10, fill='x', side=tk.TOP, expand=0):
+    def __pack(*els, x=50, y=10, fill='x', side=tk.TOP, expand=0):
         try:
             x1, x2 = x
         except TypeError:
@@ -296,9 +292,9 @@ class MainApplication(tk.Frame, Backend):
             y1, y2 = y
         except TypeError:
             y1, y2 = y, y
-
-        el.pack(padx=(x1, x2), pady=(
-            y1, y2), fill=fill, side=side, expand=expand)
+        for el in els:
+            el.pack(padx=(x1, x2), pady=(
+                y1, y2), fill=fill, side=side, expand=expand)
 
     @ staticmethod
     def change_state(*args, change_to=None):
