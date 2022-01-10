@@ -21,6 +21,8 @@ from default.interact.autocomplete_entry import AutocompleteEntry, matches
 from threading import Thread
 import os
 import subprocess
+import clipboard
+
 
 COMPT = get_compt(-1)
 
@@ -44,13 +46,16 @@ class Backend:
         for v in args:
             yield "".join(str(v))
 
-    def get_data(self):
+    def get_data(self, field=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
                 self.any_to_str(*compt_vals))
             __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
-            yield __razao_social
+            if field is None:
+                yield __razao_social
+            else:
+                yield eval(field)
 
     def full_pgdas(self):
         LIST_ECAC = []
@@ -221,6 +226,9 @@ class MainApplication(tk.Frame, Backend):
 
         bt_abre_pasta = self.button(
             'Abre pasta de: ', self.abre_pasta, bg='lightblue')
+        bt_copia_cnpj = self.button(
+            'Copia CNPJ', lambda: self.get_dataclipboard('cnpj'), bg='lightblue')
+
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
@@ -244,6 +252,7 @@ class MainApplication(tk.Frame, Backend):
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
         self.__pack(bt_abre_pasta)
+        self.__pack(bt_copia_cnpj)
         self.__pack(bt_das)
         self.__pack(bt_das_full)
         self.__pack(bt_gias)
@@ -266,6 +275,13 @@ class MainApplication(tk.Frame, Backend):
             os.makedirs(folder)
         subprocess.Popen(f'explorer "{folder}"')
         self.selected_client
+
+    def get_dataclipboard(self, campo: str):
+        whoses_cnpj = self.selected_client.get()
+        cnpjs = list(self.get_data(campo))
+        whoses = list(self.get_data())
+        whoindex = whoses.index(whoses_cnpj)
+        clipboard.copy(cnpjs[whoindex])
 
     # Elements and placements
 
