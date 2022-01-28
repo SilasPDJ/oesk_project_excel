@@ -21,17 +21,17 @@ possible = ['GIA']
 
 class GIA(InitialSetting, WDShorcuts):
 
-    def __init__(self, *args, compt):
+    def __init__(self, *args, compt, first_compt=None):
 
         __r_social, __cnpj, login, senha = args
 
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
         # competencia declarada
-        self.compt_used = compt
+        # loop_compt = compt
 
         self.client_path = self.files_pathit(
-            __r_social.strip(), self.compt_used)
+            __r_social.strip(), compt)
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
         # drivers declarados
@@ -45,96 +45,98 @@ class GIA(InitialSetting, WDShorcuts):
 
         # if certificado...
         if not self.certifs_exist('GiaScreenShoot', 1):
-            janelas_gias = pygui.getWindowsWithTitle('GIA')
-            for win in janelas_gias:
-                if win.title == 'GIA':
-                    win.maximize()
-                    win.activate()
-                    break
-            else:
-                # there is no break...
-                self.abre_programa(self.get_env_for_path(
-                    '\\Desktop\\GIA.exe'), path=True)
 
-            IE = __cnpj
-            my_print = login
-            print(my_print)
-            # pygui.hotkey('alt', 'tab')
-            print(IE)
-            #
+            for loop_compt in self.ate_atual_compt(first_compt, compt):
+                janelas_gias = pygui.getWindowsWithTitle('GIA')
+                for win in janelas_gias:
+                    if win.title == 'GIA':
+                        win.maximize()
+                        win.activate()
+                        break
+                else:
+                    # there is no break...
+                    self.abre_programa(self.get_env_for_path(
+                        '\\Desktop\\GIA.exe'), path=True)
 
-            try:
-                fecha_janela_contribuintes_gia()
-            except IndexError:
-                print('Não precisei fechar')
-            self.pt1_gia_software(IE, self.compt_used)
+                IE = __cnpj
+                my_print = login
+                print(my_print)
+                # pygui.hotkey('alt', 'tab')
+                print(IE)
+                #
 
-            pygui.doubleClick(menuX+35, menuY)
-            # consistir
-            sleep(3)
-            pygui.click(menuX, menuY)
-            sleep(.5)
-            foritab(2, 'up')
-            pygui.hotkey('enter')
-            pygui.click(x=836, y=394)
-            foritab(7, 'tab')
-            pygui.hotkey('enter', 'enter', interval=.25)
-            pygui.hotkey('enter')
-            self.save_novagia_pdf()
+                try:
+                    fecha_janela_contribuintes_gia()
+                except IndexError:
+                    print('Não precisei fechar')
+                self.pt1_gia_software(IE, loop_compt)
 
-            self.driver = driver = pgdas_driver(self.client_path)
-            super().__init__(self.driver)
-            driver.get(
-                'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')
-            llg = driver.find_element(By.ID,
-                                      'ConteudoPagina_txtUsuario')
-            llg.clear()
-            llg.send_keys(login)
+                pygui.doubleClick(menuX+35, menuY)
+                # consistir
+                sleep(3)
+                pygui.click(menuX, menuY)
+                sleep(.5)
+                foritab(2, 'up')
+                pygui.hotkey('enter')
+                pygui.click(x=836, y=394)
+                foritab(7, 'tab')
+                pygui.hotkey('enter', 'enter', interval=.25)
+                pygui.hotkey('enter')
+                self.save_novagia_pdf()
 
-            ssn = driver.find_element(By.XPATH,
-                                      "//input[@type='password']")
-            ssn.clear()
-            ssn.send_keys(senha)
+                self.driver = driver = pgdas_driver(self.client_path)
+                super().__init__(self.driver)
+                driver.get(
+                    'https://www3.fazenda.sp.gov.br/CAWEB/Account/Login.aspx')
+                llg = driver.find_element(By.ID,
+                                          'ConteudoPagina_txtUsuario')
+                llg.clear()
+                llg.send_keys(login)
 
-            self.send_keys_anywhere(Keys.TAB)
-            self.send_keys_anywhere(Keys.ENTER)
-            print('pressione f7 p/ continuar após captcha')
-            press_key_b4('f8')
-            # self.find_submit_form()
-            # enter entrar
-            sleep(5)
-            driver.find_element(By.LINK_TEXT, 'Nova GIA').click()
-            sleep(3)
-            driver.find_element(By.PARTIAL_LINK_TEXT,
-                                'Documentos Fiscais (Normal, Substit. e Coligida)').click()
-            sleep(2)
-            driver_clicks = driver.find_elements(By.XPATH,
-                                                 "//input[@type='file']")
+                ssn = driver.find_element(By.XPATH,
+                                          "//input[@type='password']")
+                ssn.clear()
+                ssn.send_keys(senha)
 
-            driver_clicks[0].send_keys(self.clieninput_filepath())
-            driver.find_elements(By.XPATH,
-                                 "//input[@type='button']")[0].click()
-            try:
-                driver.switch_to.alert.accept()
-            except NoAlertPresentException:
-                print('Sem alerta')
-            sleep(5)
-            """
-            bt_imprime = driver.find_element(By.CSS_SELECTOR, '[alt="Imprimir"]')
-            self.exec_list(click=bt_imprime, enter=pygui)
-            print('Glória a Deus f7 p continuar')
-            press_key_b4('f7')
-            """
-            self.save_save_img2pdf()
-            driver.close()
-            sleep(5)
-            # pygui.hotkey('enter')
-            # ############################################ parei daqui
+                self.send_keys_anywhere(Keys.TAB)
+                self.send_keys_anywhere(Keys.ENTER)
+                print('pressione f7 p/ continuar após captcha')
+                press_key_b4('f8')
+                # self.find_submit_form()
+                # enter entrar
+                sleep(5)
+                driver.find_element(By.LINK_TEXT, 'Nova GIA').click()
+                sleep(3)
+                driver.find_element(By.PARTIAL_LINK_TEXT,
+                                    'Documentos Fiscais (Normal, Substit. e Coligida)').click()
+                sleep(2)
+                driver_clicks = driver.find_elements(By.XPATH,
+                                                     "//input[@type='file']")
 
-    def save_save_img2pdf(self):
+                driver_clicks[0].send_keys(self.clieninput_filepath())
+                driver.find_elements(By.XPATH,
+                                     "//input[@type='button']")[0].click()
+                try:
+                    driver.switch_to.alert.accept()
+                except NoAlertPresentException:
+                    print('Sem alerta')
+                sleep(5)
+                """
+                bt_imprime = driver.find_element(By.CSS_SELECTOR, '[alt="Imprimir"]')
+                self.exec_list(click=bt_imprime, enter=pygui)
+                print('Glória a Deus f7 p continuar')
+                press_key_b4('f7')
+                """
+                self.save_save_img2pdf(loop_compt)
+                driver.close()
+                sleep(5)
+                # pygui.hotkey('enter')
+                # ############################################ parei daqui
+
+    def save_save_img2pdf(self, compt):
         from PIL import Image
         path1 = f'{self.client_path}/GiaScreenShoot.png'
-        path2 = f'{self.client_path}/Recibo_{self.compt_used}.pdf'
+        path2 = f'{self.client_path}/Recibo_{compt}.pdf'
         self.driver.save_screenshot(path1)
         image1 = Image.open(path1)
         try:

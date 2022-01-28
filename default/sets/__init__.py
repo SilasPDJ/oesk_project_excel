@@ -244,3 +244,35 @@ class InitialSetting(Initial, Dirs, Now):
         from datetime import datetime as dt
         dia_hj = dt.now()
         return mydt.day > dia_hj.day, dia_hj
+
+    @staticmethod
+    def ate_atual_compt(compt_atual, first_compt=None):
+        from datetime import date
+        from dateutil import relativedelta
+        if first_compt is None:
+            yield compt_atual
+        else:
+            first_compt = first_compt.split('-')
+            if len(first_compt) == 1:
+                first_compt = first_compt.split('/')
+            first_compt = [int(val) for val in first_compt]
+            first_compt = date(first_compt[1], first_compt[0], 1)
+
+            # next_date = first_compt + relativedelta.relativedelta(months=1)
+
+            last_compt = compt_atual.split('-')
+            # compt = [int(c) for c in compt]
+            last_compt = [int(v) for v in last_compt]
+            last_compt = date(last_compt[1], last_compt[0], 1)
+
+            # list_compts = []
+            while first_compt <= last_compt:
+
+                compt = first_compt
+                first_compt = first_compt + \
+                    relativedelta.relativedelta(months=1)
+                compt_appended = f'{compt.month:02d}-{compt.year}'
+                # list_compts.append(compt_appended)
+                yield compt_appended
+
+    # yield list_compts

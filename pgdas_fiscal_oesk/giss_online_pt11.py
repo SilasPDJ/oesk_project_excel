@@ -357,8 +357,9 @@ class GissGui(InitialSetting, WDShorcuts):
         m.send_keys(mes)
         a.send_keys(ano)
 
+    # overriden
     def ate_atual_compt(self, first_compt=None):
-
+        # TODO: delete-me
         from datetime import date
         from dateutil import relativedelta
         if first_compt is None:
@@ -377,8 +378,8 @@ class GissGui(InitialSetting, WDShorcuts):
             last_compt = [int(v) for v in last_compt]
             last_compt = date(last_compt[1], last_compt[0], 1)
 
-            list_compts = []
-            while first_compt != last_compt:
+            # list_compts = []
+            while first_compt <= last_compt:
                 compt = first_compt = first_compt + \
                     relativedelta.relativedelta(months=1)
 
