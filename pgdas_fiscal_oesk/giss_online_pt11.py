@@ -24,6 +24,8 @@ link = "ChromeDriver/chromedriver.exe"
 # self.pyautogui
 class GissGui(InitialSetting, WDShorcuts):
 
+    check_prestador: bool = True  # p/ checkar somente 1x
+
     def __init__(self, dados, compt, first_compt=None):
         from functools import partial
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
@@ -36,8 +38,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist('giss'):
-            # self.driver = driver = ginfess_driver(self.client_path)
-            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -131,8 +133,11 @@ class GissGui(InitialSetting, WDShorcuts):
         driver = self.driver
         if not constr:
             self.calls_write_date()
-
-        self.__check_prestador_guias()
+        if self.check_prestador:
+            self.__check_prestador_guias()
+            self.check_prestador = False
+            # p/ checkar somente 1x
+            driver.switch_to.frame('principal')
         try:
             driver.find_element(By.XPATH,
                                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
@@ -278,7 +283,6 @@ class GissGui(InitialSetting, WDShorcuts):
         driver.switch_to.frame(iframe)
         driver.execute_script('javascript: clickPrestador(); ')
         driver.switch_to.default_content()
-        driver.switch_to.frame('principal')
 
     def constr_civil(self):
         # parei nessa belezinha aqui, tomador e prestador tão ok

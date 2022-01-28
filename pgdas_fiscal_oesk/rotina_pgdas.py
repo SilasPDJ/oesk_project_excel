@@ -412,7 +412,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # self.driver.maximize_window;()
         super().__init__(self.driver, self.compt)
-        [print('\033[1;33m', __cod_simples, '\033[m')for i in range(10)]
+        [print('\033[1;33m', __cod_simples, '\033[m')for i in range(1)]
 
         if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
 
