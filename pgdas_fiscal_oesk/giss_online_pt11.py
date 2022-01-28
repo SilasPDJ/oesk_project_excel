@@ -36,8 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist('giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
-            # self.driver = driver = pgdas_driver(self.client_path)
+            # self.driver = driver = ginfess_driver(self.client_path)
+            self.driver = driver = pgdas_driver(self.client_path)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -95,13 +95,13 @@ class GissGui(InitialSetting, WDShorcuts):
                     # Try prestador, else = Construção civil
                 except (NoSuchElementException, ElementNotInteractableException):
                     self.constr_civil()
-                    self.gerar_cert('giss-construcao.png')
+                    self.gerar_cert(f'{loop_compt}_giss-construcao.png')
                     constr = True
                 finally:
                     driver.switch_to.default_content()
                     sleep(1)
-                    self.fazendo_principal(constr)
-                    self.gerar_cert('giss-tomador.png')
+                    self.fazendo_principal(loop_compt, constr)
+                    self.gerar_cert(f'{loop_compt}_giss-tomador.png')
 
                 driver.implicitly_wait(10)
             driver.close()
@@ -122,7 +122,7 @@ class GissGui(InitialSetting, WDShorcuts):
         save = os.path.join(self.client_path, arq)
         self.driver.save_screenshot(save)
 
-    def fazendo_principal(self, constr=False):
+    def fazendo_principal(self, loop_compt, constr=False):
         """
         o click do prestador está no init
         :return:
@@ -133,8 +133,6 @@ class GissGui(InitialSetting, WDShorcuts):
             self.calls_write_date()
 
         self.__check_prestador_guias()
-
-        driver.switch_to.frame('principal')
         try:
             driver.find_element(By.XPATH,
                                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
@@ -143,7 +141,7 @@ class GissGui(InitialSetting, WDShorcuts):
                 sleep(2)
                 driver.find_elements(By.XPATH,
                                      "//*[contains(text(), 'CLIQUE AQUI')]")[0].click()
-                self.gerar_cert('giss-prestador.png')
+                self.gerar_cert(f'{loop_compt}_giss-prestador.png')
                 # PrintScreenFinal(clien)
 
             except (NoSuchElementException, IndexError):
@@ -280,6 +278,7 @@ class GissGui(InitialSetting, WDShorcuts):
         driver.switch_to.frame(iframe)
         driver.execute_script('javascript: clickPrestador(); ')
         driver.switch_to.default_content()
+        driver.switch_to.frame('principal')
 
     def constr_civil(self):
         # parei nessa belezinha aqui, tomador e prestador tão ok
