@@ -24,8 +24,6 @@ link = "ChromeDriver/chromedriver.exe"
 # self.pyautogui
 class GissGui(InitialSetting, WDShorcuts):
 
-    check_prestador: bool = True  # p/ checkar somente 1x
-
     def __init__(self, dados, compt, first_compt=None):
         from functools import partial
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
@@ -37,9 +35,10 @@ class GissGui(InitialSetting, WDShorcuts):
         self.client_path = self.files_pathit(
             __r_social.strip(), compt)
 
-        if not self.certifs_exist('giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
-            # self.driver = driver = pgdas_driver(self.client_path)
+        if not self.certifs_exist(f'{compt}_giss'):
+            # self.driver = driver = ginfess_driver(self.client_path)
+            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -109,16 +108,6 @@ class GissGui(InitialSetting, WDShorcuts):
             driver.close()
         print('GISS encerrado!')
 
-    def certifs_exist(self, startswith, at_least=2):
-        arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
-        arqs_search = [
-            self.path_leaf(f, True) for f in arqs_search]
-        arqs_search = [f for f in arqs_search if f.startswith(startswith)]
-
-        if len(arqs_search) >= at_least:
-            return True
-        return False
-
     def gerar_cert(self, arq):
         import os
         save = os.path.join(self.client_path, arq)
@@ -133,11 +122,12 @@ class GissGui(InitialSetting, WDShorcuts):
         driver = self.driver
         if not constr:
             self.calls_write_date()
-        if self.check_prestador:
+
+        if not self.certifs_exist('GUIASpendentes-giss.png', endswith=True, at_least=1):
             self.__check_prestador_guias()
-            self.check_prestador = False
-            # p/ checkar somente 1x
             driver.switch_to.frame('principal')
+
+            # p/ checkar somente 1x
         try:
             driver.find_element(By.XPATH,
                                 '/html/body/form/table[2]/tbody/tr[3]/td/table/tbody/tr[2]/td/table/tbody/tr[1]/td[4]/a').click()
@@ -194,8 +184,11 @@ class GissGui(InitialSetting, WDShorcuts):
                     driver.find_element(By.LINK_TEXT, 'Menu Principal').click()
                 except NoSuchElementException:
                     driver.find_element(By.LINK_TEXT, 'OK').click()
-
+            except UnexpectedAlertPresentException:
+                raise UnexpectedAlertPresentException
+                # TODO: faz login
         # pressione "ESC" para continuar
+
     def __check_prestador_guias(self):
         def __download_prestador_guias():
             tb = self.driver.find_element(By.TAG_NAME, 'table')

@@ -24,6 +24,20 @@ class Dirs:
         pathit = pathit.replace('/', sep)
         return pathit
 
+    def certifs_exist(self, startswith, at_least=2, endswith: bool = False):
+        # if endswith is True, it will search for endswith instead
+        arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
+        arqs_search = [
+            self.path_leaf(f, True) for f in arqs_search]
+        if endswith is False:
+            arqs_search = [f for f in arqs_search if f.startswith(startswith)]
+        else:
+            arqs_search = [f for f in arqs_search if f.endswith(startswith)]
+
+        if len(arqs_search) >= at_least:
+            return True
+        return False
+
     @staticmethod
     def walget_searpath(searched, initial_path=None):
         """
@@ -94,7 +108,7 @@ class Dirs:
             else:
                 pdf_files.append(f'{fname}')
         return pdf_files
-    
+
     def unzip_folder(self, full_path, rm_zip=True):
         """
         :param full_path: caminho
@@ -120,8 +134,6 @@ class Dirs:
                     if rm_zip:
                         sleep(5)
                         remove(file)
-
-    
 
 
 class HasJson:

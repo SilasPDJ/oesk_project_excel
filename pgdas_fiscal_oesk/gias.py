@@ -242,12 +242,3 @@ class GIA(InitialSetting, WDShorcuts):
     #     save = os.path.join(self.client_path, arq)
     #     self.driver.save_screenshot(save)
 
-    def certifs_exist(self, startswith, at_least=2):
-        arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
-        arqs_search = [
-            self.path_leaf(f, True) for f in arqs_search]
-        arqs_search = [f for f in arqs_search if f.startswith(startswith)]
-
-        if len(arqs_search) >= at_least:
-            return True
-        return False
