@@ -143,6 +143,8 @@ class Initial:
     def trata_money_excel(self, faturado):
 
         faturado = str(faturado).lower().strip()
+        if faturado == 'das_pend':
+            return 'ATENÇÃO, HÁ BOLETO(S) DO PGDAS PENDENTE(S)'
         if 'nan' in faturado or 'zerou' in faturado or float(faturado) == 0:
             faturado = 'SEM VALOR DECLARADO'
             return faturado
@@ -155,7 +157,7 @@ class Initial:
 
 class InitialSetting(Initial, Dirs, Now):
 
-    @classmethod
+    @ classmethod
     def files_pathit(cls, pasta_client, insyear=None, ano=None):
         from dateutil import relativedelta as du_rl
 
@@ -192,7 +194,7 @@ class InitialSetting(Initial, Dirs, Now):
     def certif_feito(self, save_path, add=''):
         """
         certificado de que está feito
-        :param save_path: nome da pasta 
+        :param save_path: nome da pasta
         :param add: um adicional no nome do arquivo
         :return: caminho+ nome_arquivo jpeg
         """
@@ -245,7 +247,7 @@ class InitialSetting(Initial, Dirs, Now):
         dia_hj = dt.now()
         return mydt.day > dia_hj.day, dia_hj
 
-    @staticmethod
+    @ staticmethod
     def ate_atual_compt(compt_atual, first_compt=None):
         from datetime import date
         from dateutil import relativedelta
