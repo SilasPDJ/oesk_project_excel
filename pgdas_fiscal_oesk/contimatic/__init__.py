@@ -21,7 +21,7 @@ class Contimatic(InitialSetting):
             registronta = True
 
         for f in self.files_get_anexos_v4(self.client_path, file_type='pdf'):
-            if 'ISS' in f.upper():
+            if 'ISS' in f.upper() and 'REGISTRO' in f.upper():  # ISSQN
                 registronta = False
                 break
             else:

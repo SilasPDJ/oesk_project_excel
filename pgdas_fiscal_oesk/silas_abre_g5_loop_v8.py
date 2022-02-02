@@ -59,9 +59,13 @@ class G5(Contimatic):
                 if tres_valores_faturados(self.client_path):
                     timesleep_import = self.nfcanceladas.conta_qtd_nfs()
                 sleep(timesleep_import)
-                [pygui.hotkey('shift', 'tab') for i in range(2)]
-                pygui.hotkey('enter')
+
+                __wcenter = pygui.getActiveWindow().center
+
+                pygui.click(*__wcenter, clicks=0)
+                pygui.move(320, -300)
                 sleep(1)
+                pygui.click()
                 self.mk_nf_canceladas()
 
                 self.gera_relatorio_iss()

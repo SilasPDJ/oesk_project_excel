@@ -184,7 +184,7 @@ class Backend:
             def ginfess():
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                                       ginfess_link,  compt=COMPT)
+                                       ginfess_link,  compt=COMPT, show_driver=False)
 
             def g5():
                 G5(razao_social, cnpj, cpf, codigo_simples,

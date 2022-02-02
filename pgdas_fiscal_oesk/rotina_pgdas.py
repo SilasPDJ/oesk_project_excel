@@ -27,6 +27,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
         WDShorcuts.__init__(self, driver)
         self.driver = driver
+        self.__set_driver()
 
     def simples_and_ecac_utilities(self, option, compt):
         """
@@ -394,6 +395,10 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         self.driver.close()
         self.driver.quit()
 
+    def __set_driver(self):
+        self.driver.set_window_position(2000, 0)
+        self.driver.maximize_window()
+
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt, all_valores=None):
@@ -408,7 +413,6 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # drivers declarados
         self.driver = pgdas_driver_ua(self.client_path)
-        # self.driver.maximize_window()
 
         # self.driver.maximize_window;()
         super().__init__(self.driver, self.compt)

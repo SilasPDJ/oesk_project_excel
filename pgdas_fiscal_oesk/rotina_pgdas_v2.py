@@ -28,6 +28,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
         WDShorcuts.__init__(self, driver)
         self.driver = driver
+        self.__set_driver()
 
     def simples_and_ecac_utilities(self, option, compt):
         """
@@ -394,6 +395,10 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         self.driver.close()
         self.driver.quit()
 
+    def __set_driver(self):
+        self.driver.set_window_position(2000, 0)
+        self.driver.maximize_window()
+
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
     def __init__(self, *args, compt):
@@ -418,6 +423,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 self.driver = driver = pgdas_driver_ua(self.client_path)
                 super().__init__(self.driver, self.compt)
                 self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
+
             if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
                 print("pressione f9 para continuar")
                 press_keys_b4("f9")
