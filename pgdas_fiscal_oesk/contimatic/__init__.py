@@ -135,3 +135,9 @@ class Contimatic(InitialSetting):
         cnpj = f'{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}'
         print(cnpj)  # 123.456.789-00
         return cnpj
+
+    # free onedrive diskspace
+    @staticmethod
+    def free_ondrv_dskspace(path):
+        from subprocess import run
+        run('attrib +U -P "' + path + '"')
