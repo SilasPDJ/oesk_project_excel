@@ -2,7 +2,7 @@
 from pgdas_fiscal_oesk.rotinas_dividas_v2 import RotinaDividas
 from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
-from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
+from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver

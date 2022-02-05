@@ -37,6 +37,7 @@ class G5(Contimatic):
         self.compt_used = compt
         self.__client = __client
         self.client_path = self.files_pathit(__client)
+        self.contimatic_folder = self.files_pathit('contimaticG5')
         super().__init__(self.client_path)
         if imposto_a_calcular == 'ISS':
             print(__client)
@@ -118,10 +119,10 @@ class G5(Contimatic):
         self.__foxit_explorer_write('I:\\SILAS_NFS')
 
         # o tipo icms ja ta checado
-        if os.path.isdir(os.path.join(self.client_path, os.listdir(self.client_path)[0])):
-            self.__xml_mercadolivre_icms()
-            # #################### \*.xml, assim......
-            # que importa tudo
+        # if os.path.isdir(os.path.join(self.client_path, os.listdir(self.client_path)[0])):
+        self.__xml_mercadolivre_icms()
+        # #################### \*.xml, assim......
+        # que importa tudo
 
         # test = self.files_get_anexos_v4(
         #     client_folder, 'xml')
@@ -164,17 +165,24 @@ class G5(Contimatic):
             sleep(2)
 
         def foxitpath_creation_exists():
-
             self.__gotowincenter('SILAS_NFS')
             for _, dirnames, __ in os.walk(self.client_path):
-
                 # unique filespath, is checked
                 unfpath = f'{self.client_path}/{dirnames[0]}'
-                # main_skypath = f'I:/SILAS_NFS{self.compt_used}/{self.__client}/dinames[0]}'
+
+                # if find xml is in folder... RETURN no es mercadolibre
 
                 if not os.path.exists(f'{unfpath}/.autosky'):
-                    # criar arquivos
-                    createfolder(self.compt_used)
+                    # importg5_file_confirmation = '.imes'
+                    if not os.path.exists(f'{self.contimatic_folder}/.imes'):
+                        createfolder(self.compt_used)
+                        open(f'{self.contimatic_folder}/.imes', 'w').close()
+                        # pra nao criar o mes duas vezes
+                    else:
+                        self.__foxit_explorer_write(
+                            f'I:\\SILAS_NFS\\{self.compt_used}')
+                        # se o mes ja foi criado então desconsidera
+
                     createfolder(self.__client)
                     [createfolder(_clientf__, enters=1)
                         for _clientf__ in dirnames]
@@ -183,17 +191,45 @@ class G5(Contimatic):
                         for _clientf__ in dirnames]
                     # cria os dois CERTIFICADOS
 
-                return True
+                returned = True
+                for __dn in dirnames:
+                    mysetpath = os.path.join(
+                        self.client_path, __dn)
+
+                    myset = set(self.files_get_anexos_v4(
+                        mysetpath, 'xml')) or None
+                    if myset is None:
+                        returned = False
+                    else:
+                        return True
+                        # AS ENTRADAS NÃO FICAM AQUI
+                        # pois se achar, é pq n tem mais oq procurar...
+                else:
+                    if len(dirnames) == 0:
+                        print(
+                            f'\033[1;31m Não houve notas ICMS de {self.__client}\033[m')
+                        # Se existir dir, ele já vai procurar...
+                        returned = False
+                    else:
+                        mercadolibr = os.walk(self.client_path)
+                        mercadolibr = list(mercadolibr)
+                        if len(mercadolibr[1][1]) >= 1:
+                            # se tiver pasta dentro de pasta...
+                            returned = True
+                print(returned)
+                return returned
                 # sempre vai existir, pq criará se não...
 
         if foxitpath_creation_exists():
-            searched1st = ['NF-e de venda',
-                           'NF-e de devolução', 'Outros documentos', ]
+            seard_mercadolivre = ['NF-e de venda',
+                                  'NF-e de devolução', 'Outros documentos', ]
 
             for _, dirnames, __ in os.walk(self.client_path, 1):
                 for clientf in dirnames:
-                    for folder in searched1st[:-1]:
+                    for folder in seard_mercadolivre[:-1]:
+                        self.__foxit_explorer_write('I:\\SILAS_NFS')
                         sleeplen = copyfolder_vd(clientf, folder)
+
                         self.__gotowincenter('SILAS_NFS')
                         self.__foxit_explorer_write(
                             f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}')
@@ -201,10 +237,10 @@ class G5(Contimatic):
                         all_keys('ctrl', 'v')
                         print(sleeplen/20+10, 'sleep time')
                         sleep(sleeplen/20+10)
-                        self.free_ondrv_dskspace(
-                            os.path.join(self.client_path, clientf))
+                        # _mainpath = os.path.join(self.client_path, clientf)
+                        # self.free_ondrv_dskspace(f'{_mainpath}\*.')
+                        # na vdd funciona só com arquivos
 
-                        self.__foxit_explorer_write('I:\\SILAS_NFS')
                 break
                 # pra executar somente 1x...
 
