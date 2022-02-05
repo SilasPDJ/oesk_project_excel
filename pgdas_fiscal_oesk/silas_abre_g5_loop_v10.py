@@ -142,8 +142,16 @@ class G5(Contimatic):
             os.chdir(self.client_path)
             os.chdir(clientf__)
             # venda, devolução...
-            os.chdir(folder)
-            [os.chdir(ms) for ms in mainSearched]
+            if clientf__ != folder:
+                try:
+                    os.chdir(folder)
+                    try:
+                        [os.chdir(ms) for ms in mainSearched]
+                    except FileExistsError:
+                        print('linha 152. Passing, no problem')
+                except FileNotFoundError:
+                    return 1
+                    # Não existe...
             pathdir = os.getcwd()
 
             Popen(f'explorer "{pathdir}"')
@@ -209,38 +217,40 @@ class G5(Contimatic):
                         print(
                             f'\033[1;31m Não houve notas ICMS de {self.__client}\033[m')
                         # Se existir dir, ele já vai procurar...
-                        returned = False
+                        return False
                     else:
                         mercadolibr = os.walk(self.client_path)
                         mercadolibr = list(mercadolibr)
                         if len(mercadolibr[1][1]) >= 1:
                             # se tiver pasta dentro de pasta...
-                            returned = True
-                print(returned)
+                            return 'LIBRE'
                 return returned
                 # sempre vai existir, pq criará se não...
-
-        if foxitpath_creation_exists():
+        libre_or_normal = foxitpath_creation_exists()
+        if libre_or_normal is not False:
             seard_mercadolivre = ['NF-e de venda',
                                   'NF-e de devolução', 'Outros documentos', ]
 
             for _, dirnames, __ in os.walk(self.client_path, 1):
                 for clientf in dirnames:
-                    for folder in seard_mercadolivre[:-1]:
+                    for folder in seard_mercadolivre:
                         self.__foxit_explorer_write('I:\\SILAS_NFS')
-                        sleeplen = copyfolder_vd(clientf, folder)
+                        if libre_or_normal == 'LIBRE':
+                            sleeplen = copyfolder_vd(clientf, folder)
+                        else:
+                            sleeplen = copyfolder_vd(clientf, clientf)
 
                         self.__gotowincenter('SILAS_NFS')
                         self.__foxit_explorer_write(
                             f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}')
-                        createfolder(folder)
+                        if libre_or_normal == 'LIBRE':
+                            createfolder(folder)
                         all_keys('ctrl', 'v')
                         print(sleeplen/20+10, 'sleep time')
                         sleep(sleeplen/20+10)
-                        # _mainpath = os.path.join(self.client_path, clientf)
+                        if libre_or_normal != 'LIBRE':
+                            return
                         # self.free_ondrv_dskspace(f'{_mainpath}\*.')
-                        # na vdd funciona só com arquivos
-
                 break
                 # pra executar somente 1x...
 
