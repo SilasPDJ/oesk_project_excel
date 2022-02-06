@@ -132,6 +132,8 @@ class G5(Contimatic):
     def __xml_mercadolivre_icms(self):
 
         def copyfolder_vd(clientf__, folder) -> len:
+            returned = 0
+
             volta = os.getcwd()
             # vd = venda/devolução
             mainSearched = 'XML', 'Autorizadas'
@@ -142,25 +144,26 @@ class G5(Contimatic):
             os.chdir(self.client_path)
             os.chdir(clientf__)
             # venda, devolução...
-            if clientf__ != folder:
+            if clientf__ != folder:  # ...
                 try:
                     os.chdir(folder)
-                    try:
-                        [os.chdir(ms) for ms in mainSearched]
-                    except FileExistsError:
-                        print('linha 152. Passing, no problem')
                 except FileNotFoundError:
+                    print('return 1')
                     return 1
+                try:
+                    [os.chdir(ms) for ms in mainSearched]
+                except FileNotFoundError:
+                    print('linha 152. Passing, no problem')
                     # Não existe...
+                    returned += 1100  # incrementa segundos, outros documentos
             pathdir = os.getcwd()
-
             Popen(f'explorer "{pathdir}"')
             sleep(3)
             all_keys('ctrl', 'a')
             sleep(0.5)
             [all_keys('ctrl', 'c') for i in range(2)]
             os.chdir(volta)
-            return len(os.listdir(pathdir))
+            return len(os.listdir(pathdir)) + returned
             # CLEISON/MARCO WAY...
 
         def createfolder(w, enters=2):
@@ -228,32 +231,39 @@ class G5(Contimatic):
                 # sempre vai existir, pq criará se não...
         libre_or_normal = foxitpath_creation_exists()
         if libre_or_normal is not False:
-            seard_mercadolivre = ['NF-e de venda',
-                                  'NF-e de devolução', 'Outros documentos', ]
+            # TODO: fazer listdir dentro... e procurar outros documentos, etc
+            # os.chdir(self.client_path)
 
-            for _, dirnames, __ in os.walk(self.client_path, 1):
+            for _, dirnames, __ in os.walk(self.client_path):
                 for clientf in dirnames:
-                    for folder in seard_mercadolivre:
-                        self.__foxit_explorer_write('I:\\SILAS_NFS')
-                        if libre_or_normal == 'LIBRE':
-                            sleeplen = copyfolder_vd(clientf, folder)
-                        else:
-                            sleeplen = copyfolder_vd(clientf, clientf)
+                    mypath = os.path.join(self.client_path, clientf)
+                    listfoldersindir = [d for d in os.listdir(
+                        mypath) if os.path.isdir(os.path.join(mypath, d))]
 
+                    if libre_or_normal == 'LIBRE':
+                        for folder in listfoldersindir:
+                            self.__foxit_explorer_write('I:\\SILAS_NFS')
+                            sleeplen = copyfolder_vd(clientf, folder)
+                            self.__gotowincenter('SILAS_NFS')
+                            self.__foxit_explorer_write(
+                                f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}')
+                            createfolder(folder)
+                            all_keys('ctrl', 'v')
+                            print(sleeplen/20+10, 'sleep time')
+                            sleep(sleeplen/20+10)
+                            return
+                    else:
+                        self.__foxit_explorer_write('I:\\SILAS_NFS')
+                        sleeplen = copyfolder_vd(clientf, clientf)
                         self.__gotowincenter('SILAS_NFS')
                         self.__foxit_explorer_write(
                             f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}')
-                        if libre_or_normal == 'LIBRE':
-                            createfolder(folder)
                         all_keys('ctrl', 'v')
                         print(sleeplen/20+10, 'sleep time')
                         sleep(sleeplen/20+10)
-                        if libre_or_normal != 'LIBRE':
-                            return
+                        return
                         # self.free_ondrv_dskspace(f'{_mainpath}\*.')
-                break
-                # pra executar somente 1x...
-
+                    # TODO: importar NFs... path//to//folder/*.xml
         # searched1st[-1] #(outros doc/cte)
         # IMPORTAR UMA POR UMA NF
 
