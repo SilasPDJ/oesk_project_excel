@@ -83,7 +83,7 @@ class G5(Contimatic):
             if "ok" != nf_out.lower() != "s":  # primeiro saídas
                 self.abre_ativa_programa('G5 ')
                 # self.activating_client(self.formatar_cnpj(__cnpj))
-                self.importa_nf_icms()
+                self.importa_nf_icms(nf_out)
 
     @staticmethod
     def __gotowincenter(win):
@@ -91,7 +91,7 @@ class G5(Contimatic):
         win.activate()
         pygui.click(*win.center, clicks=0)
 
-    def importa_nf_icms(self):
+    def importa_nf_icms(self, nfout):
 
         def saida_entrada(key):
             self.abre_ativa_programa('G5 ')
@@ -117,19 +117,11 @@ class G5(Contimatic):
         ativa_foxit_openexplorer()
         sleep(2)
         self.__foxit_explorer_write('I:\\SILAS_NFS')
+        for path2import in self.__xml_send2cloud_icms():
+            print(path2import)
+        input('end')
 
-        # o tipo icms ja ta checado
-        # if os.path.isdir(os.path.join(self.client_path, os.listdir(self.client_path)[0])):
-        self.__xml_mercadolivre_icms()
-        # #################### \*.xml, assim......
-        # que importa tudo
-
-        # test = self.files_get_anexos_v4(
-        #     client_folder, 'xml')
-
-        # self.__gotowincenter(self.__client)
-
-    def __xml_mercadolivre_icms(self):
+    def __xml_send2cloud_icms(self):
 
         def copyfolder_vd(clientf__, folder) -> len:
             returned = 0
@@ -155,7 +147,7 @@ class G5(Contimatic):
                 except FileNotFoundError:
                     print('linha 152. Passing, no problem')
                     # Não existe...
-                    returned += 1100  # incrementa segundos, outros documentos
+                    returned += 1200  # incrementa segundos, outros documentos
             pathdir = os.getcwd()
             Popen(f'explorer "{pathdir}"')
             sleep(3)
@@ -176,6 +168,7 @@ class G5(Contimatic):
             sleep(2)
 
         def foxitpath_creation_exists():
+            # cleison e suzana não funcionam separados aqui...
             self.__gotowincenter('SILAS_NFS')
             for _, dirnames, __ in os.walk(self.client_path):
                 # unique filespath, is checked
@@ -240,32 +233,46 @@ class G5(Contimatic):
                     listfoldersindir = [d for d in os.listdir(
                         mypath) if os.path.isdir(os.path.join(mypath, d))]
 
+                    filesincloud_checkerpath = os.path.join(
+                        self.client_path, clientf, 'dirsInCloud.txt')
+
                     if libre_or_normal == 'LIBRE':
                         for folder in listfoldersindir:
+                            yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                            yield yielded + f'\\{folder}'
+                            if not os.path.exists(filesincloud_checkerpath):
+                                self.__foxit_explorer_write('I:\\SILAS_NFS')
+
+                                sleeplen = copyfolder_vd(clientf, folder)
+                                self.__gotowincenter('SILAS_NFS')
+                                self.__foxit_explorer_write(
+                                    yielded)
+                                if folder.upper() != 'OUTROS DOCUMENTOS':
+                                    createfolder(folder)
+                                all_keys('ctrl', 'v')
+                                print(sleeplen/20+10, 'sleep time')
+                                sleep(sleeplen/20+10)
+                            print('next client, atual: ', folder)
+                        if not os.path.exists(filesincloud_checkerpath):
+                            open(filesincloud_checkerpath, 'w').close()
+                    else:
+                        yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                        yield yielded
+                        if not os.path.exists(filesincloud_checkerpath):
                             self.__foxit_explorer_write('I:\\SILAS_NFS')
-                            sleeplen = copyfolder_vd(clientf, folder)
+                            sleeplen = copyfolder_vd(clientf, clientf)
                             self.__gotowincenter('SILAS_NFS')
                             self.__foxit_explorer_write(
-                                f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}')
-                            createfolder(folder)
+                                yielded)
                             all_keys('ctrl', 'v')
                             print(sleeplen/20+10, 'sleep time')
                             sleep(sleeplen/20+10)
-                            return
-                    else:
-                        self.__foxit_explorer_write('I:\\SILAS_NFS')
-                        sleeplen = copyfolder_vd(clientf, clientf)
-                        self.__gotowincenter('SILAS_NFS')
-                        self.__foxit_explorer_write(
-                            f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}')
-                        all_keys('ctrl', 'v')
-                        print(sleeplen/20+10, 'sleep time')
-                        sleep(sleeplen/20+10)
-                        return
-                        # self.free_ondrv_dskspace(f'{_mainpath}\*.')
+                            open(filesincloud_checkerpath, 'w').close()
+
+                    # self.free_ondrv_dskspace(f'{_mainpath}\*.')
                     # TODO: importar NFs... path//to//folder/*.xml
-        # searched1st[-1] #(outros doc/cte)
-        # IMPORTAR UMA POR UMA NF
+                return
+        # yield the import
 
     def importa_nfs_iss(self):
         def exe_bt_executar(import_items=True):
