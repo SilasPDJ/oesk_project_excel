@@ -39,19 +39,27 @@ class Dirs:
         return False
 
     @staticmethod
-    def walget_searpath(searched, initial_path=None):
+    def walget_searpath(searched, initial_path, whatis: int = 0):
         """
         # walk get searched path
         :param str searched: any string
         :param initial_path: any path...
+        :param whatis: 0 = dirpath (defult); 1 = searches in dirnames; 2 = searches in filenames
+        from os.walk  
         :return: first found though searched in path
         """
-        if initial_path is None:
-            initial_path = r'I:/OESK_CONTABIL'
-
+        if whatis > 2 or whatis < 0:
+            raise ValueError("Try values between 2 and 0")
         for (dirpath, dirnames, filenames) in os.walk(initial_path):
-            if searched in dirpath:
-                return dirpath
+            if whatis == 0:
+                if searched in dirpath:
+                    return dirpath
+            elif whatis == 1:
+                if searched in dirnames:
+                    return dirnames
+            elif whatis == 2:
+                if searched in filenames:
+                    return filenames
 
     @staticmethod
     def move_file(where_from, destiny):
