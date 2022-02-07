@@ -78,7 +78,7 @@ class G5(Contimatic):
                 # F4
                 # TODO: Salvar dentro do local de salvar relatorio, client_path
         elif imposto_a_calcular == 'ICMS':
-            print(__client)
+            print(__client, nf_out)
 
             if "ok" != nf_out.lower() != "s":  # primeiro saídas
                 self.abre_ativa_programa('G5 ')
@@ -110,16 +110,69 @@ class G5(Contimatic):
             foritab(3, 'up')
             pygui.hotkey('enter')
 
-        # False kkkk
-        saida_entrada('e')
-        saida_entrada('s')
-        sleep(2)
-        ativa_foxit_openexplorer()
-        sleep(2)
-        self.__foxit_explorer_write('I:\\SILAS_NFS')
+        def robotimatic_config_path(_path2import):
+            sleep(4)
+            _win = pygui.getActiveWindow()
+            pygui.click(_win.center, clicks=0)
+            pygui.move(0, -170)  # write
+            pygui.click()  # write
+            all_keys('ctrl', 'a')
+            sleep(.5)
+            pygui.hotkey('backspace')
+            sleep(.5)
+            pygui.write(_path2import)
+
+            pygui.click(_win.center, clicks=0)
+            pygui.move(250, 250)  # gravar
+            pygui.click()  # gravar
+            sleep(1)  # gravar
+            pygui.hotkey('enter')
+
+        # abre explorer
+        if not self.walget_searpath('dirsInCloud.txt', self.client_path, 2):
+            saida_entrada('e')
+            saida_entrada('s')
+            sleep(2)
+            ativa_foxit_openexplorer()
+            sleep(2)
+            self.__foxit_explorer_write('I:\\SILAS_NFS')
+
+        listofdirs = list()
         for path2import in self.__xml_send2cloud_icms():
-            print(path2import)
-        input('end')
+            if isinstance(path2import, list):
+                for path2i in path2import:
+                    print(path2i)
+                    # listofdirs.append(path2i)
+            else:
+                listofdirs.append(path2import)
+                # print(path2import)
+
+        for path2import in listofdirs:
+            self.abre_ativa_programa('G5')
+            sleep(1)
+            pathchecker = path2import.split('\\')[-1].upper()
+            if pathchecker in ['NF-E DE DEVOLUÇÃO', 'NF-E DE VENDA', 'NF']:
+                # if pathchecker in ['NF-E DE VENDA', 'NF']:
+                # foritab(1, 'alt', 'right', 'down', 'right')
+                pygui.hotkey('alt')
+                # eu smp ↑↑
+                foritab(6, 'down')
+                foritab(1, 'right', 'down', 'enter',)
+                robotimatic_config_path(path2import)  # ↑
+                all_keys('alt', 'f4')  # close import config
+
+                self.abre_ativa_programa('G5')
+                pygui.FAILSAFE = False  # Ativa robô
+                pygui.click(pygui.getActiveWindow().topright,
+                            clicks=0)
+                pygui.move(-105, 50)
+                pygui.FAILSAFE = True
+                pygui.click()
+                foritab(1, 'up', 'right', 'down', 'enter', interval=0.25)
+                # aí tem que sleepar pq ta importando, TODO: calcular o sleep
+                sleep(70)
+
+                # pygui.click()
 
     def __xml_send2cloud_icms(self):
 
@@ -169,15 +222,14 @@ class G5(Contimatic):
             sleep(2)
 
         def foxitpath_creation_exists():
-            # cleison e suzana não funcionam separados aqui...
-            self.__gotowincenter('SILAS_NFS')
             for _, dirnames, __ in os.walk(self.client_path):
                 # unique filespath, is checked
                 unfpath = f'{self.client_path}/{dirnames[0]}'
 
                 # if find xml is in folder... RETURN no es mercadolibre
 
-                if not os.path.exists(f'{unfpath}/.autosky'):
+                if not os.path.exists(f'{unfpath}/.autosky'):  # searpath?
+                    self.__gotowincenter('SILAS_NFS')
                     # importg5_file_confirmation = '.imes'
                     if not os.path.exists(f'{self.contimatic_folder}/.imes'):
                         createfolder(self.compt_used)
