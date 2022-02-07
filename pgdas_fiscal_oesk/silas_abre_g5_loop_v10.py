@@ -149,12 +149,13 @@ class G5(Contimatic):
                     # Não existe...
                     returned += 1200  # incrementa segundos, outros documentos
             pathdir = os.getcwd()
-            Popen(f'explorer "{pathdir}"')
+            _p = Popen(f'explorer "{pathdir}"')
             sleep(3)
             all_keys('ctrl', 'a')
             sleep(0.5)
             [all_keys('ctrl', 'c') for i in range(2)]
             os.chdir(volta)
+            _p.terminate()
             return len(os.listdir(pathdir)) + returned
             # CLEISON/MARCO WAY...
 
@@ -239,7 +240,12 @@ class G5(Contimatic):
                     if libre_or_normal == 'LIBRE':
                         for folder in listfoldersindir:
                             yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
-                            yield yielded + f'\\{folder}'
+                            if folder.upper() != 'OUTROS DOCUMENTOS':
+                                yield yielded + f'\\{folder}'
+                            else:
+                                yield [os.path.join(yielded, d) for d in os.listdir(
+                                    os.path.join(mypath, folder)) if os.path.isdir(os.path.join(mypath, folder, d))]
+
                             if not os.path.exists(filesincloud_checkerpath):
                                 self.__foxit_explorer_write('I:\\SILAS_NFS')
 
@@ -249,6 +255,7 @@ class G5(Contimatic):
                                     yielded)
                                 if folder.upper() != 'OUTROS DOCUMENTOS':
                                     createfolder(folder)
+
                                 all_keys('ctrl', 'v')
                                 print(sleeplen/20+10, 'sleep time')
                                 sleep(sleeplen/20+10)
