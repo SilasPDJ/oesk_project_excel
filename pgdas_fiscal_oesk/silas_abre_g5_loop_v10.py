@@ -87,9 +87,13 @@ class G5(Contimatic):
 
     @staticmethod
     def __gotowincenter(win):
-        win = pygui.getWindowsWithTitle(win)[0]
+        if isinstance(win, str):
+            win = pygui.getWindowsWithTitle(win)[0]
+        elif not isinstance(win, pygui.Window):
+            raise ValueError('must be', str, 'or', pygui.Window)
         win.activate()
         pygui.click(*win.center, clicks=0)
+        return win
 
     def importa_nf_icms(self, nfout):
 
@@ -137,21 +141,12 @@ class G5(Contimatic):
             sleep(2)
             self.__foxit_explorer_write('I:\\SILAS_NFS')
 
-        listofdirs = list()
         for path2import in self.__xml_send2cloud_icms():
-            if isinstance(path2import, list):
-                for path2i in path2import:
-                    print(path2i)
-                    # listofdirs.append(path2i)
-            else:
-                listofdirs.append(path2import)
-                # print(path2import)
-
-        for path2import in listofdirs:
+            input(path2import)
             self.abre_ativa_programa('G5')
             sleep(1)
             pathchecker = path2import.split('\\')[-1].upper()
-            if pathchecker in ['NF-E DE DEVOLUÇÃO', 'NF-E DE VENDA', 'NF']:
+            if pathchecker.upper() not in 'CTE':
                 # if pathchecker in ['NF-E DE VENDA', 'NF']:
                 # foritab(1, 'alt', 'right', 'down', 'right')
                 pygui.hotkey('alt')
@@ -175,41 +170,20 @@ class G5(Contimatic):
                 # pygui.click()
 
     def __xml_send2cloud_icms(self):
+        volta = os.getcwd()
 
-        def copyfolder_vd(clientf__, folder) -> len:
-            returned = 0
-
-            volta = os.getcwd()
-            # vd = venda/devolução
-            mainSearched = 'XML', 'Autorizadas'
-
-            # os.mkdir('ok')  # se tiver certificado vai pro prox
-
-            # for folder in searched1st[:-1]:
-            os.chdir(self.client_path)
-            os.chdir(clientf__)
-            # venda, devolução...
-            if clientf__ != folder:  # ...
-                try:
-                    os.chdir(folder)
-                except FileNotFoundError:
-                    print('return 1')
-                    return 1
-                try:
-                    [os.chdir(ms) for ms in mainSearched]
-                except FileNotFoundError:
-                    print('linha 152. Passing, no problem')
-                    # Não existe...
-                    returned += 1200  # incrementa segundos, outros documentos
-            pathdir = os.getcwd()
+        def __local_explorer_copy2(pathdir):
+            canb_pathdir = os.path.join(pathdir, 'XML', 'Autorizadas')
+            if os.path.exists(canb_pathdir):
+                pathdir = canb_pathdir
             _p = Popen(f'explorer "{pathdir}"')
+
             sleep(3)
             all_keys('ctrl', 'a')
-            sleep(0.5)
-            [all_keys('ctrl', 'c') for i in range(2)]
-            os.chdir(volta)
+            sleep(1)
+            all_keys('ctrl', 'c')
             _p.terminate()
-            return len(os.listdir(pathdir)) + returned
+            # return os.listdir(pathdir)
             # CLEISON/MARCO WAY...
 
         def createfolder(w, enters=2):
@@ -229,7 +203,7 @@ class G5(Contimatic):
                 # if find xml is in folder... RETURN no es mercadolibre
 
                 if not os.path.exists(f'{unfpath}/.autosky'):  # searpath?
-                    self.__gotowincenter('SILAS_NFS')
+                    silasnfs_window.activate()
                     # importg5_file_confirmation = '.imes'
                     if not os.path.exists(f'{self.contimatic_folder}/.imes'):
                         createfolder(self.compt_used)
@@ -282,50 +256,69 @@ class G5(Contimatic):
 
             for _, dirnames, __ in os.walk(self.client_path):
                 for clientf in dirnames:
-                    mypath = os.path.join(self.client_path, clientf)
-                    listfoldersindir = [d for d in os.listdir(
-                        mypath) if os.path.isdir(os.path.join(mypath, d))]
+                    __mypath = os.path.join(self.client_path, clientf)
+                    # abspath pega o chdir atual
+                    listfoldersindir = [os.path.join(__mypath, d) for d in os.listdir(
+                        __mypath) if os.path.isdir(os.path.join(__mypath, d)) and d.upper() != 'OUTROS DOCUMENTOS']
 
                     filesincloud_checkerpath = os.path.join(
                         self.client_path, clientf, 'dirsInCloud.txt')
 
                     if libre_or_normal == 'LIBRE':
-                        for folder in listfoldersindir:
-                            yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
-                            if folder.upper() != 'OUTROS DOCUMENTOS':
-                                yield yielded + f'\\{folder}'
-                            else:
-                                yield [os.path.join(yielded, d) for d in os.listdir(
-                                    os.path.join(mypath, folder)) if os.path.isdir(os.path.join(mypath, folder, d))]
+                        __lfid = [os.path.join(__mypath, d) for d in os.listdir(
+                            __mypath) if d.upper() == 'OUTROS DOCUMENTOS'][0]
+                        listfoldersindir += [os.path.join(__lfid, dd)
+                                             for dd in os.listdir(__lfid)]
 
+                        for __mainfolder in listfoldersindir:
+                            __yieldir_creation = yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                            # yield mainfolder
+                            mainfolder__lastfolder = __mainfolder.split(
+                                '\\')[-1]
+                            yielded += '\\CT-e' if mainfolder__lastfolder == 'CT-e' else '\\NFsSaidas'
+                            yield yielded
+                            # vai mudar os yields....
+                            sleeplen = 60
                             if not os.path.exists(filesincloud_checkerpath):
                                 self.__foxit_explorer_write('I:\\SILAS_NFS')
 
-                                sleeplen = copyfolder_vd(clientf, folder)
-                                self.__gotowincenter('SILAS_NFS')
-                                self.__foxit_explorer_write(
-                                    yielded)
-                                if folder.upper() != 'OUTROS DOCUMENTOS':
-                                    createfolder(folder)
+                                __local_explorer_copy2(__mainfolder)
+                                silasnfs_window = self.__gotowincenter(
+                                    'SILAS_NFS')
 
+                                # if folder.upper() != 'OUTROS DOCUMENTOS':
+                                if __mainfolder == listfoldersindir[0]:
+                                    self.__foxit_explorer_write(
+                                        __yieldir_creation)
+                                    createfolder('NFsSaidas')
+                                elif not __mainfolder.upper().endswith('CT-E'):
+                                    self.__foxit_explorer_write(yielded)
+                                else:  # endswith('CT-E')
+                                    __p1 = "\\".join(yielded.split('\\')[:-1])
+                                    # __p2 = "\\".join(yielded.split('\\')[-1:])
+                                    self.__foxit_explorer_write(__p1)
+                                    createfolder('CT-e')
+                                # else geral
+
+                                sleep(1.5)
                                 all_keys('ctrl', 'v')
-                                print(sleeplen/20+10, 'sleep time')
-                                sleep(sleeplen/20+10)
-                            print('next client, atual: ', folder)
+                                print(sleeplen, 'sleep time')
+                                sleep(sleeplen)
+                            print('next client, atual: ', __mainfolder)
                         if not os.path.exists(filesincloud_checkerpath):
                             open(filesincloud_checkerpath, 'w').close()
                     else:
                         yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
                         yield yielded
                         if not os.path.exists(filesincloud_checkerpath):
-                            self.__foxit_explorer_write('I:\\SILAS_NFS')
-                            sleeplen = copyfolder_vd(clientf, clientf)
-                            self.__gotowincenter('SILAS_NFS')
+                            # self.__foxit_explorer_write('I:\\SILAS_NFS')
+                            __local_explorer_copy2(__mypath)
+                            silasnfs_window.activate()
                             self.__foxit_explorer_write(
                                 yielded)
                             all_keys('ctrl', 'v')
-                            print(sleeplen/20+10, 'sleep time')
-                            sleep(sleeplen/20+10)
+                            print(sleeplen, 'sleep time')
+                            sleep(sleeplen)
                             open(filesincloud_checkerpath, 'w').close()
 
                     # self.free_ondrv_dskspace(f'{_mainpath}\*.')
