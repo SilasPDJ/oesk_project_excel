@@ -198,10 +198,8 @@ class InitialSetting(Initial, Dirs, Now):
         :param add: um adicional no nome do arquivo
         :return: caminho+ nome_arquivo jpeg
         """
-        type_arquivo = 'png'
         try:
-            save = r'{}\\{}-SimplesNacionalDeclarado.{}'.format(
-                save_path, add, type_arquivo)
+            save = os.path.join(save_path, f"_{add}.png")
             print(save, '---------> SAVE')
             return save
         except FileNotFoundError:

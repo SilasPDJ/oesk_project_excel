@@ -225,15 +225,17 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         make_login = initial.get_attribute("href")
 
         driver.execute_script("window.open()")
+
         driver.switch_to.window(driver.window_handles[1])
         a = Thread(target=lambda: driver.get(make_login))
         a.start()
         sleep(randsleep2(0.71, 2.49))
-        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
+        [pygui.hotkey('down', 'enter', interval=randsleep2(0.21, 0.78))
          for i in range(3)]
         pygui.hotkey('ctrl', 'w')
         # driver.close()
         driver.switch_to.window(driver.window_handles[0])
+        driver.execute_script("closeModal('modal-tips')")
         initial.click()
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(randsleep2(3, 7))
@@ -467,8 +469,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
         self.find_submit_form()
 
-        self.certif_feito(self.client_path, add="-SemMovimento")
         self.simples_and_ecac_utilities(2, compt)
+        driver.save_screenshot(self.certif_feito(
+            self.client_path, add="SimplesNacional-SemMovimento"))
 
     def declaracao_anexos(self, __valores_de_anexos, valor_competencia, cnpj):
         def new_seleciona_anexo(which_one):
@@ -573,7 +576,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         except NoSuchElementException:
             driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
 
-        self.driver.save_screenshot(self.certif_feito(self.client_path))
+        self.driver.save_screenshot(self.certif_feito(
+            self.client_path, add='SimplesNacional_declarado'))
 
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 

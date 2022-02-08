@@ -95,7 +95,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     print('~' * 30)
 
                 driver.save_screenshot(self.certif_feito(
-                    self.client_path, add=__r_social))
+                    self.client_path, add=f"{__r_social}-ginfessDone"))
                 # coloquei tudo no dele
 
             elif self.driver.current_url == 'https://tremembe.sigiss.com.br/tremembe/contribuinte/login.php':
@@ -218,7 +218,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
                 driver.switch_to.default_content()
                 driver.save_screenshot(self.certif_feito(
-                    self.client_path, add=__r_social))
+                    self.client_path, add=f"{__r_social}-ginfessDone"))
 
             elif self.driver.current_url == 'https://app.siappa.com.br/issqn_itupeva/servlet/com.issqnwebev3v2.login':
                 self.driver.find_element(By.ID, 'vUSR_COD').send_keys(__cnpj)
@@ -227,7 +227,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 # d = Chrome().
                 press_keys_b4('f9')
                 driver.save_screenshot(self.certif_feito(
-                    self.client_path, add=__r_social))
+                    self.client_path, add=f"{__r_social}-ginfessDone"))
             elif self.driver.current_url == 'https://bragancapaulista.giap.com.br/apex/pmbp/f?p=994:101':
                 a = __login, __senha = _ginfess_cod.split('//')
                 self.driver.find_element(By.ID,
@@ -252,7 +252,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 print('Digite f9 para continuar')
                 press_key_b4('f9')
                 self.driver.save_screenshot(self.certif_feito(
-                    self.client_path, add=__r_social))
+                    self.client_path, add=f"{__r_social}-ginfessDone"))
             else:
                 print(__r_social)
                 driver.execute_script("javascript:location.reload();")
@@ -267,7 +267,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
                     press_keys_b4('f9')
                     driver.save_screenshot(self.certif_feito(
-                        self.client_path, add=__r_social))
+                        self.client_path, add=f"{__r_social}-ginfessDone"))
 
             [(print(f'Sleeping before close {i}'), sleep(1))
              for i in range(5, -1, -1)]

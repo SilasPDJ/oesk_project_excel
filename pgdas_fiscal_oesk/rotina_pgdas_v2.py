@@ -468,9 +468,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
         self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
         self.find_submit_form()
-
-        self.certif_feito(self.client_path, add="-SemMovimento")
         self.simples_and_ecac_utilities(2, compt)
+        self.driver.save_screenshot(self.certif_feito(
+            self.client_path, add="SimplesNacional-SemMovimento"))
 
     def declaracao_anexos(self, __valores_de_anexos, valor_competencia, cnpj):
         def new_seleciona_anexo(which_one):
@@ -575,7 +575,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         except NoSuchElementException:
             driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
 
-        self.driver.save_screenshot(self.certif_feito(self.client_path))
+        self.driver.save_screenshot(self.certif_feito(
+            self.client_path, add='SimplesNacional'))
 
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
