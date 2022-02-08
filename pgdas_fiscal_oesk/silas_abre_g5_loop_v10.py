@@ -78,12 +78,27 @@ class G5(Contimatic):
                 # F4
                 # TODO: Salvar dentro do local de salvar relatorio, client_path
         elif imposto_a_calcular == 'ICMS':
+
             print(__client, nf_out)
 
             if "ok" != nf_out.lower() != "s":  # primeiro saídas
                 self.abre_ativa_programa('G5 ')
+                # ativa robô
+                self.__ativa_robo_once(pygui.getActiveWindow())
                 # self.activating_client(self.formatar_cnpj(__cnpj))
                 self.importa_nf_icms(nf_out)
+
+    @staticmethod
+    def __ativa_robo_once(window: pygui.Window):
+        pygui.FAILSAFE = False
+        pygui.click(window.topright, clicks=0)
+        pygui.move(-140, 50)
+        pygui.FAILSAFE = True
+        rgb = (91, 91, 91)
+        _screensear = pygui.screenshot(region=(1770, 55, 30, 20))
+
+        if _screensear.getpixel((15, 10)) == rgb:
+            pygui.click()
 
     @staticmethod
     def __gotowincenter(win):
@@ -95,7 +110,7 @@ class G5(Contimatic):
         pygui.click(*win.center, clicks=0)
         return win
 
-    def importa_nf_icms(self, nfout):
+    def importa_nf_icms(self, nfout_status):
 
         def saida_entrada(key):
             self.abre_ativa_programa('G5 ')
@@ -114,9 +129,31 @@ class G5(Contimatic):
             foritab(3, 'up')
             pygui.hotkey('enter')
 
-        def robotimatic_config_path(_path2import):
+        def go2_g5_import_params():
+            pygui.hotkey('alt')
+            # eu smp ↑↑
+            foritab(6, 'down')
+            foritab(1, 'right', 'down', 'enter',)
+
+        def robotimatic_config_path(_path2import: str, opt: int = None):
+            """
+            path2import: path2import typed
+            """
             sleep(4)
             _win = pygui.getActiveWindow()
+            _import_opcoes = ('SAIDAS', 'nfentrada',
+                              'cte-saida', 'cte-entrada',
+                              'cte-sat', 'sped', 'nfp', 'nfse-tomado',
+                              'nfse-prestado')
+            _import_opcoes = {k: v for k, v in enumerate(_import_opcoes)}
+            if opt is not None:
+                foritab(3, 'up')
+                foritab(2, 'tab')
+                foritab(opt, 'right')
+                sleep(.5)
+                pygui.hotkey('enter')
+                # seleciona quais são
+                sleep(1)
             pygui.click(_win.center, clicks=0)
             pygui.move(0, -170)  # write
             pygui.click()  # write
@@ -131,7 +168,18 @@ class G5(Contimatic):
             pygui.click()  # gravar
             sleep(1)  # gravar
             pygui.hotkey('enter')
-
+            sleep(.5)
+            all_keys('alt', 'f4')  # close import config
+            sleep(1)
+            self.abre_ativa_programa('G5')
+            # go2robo options
+            pygui.FAILSAFE = False  # Robo_Options
+            pygui.click(pygui.getActiveWindow().topright,
+                        clicks=0)
+            # COMO ATIVAR ROBÔ AUTOMÁTICO?
+            pygui.move(-105, 50)
+            pygui.FAILSAFE = True
+            pygui.click()
         # abre explorer
         if not self.walget_searpath('dirsInCloud.txt', self.client_path, 2):
             saida_entrada('e')
@@ -141,33 +189,21 @@ class G5(Contimatic):
             sleep(2)
             self.__foxit_explorer_write('I:\\SILAS_NFS')
 
-        for path2import in self.__xml_send2cloud_icms():
-            input(path2import)
-            self.abre_ativa_programa('G5')
-            sleep(1)
-            pathchecker = path2import.split('\\')[-1].upper()
-            if pathchecker.upper() not in 'CTE':
-                # if pathchecker in ['NF-E DE VENDA', 'NF']:
-                # foritab(1, 'alt', 'right', 'down', 'right')
-                pygui.hotkey('alt')
-                # eu smp ↑↑
-                foritab(6, 'down')
-                foritab(1, 'right', 'down', 'enter',)
-                robotimatic_config_path(path2import)  # ↑
-                all_keys('alt', 'f4')  # close import config
+        path2import = self.__xml_send2cloud_icms()
+        print(path2import)
+        print('Only Once')
+        self.abre_ativa_programa('G5')
+        sleep(1)
+        # pathchecker = path2import.split('\\')[-1].upper()
 
-                self.abre_ativa_programa('G5')
-                pygui.FAILSAFE = False  # Ativa robô
-                pygui.click(pygui.getActiveWindow().topright,
-                            clicks=0)
-                pygui.move(-105, 50)
-                pygui.FAILSAFE = True
-                pygui.click()
-                foritab(1, 'up', 'right', 'down', 'enter', interval=0.25)
-                # aí tem que sleepar pq ta importando, TODO: calcular o sleep
-                sleep(70)
+        go2_g5_import_params()
+        robotimatic_config_path(path2import)  # ↑
 
-                # pygui.click()
+        foritab(1, 'up', 'right', 'down', 'enter', interval=0.25)
+        # aí tem que sleepar pq ta importando, TODO: calcular o sleep
+        print('sleeping')
+        sleep(2.5*60)
+        # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
 
     def __xml_send2cloud_icms(self):
         volta = os.getcwd()
@@ -203,7 +239,7 @@ class G5(Contimatic):
                 # if find xml is in folder... RETURN no es mercadolibre
 
                 if not os.path.exists(f'{unfpath}/.autosky'):  # searpath?
-                    silasnfs_window.activate()
+                    SILASNFS_WINDOW.activate()
                     # importg5_file_confirmation = '.imes'
                     if not os.path.exists(f'{self.contimatic_folder}/.imes'):
                         createfolder(self.compt_used)
@@ -249,12 +285,15 @@ class G5(Contimatic):
                             return 'LIBRE'
                 return returned
                 # sempre vai existir, pq criará se não...
+        SILASNFS_WINDOW = self.__gotowincenter(
+            'SILAS_NFS')
         libre_or_normal = foxitpath_creation_exists()
         if libre_or_normal is not False:
             # TODO: fazer listdir dentro... e procurar outros documentos, etc
             # os.chdir(self.client_path)
 
             for _, dirnames, __ in os.walk(self.client_path):
+                pathimport = False
                 for clientf in dirnames:
                     __mypath = os.path.join(self.client_path, clientf)
                     # abspath pega o chdir atual
@@ -271,59 +310,54 @@ class G5(Contimatic):
                                              for dd in os.listdir(__lfid)]
 
                         for __mainfolder in listfoldersindir:
-                            __yieldir_creation = yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                            __yieldir_creation = pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
                             # yield mainfolder
                             mainfolder__lastfolder = __mainfolder.split(
                                 '\\')[-1]
-                            yielded += '\\CT-e' if mainfolder__lastfolder == 'CT-e' else '\\NFsSaidas'
-                            yield yielded
-                            # vai mudar os yields....
-                            sleeplen = 60
-                            if not os.path.exists(filesincloud_checkerpath):
-                                self.__foxit_explorer_write('I:\\SILAS_NFS')
+                            if mainfolder__lastfolder.upper() != 'CT-E':  # não é necessário
+                                pathimport += '\\NFsSaidas'
+                                # vai mudar os yields....
+                                sleeplen = len(os.listdir(
+                                    __mainfolder)) / 20 + 10
+                                if not os.path.exists(filesincloud_checkerpath):
+                                    __local_explorer_copy2(__mainfolder)
+                                    SILASNFS_WINDOW.activate()
 
-                                __local_explorer_copy2(__mainfolder)
-                                silasnfs_window = self.__gotowincenter(
-                                    'SILAS_NFS')
+                                    # if folder.upper() != 'OUTROS DOCUMENTOS':
+                                    if __mainfolder == listfoldersindir[0]:
+                                        self.__foxit_explorer_write(
+                                            __yieldir_creation)
+                                        sleep(1)
+                                        createfolder('NFsSaidas')
+                                    self.__foxit_explorer_write(pathimport)
+                                    # else geral
 
-                                # if folder.upper() != 'OUTROS DOCUMENTOS':
-                                if __mainfolder == listfoldersindir[0]:
-                                    self.__foxit_explorer_write(
-                                        __yieldir_creation)
-                                    createfolder('NFsSaidas')
-                                elif not __mainfolder.upper().endswith('CT-E'):
-                                    self.__foxit_explorer_write(yielded)
-                                else:  # endswith('CT-E')
-                                    __p1 = "\\".join(yielded.split('\\')[:-1])
-                                    # __p2 = "\\".join(yielded.split('\\')[-1:])
-                                    self.__foxit_explorer_write(__p1)
-                                    createfolder('CT-e')
-                                # else geral
-
-                                sleep(1.5)
-                                all_keys('ctrl', 'v')
-                                print(sleeplen, 'sleep time')
-                                sleep(sleeplen)
-                            print('next client, atual: ', __mainfolder)
-                        if not os.path.exists(filesincloud_checkerpath):
-                            open(filesincloud_checkerpath, 'w').close()
+                                    sleep(1.5)
+                                    all_keys('ctrl', 'v')
+                                    print(sleeplen, 'sleep time')
+                                    sleep(sleeplen)
+                                print('next client, atual: ', __mainfolder)
                     else:
-                        yielded = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
-                        yield yielded
+                        __lfid = [os.path.join(__mypath, d) for d in os.listdir(
+                            __mypath)]
+                        pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
                         if not os.path.exists(filesincloud_checkerpath):
-                            # self.__foxit_explorer_write('I:\\SILAS_NFS')
+                            sleeplen = len(__lfid) / 20 + 10
                             __local_explorer_copy2(__mypath)
-                            silasnfs_window.activate()
+                            SILASNFS_WINDOW.activate()
                             self.__foxit_explorer_write(
-                                yielded)
+                                pathimport)
+
                             all_keys('ctrl', 'v')
                             print(sleeplen, 'sleep time')
                             sleep(sleeplen)
                             open(filesincloud_checkerpath, 'w').close()
-
+                        # return pathimport
+                    if not os.path.exists(filesincloud_checkerpath):
+                        open(filesincloud_checkerpath, 'w').close()
                     # self.free_ondrv_dskspace(f'{_mainpath}\*.')
                     # TODO: importar NFs... path//to//folder/*.xml
-                return
+                    return pathimport
         # yield the import
 
     def importa_nfs_iss(self):
