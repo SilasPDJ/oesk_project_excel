@@ -205,13 +205,19 @@ class G5(Contimatic):
         sleep(2.5*60)
         # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
 
+        # TODO: Relatórios à pasta
+
     def __xml_send2cloud_icms(self):
         volta = os.getcwd()
 
-        def __local_explorer_copy2(pathdir):
-            canb_pathdir = os.path.join(pathdir, 'XML', 'Autorizadas')
+        def __canb_pathdir(pd: str):
+            canb_pathdir = os.path.join(pd, 'XML', 'Autorizadas')
             if os.path.exists(canb_pathdir):
-                pathdir = canb_pathdir
+                return canb_pathdir
+
+        def __local_explorer_copy2(pathdir):
+            canbpd = __canb_pathdir(pathdir)
+            pathdir = canbpd if canbpd is not None else pathdir
             _p = Popen(f'explorer "{pathdir}"')
 
             sleep(3)
@@ -310,35 +316,45 @@ class G5(Contimatic):
                                              for dd in os.listdir(__lfid)]
 
                         for __mainfolder in listfoldersindir:
-                            __yieldir_creation = pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                            __dircreation = pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
                             # yield mainfolder
                             mainfolder__lastfolder = __mainfolder.split(
                                 '\\')[-1]
                             if mainfolder__lastfolder.upper() != 'CT-E':  # não é necessário
                                 pathimport += '\\NFsSaidas'
                                 # vai mudar os yields....
+
+                                canbpd = __canb_pathdir(__mainfolder)
+                                _1xpathdir = canbpd if canbpd is not None else __mainfolder
                                 sleeplen = len(os.listdir(
-                                    __mainfolder)) / 20 + 10
+                                    _1xpathdir)) / 17 + 10
+
                                 if not os.path.exists(filesincloud_checkerpath):
                                     __local_explorer_copy2(__mainfolder)
                                     SILASNFS_WINDOW.activate()
 
                                     # if folder.upper() != 'OUTROS DOCUMENTOS':
                                     if __mainfolder == listfoldersindir[0]:
-                                        self.__foxit_explorer_write(
-                                            __yieldir_creation)
+                                        SILASNFS_WINDOW.activate()
                                         sleep(1)
+                                        self.__foxit_explorer_write(
+                                            __dircreation)
+                                        sleep(.5)
+                                        pygui.click(
+                                            SILASNFS_WINDOW.center, clicks=0)
+                                        sleep(.5)
                                         createfolder('NFsSaidas')
-                                    self.__foxit_explorer_write(pathimport)
-                                    # else geral
+                                    # else:
+                                    #     self.__foxit_explorer_write(pathimport)
 
                                     sleep(1.5)
                                     all_keys('ctrl', 'v')
                                     print(sleeplen, 'sleep time')
                                     sleep(sleeplen)
+                                    pygui.hotkey('esc')
                                 print('next client, atual: ', __mainfolder)
                     else:
-                        __lfid = [os.path.join(__mypath, d) for d in os.listdir(
+                        __lfid = [d for d in os.listdir(
                             __mypath)]
                         pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
                         if not os.path.exists(filesincloud_checkerpath):
@@ -406,7 +422,7 @@ class G5(Contimatic):
         foritab(4, 'enter', interval=.25)
         # generate pdf
 
-        sleep(7.5)
+        sleep(8)
 
     def __foxit_explorer_write(self, path):
         pygui.hotkey('f4')
