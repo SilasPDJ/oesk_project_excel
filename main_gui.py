@@ -187,8 +187,9 @@ class Backend:
                                        ginfess_link,  compt=COMPT, show_driver=False)
 
             def g5():
-                G5(razao_social, cnpj, cpf, codigo_simples,
-                   valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
+                if nf_out != 'não há' or nf_in != 'não há':
+                    G5(razao_social, cnpj, cpf, codigo_simples,
+                       valor_tot, imposto_a_calcular, nf_out, nf_in, compt=COMPT)
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la

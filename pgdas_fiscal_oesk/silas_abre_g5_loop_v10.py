@@ -32,7 +32,7 @@ import os
 class G5(Contimatic):
 
     def __init__(self, *args, compt):
-        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out = args
+        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out, nf_in = args
         __client = __r_social
         self.compt_used = compt
         self.__client = __client
@@ -80,17 +80,36 @@ class G5(Contimatic):
         elif imposto_a_calcular == 'ICMS':
 
             print(__client, nf_out)
+            self.abre_ativa_programa('G5 ')
+            self.activating_client(self.formatar_cnpj(__cnpj))
 
-            if "ok" != nf_out.lower() != "s":  # primeiro saídas
-                self.abre_ativa_programa('G5 ')
+            if "ok" != nf_out.lower() != "s":
                 # ativa robô
                 self.__ativa_robo_once(pygui.getActiveWindow())
-                # self.activating_client(self.formatar_cnpj(__cnpj))
-                self.importa_nf_icms()
-            if 'OK' != nf_out:
+                self.importa_nf_icms()  # saídas somente
+            if 'OK' != nf_out and 'OK' != nf_in:
                 # não é upper() pois se estiver, significa que ja terminou
                 self.__saida_entrada('s')
+                sleep(5)
                 self.foxit_save__icms()
+
+                if '0' not in nf_in and nf_in == 'ok': # se está importada
+                    # entradas não zeraram
+                    self.__saida_entrada('e')
+                    sleep(5)
+                    self.foxit_save__icms()
+                    all_keys('alt', 'f4')
+
+                # apuração ICMS
+                self.abre_ativa_programa('G5')
+                pygui.hotkey('f2')
+                sleep(.5)
+                foritab(6, 'enter')
+                sleep(10)
+                self.foxit_save__icms()
+
+                all_keys('alt', 'f4')
+                print('fim')
 
     @staticmethod
     def __ativa_robo_once(window: pygui.Window):
@@ -442,7 +461,6 @@ class G5(Contimatic):
         sleep(.5)
         pygui.hotkey('home')
         sleep(.25)
-
         self.__foxit_explorer_write(self.client_path)
         pygui.hotkey('f4', 'enter', 'enter', interval=.5)
         winexplorer = pygui.getActiveWindow()
@@ -451,6 +469,7 @@ class G5(Contimatic):
         pygui.hotkey('enter', 'enter', 'enter', 'enter', 'enter')
         sleep(2)
         pygui.hotkey('return', 'return', duration=1, interval=1)
+        sleep(5)
 
     def foxit_save__iss(self, add2file):
 
