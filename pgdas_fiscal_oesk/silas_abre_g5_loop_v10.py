@@ -73,7 +73,7 @@ class G5(Contimatic):
                 self.mk_nf_canceladas()
 
                 self.gera_relatorio_iss()
-                self.foxit_save(__cnpj)
+                self.foxit_save__iss(__cnpj)
                 sleep(3)
                 # F4
                 # TODO: Salvar dentro do local de salvar relatorio, client_path
@@ -86,7 +86,11 @@ class G5(Contimatic):
                 # ativa robô
                 self.__ativa_robo_once(pygui.getActiveWindow())
                 # self.activating_client(self.formatar_cnpj(__cnpj))
-                self.importa_nf_icms(nf_out)
+                self.importa_nf_icms()
+            if 'OK' != nf_out:
+                # não é upper() pois se estiver, significa que ja terminou
+                self.__saida_entrada('s')
+                self.foxit_save__icms()
 
     @staticmethod
     def __ativa_robo_once(window: pygui.Window):
@@ -110,14 +114,14 @@ class G5(Contimatic):
         pygui.click(*win.center, clicks=0)
         return win
 
-    def importa_nf_icms(self, nfout_status):
+    def __saida_entrada(self, key):
+        self.abre_ativa_programa('G5 ')
+        all_keys('ctrl', 'shift', key)
 
-        def saida_entrada(key):
-            self.abre_ativa_programa('G5 ')
-            all_keys('ctrl', 'shift', key)
+        foritab(7, 'enter')
+        sleep(10)
 
-            foritab(7, 'enter')
-            sleep(10)
+    def importa_nf_icms(self):
 
         def ativa_foxit_openexplorer():
             self.__gotowincenter('Foxit Reader')
@@ -182,8 +186,8 @@ class G5(Contimatic):
             pygui.click()
         # abre explorer
         if not self.walget_searpath('dirsInCloud.txt', self.client_path, 2):
-            saida_entrada('e')
-            saida_entrada('s')
+            self.__saida_entrada('e')
+            self.__saida_entrada('s')
             sleep(2)
             ativa_foxit_openexplorer()
             sleep(2)
@@ -433,13 +437,13 @@ class G5(Contimatic):
         pygui.hotkey('enter')
         sleep(1)
 
-    def foxit_save(self, add2file):
-        filename = f"Registro_ISS-{add2file}"
+    def foxit_save__icms(self, add2file=None):
         all_keys('ctrl', 'shift', 's')
         sleep(.5)
+        pygui.hotkey('home')
         sleep(.25)
+
         self.__foxit_explorer_write(self.client_path)
-        pygui.write(filename)
         pygui.hotkey('f4', 'enter', 'enter', interval=.5)
         winexplorer = pygui.getActiveWindow()
         winexplorer.moveRel(0, 100)
@@ -448,6 +452,27 @@ class G5(Contimatic):
         sleep(2)
         pygui.hotkey('return', 'return', duration=1, interval=1)
 
+    def foxit_save__iss(self, add2file):
+
+        filename = f"Registro_ISS-{add2file}"
+        all_keys('ctrl', 'shift', 's')
+        sleep(.5)
+        pygui.write(filename)
+        sleep(.25)
+        pygui.hotkey('f4')
+        sleep(.5)
+        pygui.hotkey('ctrl', 'a')
+        pygui.hotkey('delete')
+        pygui.write(self.client_path)
+        pygui.hotkey('enter')
+        sleep(1)
+        pygui.hotkey('f4', 'enter', 'enter', interval=.5)
+        winexplorer = pygui.getActiveWindow()
+        winexplorer.moveRel(0, 100)
+        pygui.click(clicks=0)
+        pygui.hotkey('enter', 'enter', 'enter', 'enter', 'enter')
+        sleep(2)
+        pygui.hotkey('return', 'return', duration=1, interval=1)
         # pygui.hotkey('alt', 'f4')
 
     def mk_nf_canceladas(self) -> int:
