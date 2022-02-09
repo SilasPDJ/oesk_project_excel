@@ -354,6 +354,6 @@ if __name__ == "__main__":
     b = MainApplication(root)
     b.pack(side="top", fill="both", expand=True)
 
-    root.geometry('500x600')
+    root.geometry('500x800')
 
     root.mainloop()

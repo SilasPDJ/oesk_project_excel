@@ -45,7 +45,7 @@ class JR(Contimatic):
         print(__client)
         # if meus_3_valores_atuais and registronta and "ok" != nf_out.lower() != "s": ########## G5
 
-        self.abre_ativa_programa('Jr')
+        self.abre_ativa_programa('JR ')
 
         all_xls_inside = self.files_get_anexos_v4(
             self.client_path, file_type='xlsx')

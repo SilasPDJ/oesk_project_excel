@@ -146,7 +146,7 @@ class Contimatic(InitialSetting):
         return cnpj
 
     @staticmethod
-    def start_walk_menu(self):
+    def start_walk_menu():
         x, y = 30, 30
         pygui.click(x, y)
     # free onedrive diskspace
