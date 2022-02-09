@@ -136,7 +136,12 @@ class Contimatic(InitialSetting):
         print(cnpj)  # 123.456.789-00
         return cnpj
 
+    @staticmethod
+    def start_walk_menu(self):
+        x, y = 30, 30
+        pygui.click(x, y)
     # free onedrive diskspace
+
     @staticmethod
     def free_ondrv_dskspace(path):
         from subprocess import run

@@ -1,6 +1,7 @@
 # import pgdas_fiscal_oesk
 # from pgdas_fiscal_oesk import rotina_pgdas
 
+from pgdas_fiscal_oesk.contimatic import Contimatic
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import InitialSetting, get_compt
@@ -40,7 +41,7 @@ def any_to_str(*args):
         yield "".join(str(v))
 
 
-class JROnly(InitialSetting):
+class JROnly(Contimatic):
 
     def __init__(self, *args, compt):
         __r_social, self.__cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out = args
@@ -71,127 +72,22 @@ class JROnly(InitialSetting):
         # foritab(7, 'down')
         # pygui.hotkey('enter')
 
-    def get_xml(self, cliente):
-        b = self.files_get_anexos_v4(self.client_path, file_type='xml')
-        b = b[0]
-        b = b.split('\\')
-        file = f'\\\\{b[-1]}'
-        final = '\\'.join(b[:-1]) + file
-        return final
 
-    def formatar_cnpj(self, cnpj):
-        cnpj = str(cnpj)
-        if len(cnpj) < 14:
-            cnpj = cnpj.zfill(11)
-        cnpj = f'{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}'
-        print(cnpj)  # 123.456.789-00
-        return cnpj
+# for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+#     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+#         any_to_str(*compt_vals))
+#     __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+#         any_to_str(*geral))
+#     envio = envio.upper()
+#     email = email.strip()
+#     dividas_ativas = dividas_ativas.strip().lower()
 
-    def registronta(self):
-        """
-        :return: se tiver pdf que tem ISS e REGISTRO
-        """
-        registronta = False
-        for f in self.files_get_anexos_v4(self.client_path, file_type='xml'):
-            return True
+#     jonly = JROnly(razao_social, cnpj, cpf, codigo_simples,
+#                    valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
+#     if e == 0:
+#         jonly.abre_ativa_programa('Jr')
 
-        for f in self.files_get_anexos_v4(self.client_path, file_type='csv'):
-            return True
-
-        for f in self.files_get_anexos_v4(self.client_path, file_type='pdf'):
-            if 'ISS' in f.upper():
-                registronta = False
-                break
-            else:
-                registronta = True
-        return registronta
-
-    def abre_programa(self, name, path=False):
-        """
-        :param name: path/to/nameProgram
-        :param path: False => contmatic, True => any path
-        :return: winleft+r open
-        """
-
-        if path is False:
-            programa = contmatic_select_by_name(name)
-        else:
-            programa = name
-
-        senha = '240588140217'
-        sleep(1)
-        pygui.hotkey('winleft', 'r')
-        # pesquisador
-        sleep(1)
-        pygui.write(programa)
-        sleep(1)
-        pygui.hotkey('enter')
-
-        sleep(10)
-
-        # p.write(senha)
-        # p.hotkey('tab', 'enter', interval=.5)
-
-        pygui.sleep(5)
-        # pygui.click(x=1508, y=195) # fecha a janela inicial no G5
-
-    def activating_client(self, client_cnpj):
-        x, y = 30, 60
-        sleep(2)
-        pygui.click(x, y)
-
-        # ativa empresa
-
-        pygui.write(self.first_and_last_day_compt(self.compt_used, '')[1])
-
-        foritab(6, 'tab')  # PESQUISA
-        pygui.hotkey('enter')
-        sleep(.5)
-        all_keys('shift', 'tab')
-        sleep(1)
-        foritab(6, 'down', interval=.1)  # PESQUISAR POR CGC[CNPJ]
-        sleep(.5)
-        foritab(1, 'tab')  # Digite a frase contida no texto
-        all_keys(client_cnpj)
-        print(f'{client_cnpj}:^~30')
-
-        all_keys('ctrl', 'down')
-        foritab(2, 'enter', interval=.5)
-        sleep(1)
-
-        pygui.hotkey('tab', 'enter', interval=.5)
-        # Caso apareça aquela mensagem chata
-
-        # ##################################################### PAREUI DAQUI, SELECIONEI JÁ... MAS TESTAR...
-        # sleep(20)
-
-    def importa_nfs(self):
-        sleep(2.5)
-        w3 = pygui.getActiveWindow()
-        pygui.click(w3.center, clicks=0)
-        pygui.move(0, 150)
-        pygui.click()
-
-    def start_walk_menu(self):
-        x, y = 30, 30
-        pygui.click(x, y)
-
-
-for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-    razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
-        any_to_str(*compt_vals))
-    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
-        any_to_str(*geral))
-    envio = envio.upper()
-    email = email.strip()
-    dividas_ativas = dividas_ativas.strip().lower()
-
-    jonly = JROnly(razao_social, cnpj, cpf, codigo_simples,
-        valor_tot, imposto_a_calcular, nf_out, compt=COMPT)
-    if e == 0:
-        jonly.abre_programa('Jr')
-    
-    jonly.make_it()
-    print('PRESSIONE F1 PARA ATIVAR O PROXIMO CLIENTE')
-    # ToastNotifier().show_toast("Pressione F9 para ativar o próximo cliente", duration=10)
-    press_key_b4('f1')
+#     jonly.make_it()
+#     print('PRESSIONE F1 PARA ATIVAR O PROXIMO CLIENTE')
+#     # ToastNotifier().show_toast("Pressione F9 para ativar o próximo cliente", duration=10)
+#     press_key_b4('f1')

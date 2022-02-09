@@ -58,8 +58,11 @@ class Dirs:
                 if searched in dirnames:
                     return dirnames
             elif whatis == 2:
-                if searched in filenames:
-                    return filenames
+                try:
+                    if searched in filenames[0]:
+                        return filenames
+                except IndexError:
+                    return False
 
     @staticmethod
     def move_file(where_from, destiny):

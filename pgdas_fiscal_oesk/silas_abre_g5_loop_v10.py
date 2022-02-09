@@ -87,13 +87,14 @@ class G5(Contimatic):
                 # ativa robô
                 self.__ativa_robo_once(pygui.getActiveWindow())
                 self.importa_nf_icms()  # saídas somente
-            if 'OK' != nf_out and 'OK' != nf_in:
-                # não é upper() pois se estiver, significa que ja terminou
+            _already_exist = self.walget_searpath("".join([n for n in self.compt_used if n.isnumeric()]),
+                                                  self.client_path, 2)
+            if not _already_exist:
                 self.__saida_entrada('s')
                 sleep(5)
                 self.foxit_save__icms()
 
-                if '0' not in nf_in and nf_in == 'ok': # se está importada
+                if '0' not in nf_in:
                     # entradas não zeraram
                     self.__saida_entrada('e')
                     sleep(5)
@@ -512,6 +513,6 @@ class G5(Contimatic):
         final = '\\'.join(b[:-1]) + file
         return final
 
-    def start_walk_menu(self):
+    def start_walk_menu(self):  # overriden, not necessary
         x, y = 30, 30
         pygui.click(x, y)
