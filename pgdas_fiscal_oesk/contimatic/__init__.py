@@ -43,6 +43,11 @@ class Contimatic(InitialSetting):
         else:
             return passwords[0].split()
 
+    def __make_screenshot(self):
+        sc = pygui.screenshot(region=(300, 10, 10, 10))
+        sc.save("O:/test.png")
+        return sc
+
     def abre_ativa_programa(self, name):
         """
         :param name: nameProgram
@@ -75,7 +80,7 @@ class Contimatic(InitialSetting):
 
         while True:
             # with screenshot
-            rgb = (103, 203, 234)
+            rgb = (102, 203, 234)
             try:
                 searched = pygui.getWindowsWithTitle(name)
                 searched = searched[0]
@@ -91,11 +96,15 @@ class Contimatic(InitialSetting):
                 sleep(15)
             finally:
                 sleep(2)
-                if pygui.screenshot().getpixel((1, 1)) != rgb:
-                    print(pygui.screenshot().getpixel((1, 1)))
+                _screenshot = self.__make_screenshot()
+                print(_screenshot.getpixel((5, 5)), rgb)
+                if _screenshot.getpixel((5, 5)) != rgb:
+                    print('activating...')
                     pygui.click(150, 0)
                     # just to focus...
+                    sleep(3)
                 else:
+                    print('DONE activation')
                     break
 
     def activating_client(self, client_cnpj):

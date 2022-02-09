@@ -23,6 +23,8 @@ import os
 import subprocess
 import clipboard
 
+from pgdas_fiscal_oesk.silas_jr import JR
+
 
 COMPT = get_compt(-1)
 
@@ -202,6 +204,10 @@ class Backend:
                         SendDividas(razao_social, div_envios,
                                     email=email, compt=COMPT)
 
+            def jr():
+                if 'OK' != declarado.upper() != 'S':
+                    JR(razao_social, cnpj, compt=COMPT)
+
             if specific == '':
                 eval(f'{FUNC}()')
             else:
@@ -247,7 +253,9 @@ class MainApplication(tk.Frame, Backend):
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
         bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
-            'g5', self.selected_client.get()))
+            'g5', self.selected_client.get()), bg="#F0AA03")
+        bt_jr = self.button('Fazer JR', lambda: self.call_func_v2(
+            'jr', self.selected_client.get()), bg="#556353")
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(
             'pgdasmail', self.selected_client.get()), bg='red')
         bt_dividas_rotina = self.button('Rotina FULL Dívidas', lambda: RotinaDividas(
@@ -256,7 +264,7 @@ class MainApplication(tk.Frame, Backend):
             'dividasmail', self.selected_client.get()), bg='red')
 
         self.__pack(bt_abre_pasta, bt_copia_cnpj, bt_copia_email, bt_das, bt_das_full, bt_gias, bt_ginfess,
-                    bt_giss, bt_g5, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
+                    bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
 
         self.__pack(self.selected_client)
 

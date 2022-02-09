@@ -39,14 +39,6 @@ class Export2SameFolder(Contimatic):
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
         # Copia os arquivos com as seguintes extensões: self.extensions
-    def iss(self):
-        future_path = self.files_pathit('NOTA_DE_SERVICOS', self.compt)
-
-        for ext in self.extensions:
-            _searcheds = [os.path.join(self.client_path, file) for file in os.listdir(
-                self.client_path) if file.lower().endswith(ext)]
-
-            [copy2(file, future_path) for file in _searcheds]
 
     def icms(self):
         """
