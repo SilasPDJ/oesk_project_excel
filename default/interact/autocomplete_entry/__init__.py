@@ -9,12 +9,34 @@ Changes:
     - Custom matches function
 """
 
+from multiprocessing.sharedctypes import Value
 from tkinter import *
 import re
 
 
 class AutocompleteEntry(Entry):
-    def __init__(self, autocompleteList, *args, **kwargs):
+    def __init__(self, autocompleteList, extramethod: tuple = None, *args, **kwargs):
+        """
+        # incoming = yourMethod, int
+        # incoming int options (2nd arg in tuple): 
+            0 -> return
+            1 -> on_write (self.changed)
+        """
+
+        # extra method execution, on_write or on return of value [I am pdj]
+        if extramethod is not None:
+            if isinstance(extramethod, tuple):
+                try:
+                    self.incoming_func, self.incoming_int = extramethod
+                except ValueError as e:
+                    raise e
+            else:
+                self.incoming_func = extramethod
+                self.incoming_int = 0
+            if not callable(self.incoming_func) or not isinstance(self.incoming_int, int):
+                raise ValueError
+        else:
+            self.incoming_func = False
 
         # Listbox length
         if 'listboxLength' in kwargs:
@@ -53,6 +75,18 @@ class AutocompleteEntry(Entry):
         self.listboxUp = False
 
     def changed(self, name, index, mode):
+        self.__write_changed(name, index, mode)
+        if self.incoming_func and self.incoming_int == 1:
+            self.incoming_func()
+
+    def selection(self, event):
+        if self.listboxUp:
+            self.__return_right(event)
+
+            if self.incoming_func and self.incoming_int == 0:
+                self.incoming_func()
+
+    def __write_changed(self, name, index, mode):
         if self.var.get() == '':
             if self.listboxUp:
                 self.listbox.destroy()
@@ -77,12 +111,11 @@ class AutocompleteEntry(Entry):
                     self.listbox.destroy()
                     self.listboxUp = False
 
-    def selection(self, event):
-        if self.listboxUp:
-            self.var.set(self.listbox.get(ACTIVE))
-            self.listbox.destroy()
-            self.listboxUp = False
-            self.icursor(END)
+    def __return_right(self, event):
+        self.var.set(self.listbox.get(ACTIVE))
+        self.listbox.destroy()
+        self.listboxUp = False
+        self.icursor(END)
 
     def moveUp(self, event):
         if self.listboxUp:

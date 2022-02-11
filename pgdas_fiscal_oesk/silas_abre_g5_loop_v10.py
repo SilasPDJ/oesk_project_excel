@@ -147,7 +147,7 @@ class G5(Contimatic):
             self.__gotowincenter('Foxit Reader')
             pygui.getActiveWindow().maximize()
             pygui.move(-820, -360)
-            sleep(2)
+            sleep(10)
             pygui.rightClick()
             sleep(.5)
             foritab(3, 'up')
@@ -208,7 +208,6 @@ class G5(Contimatic):
         if not self.walget_searpath('dirsInCloud.txt', self.client_path, 2):
             self.__saida_entrada('e')
             self.__saida_entrada('s')
-            sleep(2)
             ativa_foxit_openexplorer()
             sleep(2)
             self.__foxit_explorer_write('I:\\SILAS_NFS')
@@ -334,11 +333,13 @@ class G5(Contimatic):
                         self.client_path, clientf, 'dirsInCloud.txt')
 
                     if libre_or_normal == 'LIBRE':
-                        __lfid = [os.path.join(__mypath, d) for d in os.listdir(
-                            __mypath) if d.upper() == 'OUTROS DOCUMENTOS'][0]
-                        listfoldersindir += [os.path.join(__lfid, dd)
-                                             for dd in os.listdir(__lfid)]
-
+                        try:
+                            __lfid = [os.path.join(__mypath, d) for d in os.listdir(
+                                __mypath) if d.upper() == 'OUTROS DOCUMENTOS'][0]
+                            listfoldersindir += [os.path.join(__lfid, dd)
+                                                 for dd in os.listdir(__lfid)]
+                        except IndexError:
+                            pass
                         for __mainfolder in listfoldersindir:
                             __dircreation = pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
                             # yield mainfolder

@@ -228,15 +228,17 @@ class MainApplication(tk.Frame, Backend):
         self.parent = parent
         self.root = parent
         optmenu_data = list(self.get_data())
-        self.selected_client = AutocompleteEntry(optmenu_data, root,
+        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
                                                  listboxLength=0, width=60, matchesFunction=matches)
 
+        self.valorADeclarar = self.button(
+            f'', self.get_v_total)
         bt_abre_pasta = self.button(
-            'Abre pasta de: ', self.abre_pasta, bg='lightblue')
+            'Abre e copia pasta de: ', self.abre_pasta, 'black', 'lightblue')
         bt_copia_cnpj = self.button(
-            'Copia CNPJ', lambda: self.get_dataclipboard('cnpj'), bg='lightblue')
+            'Copia CNPJ', lambda: self.get_dataclipboard('cnpj'), 'black', 'lightblue')
         bt_copia_email = self.button(
-            'Copia EMAIL', lambda: self.get_dataclipboard('email'), bg='lightblue')
+            'Copia EMAIL', lambda: self.get_dataclipboard('email'), 'black', 'lightblue')
 
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
@@ -263,12 +265,17 @@ class MainApplication(tk.Frame, Backend):
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
 
-        self.__pack(bt_abre_pasta, bt_copia_cnpj, bt_copia_email, bt_das, bt_das_full, bt_gias, bt_ginfess,
+        self.__pack(bt_abre_pasta, self.valorADeclarar, bt_copia_cnpj, bt_copia_email, bt_das, bt_das_full, bt_gias, bt_ginfess,
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
 
         self.__pack(self.selected_client)
 
     # functions
+    def get_v_total(self):
+        v = self.get_dataclipboard('valor_tot')
+        clipboard.copy(f"{v}00")  # increment
+        self.valorADeclarar['text'] = f' VALOR FATURADO: R$ {v}'
+
     def abre_pasta(self):
         folder = "\\".join(main_folder.split('/')[:-1])
         folder = os.path.join(
@@ -276,6 +283,7 @@ class MainApplication(tk.Frame, Backend):
         if not os.path.exists(folder):
             os.makedirs(folder)
         subprocess.Popen(f'explorer "{folder}"')
+        clipboard.copy(folder)
         self.selected_client
 
     def get_dataclipboard(self, campo: str):
@@ -287,7 +295,7 @@ class MainApplication(tk.Frame, Backend):
         whoses = list(self.get_data())
         whoindex = whoses.index(whoses_cnpj)
         clipboard.copy(cnpjs[whoindex])
-
+        return cnpjs[whoindex]
     # Elements and placements
 
     @ staticmethod
