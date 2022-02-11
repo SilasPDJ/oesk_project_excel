@@ -1,4 +1,4 @@
-
+from locale import format_string
 from pgdas_fiscal_oesk.rotinas_dividas_v2 import RotinaDividas
 from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
@@ -272,9 +272,14 @@ class MainApplication(tk.Frame, Backend):
 
     # functions
     def get_v_total(self):
+        import locale
+        from locale import format_string
+        locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
         v = self.get_dataclipboard('valor_tot')
-        clipboard.copy(f"{v}00")  # increment
-        self.valorADeclarar['text'] = f' VALOR FATURADO: R$ {v}'
+        v_fat = format_string('%.2f', float(v), 1)
+        clipboard.copy(v_fat)  # increment
+
+        self.valorADeclarar['text'] = f' VALOR FATURADO: R$ {v_fat}'
 
     def abre_pasta(self):
         folder = "\\".join(main_folder.split('/')[:-1])
