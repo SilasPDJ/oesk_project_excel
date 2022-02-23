@@ -39,7 +39,7 @@ class Consultar(Initial):
         CAMPOS_COMPT_ATUAL = list(self.DADOS_compt_atual.to_dict().keys())
         returned = list(self.__DADOS_PADRAO.to_dict().keys()) + \
             CAMPOS_COMPT_ATUAL
-        return sorted(set(returned))  # list
+        return returned  # list
 
     def consultar_compt(self):
 

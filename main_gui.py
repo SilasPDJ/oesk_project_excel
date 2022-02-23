@@ -17,7 +17,9 @@ from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
 import tkinter as tk
-from default.interact.autocomplete_entry import AutocompleteEntry, matches
+from default.interact.autocomplete_entry import AutocompleteEntry
+from ttkwidgets import autocomplete as ttkac
+
 from threading import Thread
 import os
 import subprocess
@@ -31,6 +33,7 @@ COMPT = get_compt(-1)
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
 consultar_compt = CONS.consultar_compt
+getfieldnames = CONS.get_fieldnames
 
 main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
@@ -229,17 +232,19 @@ class MainApplication(tk.Frame, Backend):
         self.root = parent
         optmenu_data = list(self.get_data())
         self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
-                                                 listboxLength=0, width=60, matchesFunction=matches)
+                                                 listboxLength=0, width=60)
+
+        self.__getfieldnames = getfieldnames()
+        excel_col = ttkac.AutocompleteEntry(
+            self.root, list(set(self.__getfieldnames)))
 
         self.valorADeclarar = self.button(
             f'', self.get_v_total)
         bt_abre_pasta = self.button(
             'Abre e copia pasta de: ', self.abre_pasta, 'black', 'lightblue')
-        bt_copia_cnpj = self.button(
-            'Copia CNPJ', lambda: self.get_dataclipboard('cnpj'), 'black', 'lightblue')
-        bt_copia_email = self.button(
-            'Copia EMAIL', lambda: self.get_dataclipboard('email'), 'black', 'lightblue')
-
+        bt_copia = self.button(
+            'Copia Campo', lambda: self.get_copia(excel_col.get()
+                                                  ), 'black', 'lightblue')
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
@@ -265,17 +270,17 @@ class MainApplication(tk.Frame, Backend):
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
 
-        self.__pack(bt_abre_pasta, self.valorADeclarar, bt_copia_cnpj, bt_copia_email, bt_das, bt_das_full, bt_gias, bt_ginfess,
+        self.__pack(bt_abre_pasta, bt_copia, self.valorADeclarar, bt_das, bt_das_full, bt_gias, bt_ginfess,
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
-
-        self.__pack(self.selected_client)
-
+        self.selected_client.focus_force()
+        self.__pack(self.selected_client, excel_col)
     # functions
+
     def get_v_total(self):
         import locale
         from locale import format_string
         locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
-        v = self.get_dataclipboard('valor_tot')
+        v = self.__get_dataclipboard('valor_tot')
         v_fat = format_string('%.2f', float(v), 1)
         clipboard.copy(v_fat)  # increment
 
@@ -291,7 +296,23 @@ class MainApplication(tk.Frame, Backend):
         clipboard.copy(folder)
         self.selected_client
 
-    def get_dataclipboard(self, campo: str):
+    def get_copia(self, campo: str):
+        whoses_cnpj = self.selected_client.get()
+        variables = "__razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac, "
+        variables += "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios"
+        variables = variables.split(", ")
+        for i in range(len(self.__getfieldnames)):
+            exec(f"{variables[i]}='{self.__getfieldnames[i]}'")
+        __vgot = None
+        for v in variables:
+            if eval(f"{v} == '{campo}'"):
+                print(v, campo)
+                __vgot = v
+                break
+        self.__get_dataclipboard(__vgot)
+        # getfieldnames()
+
+    def __get_dataclipboard(self, campo: str):
         whoses_cnpj = self.selected_client.get()
         if whoses_cnpj == '':
             whoses_cnpj = 'Oesk Contabil'
@@ -347,7 +368,6 @@ class MainApplication(tk.Frame, Backend):
         bt = tk.Button(self, text=text, command=lambda: self.start(
             command), fg=fg, bg=bg)
         return bt
-
         # threading...
 
     def refresh(self):
@@ -368,5 +388,4 @@ if __name__ == "__main__":
     b.pack(side="top", fill="both", expand=True)
 
     root.geometry('500x800')
-
     root.mainloop()
