@@ -24,7 +24,7 @@ link = "ChromeDriver/chromedriver.exe"
 # self.pyautogui
 class GissGui(InitialSetting, WDShorcuts):
 
-    def __init__(self, dados, compt, first_compt=None):
+    def __init__(self, dados, compt, first_compt):
         from functools import partial
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
             __senhas = f.read().split(',')
@@ -36,13 +36,12 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist(f'{compt}_giss'):
-            # self.driver = driver = ginfess_driver(self.client_path)
-            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = pgdas_driver(self.client_path)
             self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
-
             # self.driver = ginfess_driver()
 
             # holy
@@ -373,7 +372,8 @@ class GissGui(InitialSetting, WDShorcuts):
 
             # list_compts = []
             while first_compt <= last_compt:
-                compt = first_compt = first_compt + \
+                compt = first_compt
+                first_compt = first_compt + \
                     relativedelta.relativedelta(months=1)
 
                 compt_appended = f'{compt.month:02d}-{compt.year}'

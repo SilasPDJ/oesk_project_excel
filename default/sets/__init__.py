@@ -199,7 +199,7 @@ class InitialSetting(Initial, Dirs, Now):
         :return: caminho+ nome_arquivo jpeg
         """
         try:
-            save = os.path.join(save_path, f"_{add}.png")
+            save = os.path.join(save_path, f"{add}.png")
             print(save, '---------> SAVE')
             return save
         except FileNotFoundError:

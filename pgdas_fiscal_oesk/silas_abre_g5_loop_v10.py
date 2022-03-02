@@ -58,10 +58,18 @@ class G5(Contimatic):
                     self.client_path, file_type='xlsx')
                 relacao_notas = all_xls_inside[0] if len(
                     all_xls_inside) == 1 else IndexError()
-                self.nfcanceladas = NfCanceled(relacao_notas)
+                # clientes com arquivo fora do ABC, xlsx != csv...
+                if not isinstance(relacao_notas, IndexError):
+                    self.nfcanceladas = NfCanceled(relacao_notas)
+                    if tres_valores_faturados(self.client_path):
+                        timesleep_import = self.nfcanceladas.conta_qtd_nfs()
+                    else:
+                        timesleep_import = 10
+                else:
+                    timesleep_import = 30
+                    print('\033[1;31m self.nfcanceladas is None \033[m')
+                    self.nfcanceladas = None
 
-                if tres_valores_faturados(self.client_path):
-                    timesleep_import = self.nfcanceladas.conta_qtd_nfs()
                 sleep(timesleep_import)
 
                 __wcenter = pygui.getActiveWindow().center
@@ -442,8 +450,8 @@ class G5(Contimatic):
         foritab(6, 'down')
         # foritab(5, 'enter', interval=.25)
         foritab(1, 'enter', interval=.25)
+        foritab(3, 'up', interval=.2)
         foritab(1, 'enter', interval=.25)
-        foritab(5, 'down', interval=.25)
         foritab(4, 'enter', interval=.25)
         # generate pdf
 
@@ -508,6 +516,9 @@ class G5(Contimatic):
 
     def __get_xml(self):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')
+
+        if len(b) == 0:
+            b = self.files_get_anexos_v4(self.client_path, file_type='csv')
         b = b[0]
         b = b.split('\\')
         file = f'\\\\{b[-1]}'
