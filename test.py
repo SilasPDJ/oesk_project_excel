@@ -1,10 +1,13 @@
-from default.sets.pathmanager import Dirs
-self = Dirs
-self.client_path = r'O:\OneDrive\_FISCAL-2021\2022\01-2022\Suzana Palacio dos Santos'
+from datetime import date
+from datetime import datetime as dt
 
 
-self.compt_used = '01-2022'
+def diff_month(_from, now=None):
+    if now is None:
+        now = date(dt.now().year, dt.now().month, dt.now().day)
+    return (now.year - _from.year) * 12 + now.month - _from.month
 
-_already_exist = self.walget_searpath("z".join([n for n in self.compt_used if n.isnumeric()]),
-                                      self.client_path, 2)
-print(not _already_exist)
+
+_from = date(2019, 2, 1)
+# assert diff_month(now, _from) == 1
+print(diff_month(_from))

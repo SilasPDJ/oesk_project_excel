@@ -214,7 +214,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         # driver.set_window_position(1912, -8)
         pos = (1912, -8), (0, 0), (0, 0)
         driver.set_window_position(*pos[randint(0, 1)])
-        driver.set_window_size(randint(900, 1350), randint(550, 1000))
+        # driver.set_window_size(randint(900, 1350), randint(550, 1000))
 
         driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
         # 17bd6f43454
@@ -235,7 +235,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         pygui.hotkey('ctrl', 'w')
         # driver.close()
         driver.switch_to.window(driver.window_handles[0])
-        driver.execute_script("closeModal('modal-tips')")
+        # driver.execute_script("closeModal('modal-tips')")
         initial.click()
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(randsleep2(3, 7))
@@ -433,7 +433,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 self.driver.find_element(By.NAME,
                                          "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
             except NoSuchElementException:
-                self.driver.refresh
+                self.driver.refresh()
         self.current_url = self.driver.current_url
         self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
         self.opta_script() if self.m() == 12 else None

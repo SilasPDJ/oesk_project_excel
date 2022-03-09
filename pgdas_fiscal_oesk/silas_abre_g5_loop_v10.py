@@ -94,7 +94,7 @@ class G5(Contimatic):
             if "ok" != nf_out.lower() != "s":
                 # ativa robô
                 self.__ativa_robo_once(pygui.getActiveWindow())
-                self.importa_nf_icms()  # saídas somente
+                self.importa_nf_icms_saidas()  # saídas somente
             _already_exist = self.walget_searpath("".join([n for n in self.compt_used if n.isnumeric()]),
                                                   self.client_path, 2)
             if not _already_exist:
@@ -104,6 +104,7 @@ class G5(Contimatic):
 
                 if '0' not in nf_in:
                     # entradas não zeraram
+                    self.importa_nf_icms_entradas()
                     self.__saida_entrada('e')
                     sleep(5)
                     self.foxit_save__icms()
@@ -149,7 +150,7 @@ class G5(Contimatic):
         foritab(7, 'enter')
         sleep(10)
 
-    def importa_nf_icms(self):
+    def importa_nf_icms_saidas(self):
 
         def ativa_foxit_openexplorer():
             self.__gotowincenter('Foxit Reader')
@@ -205,13 +206,7 @@ class G5(Contimatic):
             sleep(1)
             self.abre_ativa_programa('G5')
             # go2robo options
-            pygui.FAILSAFE = False  # Robo_Options
-            pygui.click(pygui.getActiveWindow().topright,
-                        clicks=0)
-            # COMO ATIVAR ROBÔ AUTOMÁTICO?
-            pygui.move(-105, 50)
-            pygui.FAILSAFE = True
-            pygui.click()
+
         # abre explorer
         if not self.walget_searpath('dirsInCloud.txt', self.client_path, 2):
             self.__saida_entrada('e')
@@ -230,6 +225,7 @@ class G5(Contimatic):
         go2_g5_import_params()
         robotimatic_config_path(path2import)  # ↑
 
+        self.go2robo_options()
         foritab(1, 'up', 'right', 'down', 'enter', interval=0.25)
         # aí tem que sleepar pq ta importando, TODO: calcular o sleep
         print('sleeping')
@@ -237,6 +233,21 @@ class G5(Contimatic):
         # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
 
         # TODO: Relatórios à pasta
+
+    def importa_nf_icms_entradas(self):
+        self.go2robo_options()
+        foritab(1, 'up', 'right', 'up', 'enter', interval=0.25)
+        sleep(60)
+
+    @staticmethod
+    def go2robo_options():
+        pygui.FAILSAFE = False  # Robo_Options
+        pygui.click(pygui.getActiveWindow().topright,
+                    clicks=0)
+        # COMO ATIVAR ROBÔ AUTOMÁTICO?
+        pygui.move(-105, 50)
+        pygui.FAILSAFE = True
+        pygui.click()
 
     def __xml_send2cloud_icms(self):
         volta = os.getcwd()
