@@ -37,14 +37,16 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
         path = InitialSetting.files_pathit(razao_social, COMPT)
         import os
         lspath = os.listdir(path)
-        try:
-            # print(path)
-            f = open(os.path.join(path, 'NF_canceladas.txt')).read()
-            print(razao_social)
-            input(f) if f != '' else None
-        except FileNotFoundError:
-            pass
-
+        # try:
+        #     # print(path)
+        #     f = open(os.path.join(path, 'NF_canceladas.txt')).read()
+        #     print(razao_social)
+        #     input(f) if f != '' else None
+        # except FileNotFoundError:
+        #     pass
+        if razao_social == "MARCOS LEME DO PRADO MLP":
+            GissGui([razao_social, cnpj, giss_login],
+                    compt=COMPT, first_compt=get_compt(-1))
         # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
 
 

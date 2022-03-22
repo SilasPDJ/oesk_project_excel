@@ -309,6 +309,8 @@ class MainApplication(tk.Frame, Backend):
                 print(v, campo)
                 __vgot = v
                 break
+        else:
+            __vgot = "cnpj"
         self.__get_dataclipboard(__vgot)
         # getfieldnames()
 

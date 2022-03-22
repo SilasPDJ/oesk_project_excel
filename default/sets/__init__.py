@@ -105,10 +105,9 @@ class Initial:
             e('WITH TITLE PATH NOT EXISTENTE ')
             returned = cls.__select_path_if_not_exists()
 
-        finally:
-            if returned and folder_path_only:
-                returned = os.path.dirname(returned)
-            return returned
+        if returned and folder_path_only:
+            returned = os.path.dirname(returned)
+        return returned
 
     def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PLANILHA.", savit=main_path):
         """[summary]
@@ -119,10 +118,6 @@ class Initial:
             [type]: [description]
         """
         from tkinter import Tk, filedialog, messagebox
-        root = Tk()
-        root.withdraw()
-        root = Tk()
-        root.withdraw()
         # sh_management = SheetPathManager(file_with_name)
         way = None
         while way is None:
@@ -137,7 +132,6 @@ class Initial:
             else:
                 wf = open(savit, 'w')
                 wf.write(way)
-                root.quit()
                 return way
 
     def trata_money_excel(self, faturado):
