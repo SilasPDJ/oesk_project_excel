@@ -55,10 +55,10 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
                 self.any_to_str(*compt_vals))
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             if field is None:
-                yield __razao_social
+                yield razao_social
             else:
                 yield eval(field)
 
@@ -70,7 +70,7 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
                 self.any_to_str(*compt_vals))
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
@@ -131,7 +131,7 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
                 self.any_to_str(*compt_vals))
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
@@ -144,7 +144,7 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
                 self.any_to_str(*compt_vals))
-            __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
@@ -298,7 +298,7 @@ class MainApplication(tk.Frame, Backend):
 
     def get_copia(self, campo: str):
         whoses_cnpj = self.selected_client.get()
-        variables = "__razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac, "
+        variables = "_razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac, "
         variables += "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios"
         variables = variables.split(", ")
         for i in range(len(self.__getfieldnames)):
@@ -306,7 +306,6 @@ class MainApplication(tk.Frame, Backend):
         __vgot = None
         for v in variables:
             if eval(f"{v} == '{campo}'"):
-                print(v, campo)
                 __vgot = v
                 break
         else:
