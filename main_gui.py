@@ -236,7 +236,7 @@ class MainApplication(tk.Frame, Backend):
 
         self.__getfieldnames = getfieldnames()
         excel_col = ttkac.AutocompleteEntry(
-            self.root, list(set(self.__getfieldnames)))
+            self.root, list(self.__getfieldnames))
 
         self.valorADeclarar = self.button(
             f'', self.get_v_total)
@@ -298,9 +298,10 @@ class MainApplication(tk.Frame, Backend):
 
     def get_copia(self, campo: str):
         whoses_cnpj = self.selected_client.get()
-        variables = "_razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac, "
-        variables += "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios"
+        variables = "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, "
+        variables += "_razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac"
         variables = variables.split(", ")
+        self.__getfieldnames
         for i in range(len(self.__getfieldnames)):
             exec(f"{variables[i]}='{self.__getfieldnames[i]}'")
         __vgot = None
