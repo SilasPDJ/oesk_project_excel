@@ -33,8 +33,7 @@ class Consultar(Initial):
 
     def get_fieldnames(self):
         tutti = list(self.DADOS_compt_atual.to_dict().keys())
-        tutti += [f for f in list(self.__DADOS_PADRAO.to_dict().keys())
-                  if f not in tutti]
+        tutti += [f for f in list(self.__DADOS_PADRAO.to_dict().keys())]
         return tutti
 
     def consultar_compt(self):
@@ -56,11 +55,3 @@ class Consultar(Initial):
     def __lsdv(self, dta):
         # list of dict values = lsdv meaning
         return list(dta.values())
-
-    def __read_pandas(self, shname):
-        import pandas as pd
-        filename = self.MAIN_FILE
-
-        main_pandas = pd.read_excel(
-            filename, sheet_name=shname or shname.lower())
-        return main_pandas
