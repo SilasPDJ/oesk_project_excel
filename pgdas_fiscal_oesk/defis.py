@@ -213,7 +213,8 @@ class Defis(InitialSetting, Legato, WDShorcuts):
             _cod_sim = self.after_READ['Código Simples'][i]
             _cpf = self.after_READ['CPF'][i]
             _cert_or_login = self.after_READ['CERTORLOGIN'][i]
-
+            _qtd_empregados__inicio = self.after_READ['emps inicio'][i] or 0
+            _qtd_empregados__final = self.after_READ['emps final'][i+15] or 0
             # Defis exclusivos
 
             # +2 Pois começa da linha 2, logo o excel está reconhendo isso como index
@@ -227,6 +228,13 @@ class Defis(InitialSetting, Legato, WDShorcuts):
             self.socios_now__nome = self.after_socio[SK[2]][cont_soc:__ate_soc]
             self.socios_now__cota = self.after_socio[SK[3]][cont_soc:__ate_soc]
             self.socios_now__tipo = self.after_socio[SK[5]][cont_soc:__ate_soc]
+            self.socios_valor_isento = self.after_socio[SK[6]
+                                                        ][cont_soc:__ate_soc]
+            self.socios_valor_tributado = self.after_socio[SK[7]
+                                                           ][cont_soc:__ate_soc]
+
+            self._socios__soma_cotas = sum(int(v)
+                                           for v in self.socios_now__cota)
 
             self.client_path = self.files_pathit(_cliente, compt, )
             if _ja_declared not in ['S', 'OK', 'FORA']:
@@ -273,7 +281,7 @@ class Defis(InitialSetting, Legato, WDShorcuts):
                 self.contains_text(str(self.y()-1)).click()
                 self.contains_text('Continuar').click()
                 driver.implicitly_wait(10)
-                self.send_keys_anywhere(Keys.TAB, 9)
+                self.send_keys_anywhere(Keys.TAB, 10)
                 self.send_keys_anywhere(Keys.ENTER, 1)
                 self.send_keys_anywhere(Keys.TAB, 2)
                 self.send_keys_anywhere(Keys.ENTER, 1)
@@ -302,9 +310,44 @@ class Defis(InitialSetting, Legato, WDShorcuts):
                     self.send_keys_anywhere(Keys.TAB)
                     self.send_keys_anywhere(Keys.RIGHT)
 
+                    # -- vai pra orientações gerais
                     self.send_keys_anywhere(Keys.TAB, 15, pause=.001)
                     self.send_keys_anywhere(Keys.ENTER)
-                    self.send_keys_anywhere("0")
+                    # de toda a ME/EPP
+                    self.send_keys_anywhere(Keys.TAB, 1)
+                    self.send_keys_anywhere(Keys.ENTER)
+                    sleep(1)
+                    self.send_keys_anywhere(Keys.TAB, 4)
+                    self.send_keys_anywhere('0')
+                    self.send_keys_anywhere(Keys.TAB, pause=.01)
+                    self.send_keys_anywhere(_qtd_empregados__inicio)
+                    self.send_keys_anywhere(Keys.TAB, pause=.01)
+                    self.send_keys_anywhere(_qtd_empregados__final)
+                    # -- receita proveniente de exportação direta
+                    self.send_keys_anywhere(Keys.TAB, 2, pause=.01)
+                    self.send_keys_anywhere('0')
+
+                    self.send_keys_anywhere(Keys.TAB, 5, pause=.01)
+
+                    for ins in range(len(self.socios_now__cnpj)):
+                        __soc_cota = self.socios_now__cota[ins]
+                        __sta = (int(__soc_cota) /
+                                 self._socios__soma_cotas) * 1000
+                        self.send_keys_anywhere(self.socios_now__cpf[ins])
+                        self.send_keys_anywhere(Keys.TAB)
+                        self.send_keys_anywhere(
+                            self.socios_valor_isento[ins]*100)
+                        self.send_keys_anywhere(Keys.TAB)
+                        self.send_keys_anywhere(
+                            self.socios_valor_tributado[ins]*100)
+                        self.send_keys_anywhere(Keys.TAB)
+                        self.send_keys_anywhere(__sta)
+                        for ___ in range(3):
+                            self.send_keys_anywhere(Keys.TAB)
+                            self.send_keys_anywhere('0')
+                        break
+                        # só 1 por enquanto
+
                     # Chega até os campos padrão
 
                 print('\033[1;31m DIGITE F8 p/ prosseguir \033[m')
@@ -599,21 +642,22 @@ class Defis(InitialSetting, Legato, WDShorcuts):
         print(self.empresa_now)
         print(f'{"CNPJ":<10}{"Nome":>10}{"CPF":>38}{"COTA":>21}{"COTA %":>10}')
 
-        total_calc = sum(int(v) for v in self.socios_now__cota)
-
         for ins in range(len(self.socios_now__cnpj)):
 
             soc_cnpj = self.socios_now__cnpj[ins]
             soc_nome = self.socios_now__nome[ins]
             soc_cpf = self.socios_now__cpf[ins]
             soc_cota = self.socios_now__cota[ins]
+            soc_valisento = self.socios_valor_isento[ins]
+            soc_valtributado = self.socios_valor_tributado[ins]
             print(f'{soc_cnpj:<16}', end='')
             print(f'{soc_nome:<{40 - len_nome}}', end='')
             print(f'{soc_cpf:>9}', end='')
             print(f'{soc_cota:>10}', end='')
-
-            cota = int(soc_cota) / total_calc
+            cota = int(soc_cota) / self._socios__soma_cotas
             print('      ', cota)
+            print(f'{soc_valisento:>8}', end='')
+            print(f'{soc_valtributado:>8}', end='')
         print(self.socios_now__tipo)
         print('-' * 60)
         print()
