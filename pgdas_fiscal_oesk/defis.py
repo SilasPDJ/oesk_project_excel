@@ -1,22 +1,176 @@
 
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
+
 from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
 
 from default.webdriver_utilities import WDShorcuts
 from default.sets import InitialSetting
 
-from default.sets import get_all_valores
 import os
-import tkinter as tk
+
+from default.interact import *
+
+from selenium.webdriver.common.action_chains import ActionChains
+
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, UnexpectedAlertPresentException, TimeoutException
+
+
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
+from time import sleep
 
 COMPT = get_compt(-1)
 CONS = Consultar(COMPT)
 
 
-class Defis(WDShorcuts, InitialSetting):
-    def __init__(self, compt=None):
+class Legato:
+    def le_excel_each_one(self, msh):
+        # msh = sheet_name inside sheet file
+        dict_written = {}
+        for en, header in enumerate(msh.columns):
+            title = msh[header].name
+
+            dict_written[title] = []
+            # dicionário sh_name tem o  dicionário title que tem a lista com os valores, muito bom
+
+            """
+            try:
+                list_written[title] = []
+            except KeyError:
+                ...
+            """
+            r_soc = msh[header].values
+            # if title == "Razão Social":
+            for name in r_soc:
+                dict_written[title].append(name)
+        return dict_written
+
+    def readnew_lista(self, READ, print_values=False):
+        """ TRANSFORMO EM DICIONÁRIO, CONTINUAR"""
+        get_all = {}
+        new_lista = []
+        for k, lista in READ.items():
+            for v in lista:
+                v = str(v)
+                v = v.replace(u'\xa0', u' ')
+                v = v.strip()
+                if str(v) == 'nan':
+                    v = ''
+                new_lista.append(v)
+            get_all[k] = new_lista[:]
+            new_lista.clear()
+        if print_values:
+            for k, v in get_all.items():
+                print(f'\033[1;32m{k}')
+                for vv in v:
+                    print(f'\033[m{vv}')
+        return get_all
+
+    @staticmethod
+    def readnew_lista_v_atual(json_part):
+        """
+        Surgiu em send_pgdasmail
+        #        from smtp_project.init_email import JsonDateWithImprove as Jj
+        #        json_file = Jj.load_json(fname)
+
+        :param json_part: json_file.keys()
+        # It contains dictionary
+        """
+        new_dict = {}
+
+        for all_items in json_part:
+            for k, v in all_items.items():
+                new_dict[k] = v
+        return new_dict
+
+    def trata_money_excel(self, faturado):
+        try:
+            faturado = f'{float(faturado):,.2f}'
+        except ValueError:
+            print('Já é string')
+        finally:
+            faturado = faturado.lower().strip()
+            if 'nan' in faturado or 'zerou' in faturado:
+                faturado = 'SEM VALOR DECLARADO'
+                return faturado
+            faturado = faturado.replace('.', 'v')
+            faturado = faturado.replace(',', '.')
+            faturado = faturado.replace('v', ',')
+            return faturado
+
+    @staticmethod
+    def any_to_str(*args):
+        for v in args:
+            yield "".join(v)
+
+    @staticmethod
+    def str_with_mask(elem, mask, msc=None):
+        """
+        # string with mask
+        :param str elem: any element checked
+        :param str mask: for checking by its length
+        :param tuple msc: "mask should contain": None-> by default
+        :return: string if its length equals to mask length, else False
+        """
+        elem.strip()
+        anula_parco = ('.', ',', ';', ':', ')')
+
+        if msc is None:
+            check_mask = ('.', ',', ';', ':', '-',
+                          '/', '_', '(', ')', '+', '$')
+        else:
+            check_mask = msc
+
+        def trata_str(val1, valmask):
+            if val1 in check_mask:
+                return val1 == valmask
+            elif valmask in check_mask:
+                return val1 == valmask
+            else:
+                return None
+
+        elem = elem[:-1] if elem.endswith(anula_parco) else elem
+        if len(elem) == len(mask):
+            for msk, el in zip(mask, elem):
+                try:
+                    int(el)
+                    int(msk)
+                    pass
+                except ValueError:
+                    dle = trata_str(el, msk)
+                    if dle is False:
+                        return False
+                    else:
+                        pass
+            return elem
+        else:
+            return False
+
+    def parse_sh_name(self, tup, data_required=True):
+        """
+        :param tup: compt and excel_file_name from self._atual_compt_and_file
+        :param data_required: data_Required
+        :return:
+        """
+        import pandas as pd
+        compt, excel_file_name = tup
+        xls = pd.ExcelFile(excel_file_name)
+        sheet_names = iter(xls.sheet_names)
+        for e, sh in enumerate(sheet_names):
+            # if e > 0:
+            if data_required:
+                yield xls.parse(sh, dtype=str)
+            else:
+                yield sh
+
+
+class Defis(InitialSetting, Legato, WDShorcuts):
+    def __init__(self):
         """
         :param compt: from GUI
         # remember past_only arg from self.get_atual_competencia
@@ -24,16 +178,11 @@ class Defis(WDShorcuts, InitialSetting):
         import pandas as pd
         from default.webdriver_utilities.pre_drivers import pgdas_driver
         # O vencimento DAS(seja pra qual for a compt) está certo, haja vista que se trata do mes atual
-
-        sh_names = ['DEFIS']
-        sh_name = sh_names[0]
-
-        if compt is None:
-            compt = COMPT
+        sh_name = 'DEFIS'
 
         excel_file_name = CONS.MAIN_FILE
 
-        COMPT = compt = f"DEFIS_{self.y()}"
+        compt = f"DEFIS_{self.y()}"
         # transcrevendo compt para que não seja 02/2021
 
         # excel_file_name = '/'.join(excel_file_name.split('/')[:-1])
@@ -66,7 +215,7 @@ class Defis(WDShorcuts, InitialSetting):
             _cert_or_login = self.after_READ['CERTORLOGIN'][i]
 
             # Defis exclusivos
-            _dirf = self.after_READ['DIRF'][i]
+
             # +2 Pois começa da linha 2, logo o excel está reconhendo isso como index
             while int(self.after_socio[SK[-4]][cont_soc])-2 != i:
                 cont_soc += 1
@@ -79,7 +228,7 @@ class Defis(WDShorcuts, InitialSetting):
             self.socios_now__cota = self.after_socio[SK[3]][cont_soc:__ate_soc]
             self.socios_now__tipo = self.after_socio[SK[5]][cont_soc:__ate_soc]
 
-            self.client_path = self.files_pathit(_cliente, COMPT, )
+            self.client_path = self.files_pathit(_cliente, compt, )
             if _ja_declared not in ['S', 'OK', 'FORA']:
                 print('-' * 60)
                 # print(f'CNPJ: {CNPJ}, {CNPJ.strip()==self.socios_now__cnpj[0]}')
@@ -87,7 +236,6 @@ class Defis(WDShorcuts, InitialSetting):
 
                 __client_path = self.client_path
                 self.driver = pgdas_driver(__client_path)
-                now_process = subprocess.Popen(f'explorer {__client_path}')
                 driver = self.driver
                 super().__init__(driver)
 
@@ -156,12 +304,12 @@ class Defis(WDShorcuts, InitialSetting):
 
                     self.send_keys_anywhere(Keys.TAB, 15, pause=.001)
                     self.send_keys_anywhere(Keys.ENTER)
-
+                    self.send_keys_anywhere("0")
                     # Chega até os campos padrão
 
                 print('\033[1;31m DIGITE F8 p/ prosseguir \033[m')
                 which_one = press_key_b4('f8')
-                now_process.kill()
+                # now_process.kill()
             print('-' * 30)
             print(f'already declared {_cliente}')
             print('-' * 30)
@@ -170,56 +318,48 @@ class Defis(WDShorcuts, InitialSetting):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)
         """
-        from threading import Thread
-        from pyautogui import hotkey
+        from random import randint, uniform
+        import pyautogui as pygui
         from time import sleep
+        from functools import partial
+        from threading import Thread
+
+        randsleep = partial(uniform, 1.01, 2.99)
+        def randsleep2(n1, n2): return uniform(n1, n2)
+        from selenium.webdriver import Chrome
 
         driver = self.driver
-        while True:
-            try:
-                driver.get(
-                    'https://cav.receita.fazenda.gov.br/autenticacao/login')
-                driver.set_page_load_timeout(30)
-                break
-            except TimeoutException:
-                driver.refresh()
-            finally:
-                sleep(1)
+        # driver.set_window_position(1912, -8)
+        pos = (1912, -8), (0, 0), (0, 0)
+        driver.set_window_position(*pos[randint(0, 1)])
+        driver.set_window_size(randint(900, 1350), randint(550, 1000))
 
-        activate_window('eCAC - Centro Virtual de Atendimento')
-        """
-        while True:
-            try:
-                driver.get('https://cav.receita.fazenda.gov.br/')
-                driver.set_page_load_timeout(5)
-                break
-            except TimeoutException:
-                driver.refresh()
-            finally:
-                sleep(1)
-        """
-        # initial = driver.find_element_by_id('caixa1-login-certificado')
-        driver.get(
-            'https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&'
-            'scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&'
-            'redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso')
-        initial = driver.find_element_by_link_text('Certificado digital')
-
-        print('ativando janela acima, logando certificado abaixo, linhas 270')
+        driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
+        # 17bd6f43454
+        initial = WebDriverWait(driver, 30).until(
+            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Seu certificado digital')))
+        driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
         sleep(2)
-        # self.thread_pool_executor(initial.click, [hotkey, 'enter'])
+        make_login = initial.get_attribute("href")
 
-        t = Thread(target=initial.click)
-        t.start()
-        tt = Thread(target=sleep(2.5))
-        tt.start()
-        # B4 enter, ir pra baixo por causa do certificado do castilho
-        tb4 = Thread(target=hotkey('down'))
-        tb4.start()
-        tt2 = Thread(target=sleep(2))
-        tt2.start()
-        t2 = Thread(target=hotkey('enter'))
-        t2.start()
+        driver.execute_script("window.open()")
+        driver.switch_to.window(driver.window_handles[1])
+        a = Thread(target=lambda: driver.get(make_login))
+        a.start()
+        sleep(randsleep2(0.71, 2.49))
+        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
+         for i in range(3)]
+        pygui.hotkey('ctrl', 'w')
+        # driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        initial.click()
+        print('ativando janela acima, logando certificado abaixo, linhas 270')
+        sleep(randsleep2(3, 7))
+        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+        sleep(randsleep2(3, 7))
+        # driver.execute_script("validarRecaptcha('frmLoginCert')")
+        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
 
     def loga_simples(self, CNPJ, CPF, CodSim, CLIENTE):
         driver = self.driver
@@ -421,7 +561,7 @@ class Defis(WDShorcuts, InitialSetting):
             # #################################################### opta
             self.get_sub_site('/RegimeApuracao/Optar', self.current_url)
             # driver.execute_script("""window.location.href += '/RegimeApuracao/Optar'""")
-
+            from selenium.webdriver.support.ui import Select
             anocalendario = Select(driver.find_element_by_id('anocalendario'))
 
             anocalendario.select_by_value('2021')
@@ -477,6 +617,3 @@ class Defis(WDShorcuts, InitialSetting):
         print(self.socios_now__tipo)
         print('-' * 60)
         print()
-
-
-Defis()
