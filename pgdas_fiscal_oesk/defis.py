@@ -281,74 +281,66 @@ class Defis(InitialSetting, Legato, WDShorcuts):
                 self.contains_text(str(self.y()-1)).click()
                 self.contains_text('Continuar').click()
                 driver.implicitly_wait(10)
-                self.send_keys_anywhere(Keys.TAB, 10)
-                self.send_keys_anywhere(Keys.ENTER, 1)
-                self.send_keys_anywhere(Keys.TAB, 2)
-                self.send_keys_anywhere(Keys.ENTER, 1)
+                # apos continuar
+                #
+                cnpjtt = "%s%s.%s%s%s.%s%s%s/%s%s%s%s-%s%s" % tuple(
+                    self.socios_now__cnpj[0])
+
+                elscrpt = self.tag_with_text("a", cnpjtt).get_attribute("href")
+                driver.execute_script(elscrpt)
+                self.send_keys_anywhere(Keys.TAB, 11)
+
+                # Informações econômicas e fiscais do estabelecimento
+
+                ac = ActionChains(self.driver)
+                for sdc in range(13):
+                    ac.send_keys('0')
+                    ac.send_keys(Keys.TAB)
+                ac.perform()
+                self.send_keys_anywhere(Keys.TAB, 11, pause=.1)
+
+                self.send_keys_anywhere(Keys.RIGHT)
+                self.send_keys_anywhere(Keys.TAB)
+                self.send_keys_anywhere(Keys.RIGHT)
+
+                # -- vai pra orientações gerais
+                # se 3 => De toda MP
+                driver.execute_script(
+                    "javascript:mostraEscondeDados('ctl00_conteudo_todemp')")
                 WebDriverWait(self.driver, 5)
-                try:
-                    self.send_keys_anywhere(Keys.TAB, 1)
-                    self.send_keys_anywhere(Keys.ENTER, 1)
-                except UnexpectedAlertPresentException:
-                    pass
-                else:
-                    # se 3 => De toda MP
-                    self.send_keys_anywhere(Keys.TAB, 2)
-                    self.send_keys_anywhere(Keys.ENTER)
+                self.send_keys_anywhere(Keys.TAB, 12, pause=.001)
 
-                    self.send_keys_anywhere(Keys.TAB, 1)
-                    # Informações econômicas e fiscais do estabelecimento
+                self.send_keys_anywhere('0')
+                self.send_keys_anywhere(Keys.TAB, pause=.01)
+                self.send_keys_anywhere(_qtd_empregados__inicio)
+                self.send_keys_anywhere(Keys.TAB, pause=.01)
+                self.send_keys_anywhere(_qtd_empregados__final)
+                # -- receita proveniente de exportação direta
+                self.send_keys_anywhere(Keys.TAB, 2, pause=.01)
+                self.send_keys_anywhere('0')
 
-                    ac = ActionChains(self.driver)
-                    for sdc in range(13):
-                        ac.send_keys('0')
-                        ac.send_keys(Keys.TAB)
-                    ac.perform()
-                    self.send_keys_anywhere(Keys.TAB, 11, pause=.1)
+                self.send_keys_anywhere(Keys.TAB, 5, pause=.01)
 
-                    self.send_keys_anywhere(Keys.RIGHT)
+                for ins in range(len(self.socios_now__cnpj)):
+                    __soc_cota = self.socios_now__cota[ins]
+                    __sta = (int(__soc_cota) /
+                             self._socios__soma_cotas) * 1000
+                    self.send_keys_anywhere(self.socios_now__cpf[ins])
                     self.send_keys_anywhere(Keys.TAB)
-                    self.send_keys_anywhere(Keys.RIGHT)
-
-                    # -- vai pra orientações gerais
-                    self.send_keys_anywhere(Keys.TAB, 15, pause=.001)
-                    self.send_keys_anywhere(Keys.ENTER)
-                    # de toda a ME/EPP
-                    self.send_keys_anywhere(Keys.TAB, 1)
-                    self.send_keys_anywhere(Keys.ENTER)
-                    sleep(1)
-                    self.send_keys_anywhere(Keys.TAB, 4)
-                    self.send_keys_anywhere('0')
-                    self.send_keys_anywhere(Keys.TAB, pause=.01)
-                    self.send_keys_anywhere(_qtd_empregados__inicio)
-                    self.send_keys_anywhere(Keys.TAB, pause=.01)
-                    self.send_keys_anywhere(_qtd_empregados__final)
-                    # -- receita proveniente de exportação direta
-                    self.send_keys_anywhere(Keys.TAB, 2, pause=.01)
-                    self.send_keys_anywhere('0')
-
-                    self.send_keys_anywhere(Keys.TAB, 5, pause=.01)
-
-                    for ins in range(len(self.socios_now__cnpj)):
-                        __soc_cota = self.socios_now__cota[ins]
-                        __sta = (int(__soc_cota) /
-                                 self._socios__soma_cotas) * 1000
-                        self.send_keys_anywhere(self.socios_now__cpf[ins])
+                    self.send_keys_anywhere(
+                        self.socios_valor_isento[ins]+"00")
+                    self.send_keys_anywhere(Keys.TAB)
+                    self.send_keys_anywhere(
+                        self.socios_valor_tributado[ins]+"00")
+                    self.send_keys_anywhere(Keys.TAB)
+                    self.send_keys_anywhere(__sta)
+                    for ___ in range(3):
                         self.send_keys_anywhere(Keys.TAB)
-                        self.send_keys_anywhere(
-                            self.socios_valor_isento[ins]*100)
-                        self.send_keys_anywhere(Keys.TAB)
-                        self.send_keys_anywhere(
-                            self.socios_valor_tributado[ins]*100)
-                        self.send_keys_anywhere(Keys.TAB)
-                        self.send_keys_anywhere(__sta)
-                        for ___ in range(3):
-                            self.send_keys_anywhere(Keys.TAB)
-                            self.send_keys_anywhere('0')
-                        break
-                        # só 1 por enquanto
+                        self.send_keys_anywhere('0')
+                    break
+                    # só 1 por enquanto
 
-                    # Chega até os campos padrão
+                # Chega até os campos padrão
 
                 print('\033[1;31m DIGITE F8 p/ prosseguir \033[m')
                 which_one = press_key_b4('f8')
