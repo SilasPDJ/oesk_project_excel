@@ -53,9 +53,9 @@ class Backend:
 
     def get_data(self, field=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             if field is None:
                 yield razao_social
@@ -68,9 +68,9 @@ class Backend:
         SEM_MOV_ONLY = {"simples": [], "ecac": []}
 
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
@@ -129,9 +129,9 @@ class Backend:
 
     def full_dividas(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
@@ -142,9 +142,9 @@ class Backend:
 
     def call_func_v2(self, FUNC, specific=None):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
@@ -298,8 +298,8 @@ class MainApplication(tk.Frame, Backend):
 
     def get_copia(self, campo: str):
         whoses_cnpj = self.selected_client.get()
-        variables = "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, "
-        variables += "_razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac"
+        variables = "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular, "
+        variables += "_razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac"
         variables = variables.split(", ")
         self.__getfieldnames
         for i in range(len(self.__getfieldnames)):

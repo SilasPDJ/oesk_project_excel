@@ -21,10 +21,10 @@ class Consultar(Initial):
         cont = 0
         while True:
             try:
-                once = razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = [
+                once = [
                     list(d.values())[cont] for d in DADOS_PADRAO]
 
-                if str(razao_social) == 'nan':
+                if str(once[0]) == 'nan':
                     break
                 yield once
                 cont += 1
@@ -43,10 +43,10 @@ class Consultar(Initial):
         cont = 0
         while True:
             try:
-                once = razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = [
+                once = [
                     list(d.values())[cont] for d in df]
                 yield once
-                if str(razao_social) == 'nan':
+                if str(once[0]) == 'nan':
                     break
             except IndexError:
                 break
