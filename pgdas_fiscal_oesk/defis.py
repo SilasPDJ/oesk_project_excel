@@ -214,7 +214,7 @@ class Defis(InitialSetting, Legato, WDShorcuts):
             _cpf = self.after_READ['CPF'][i]
             _cert_or_login = self.after_READ['CERTORLOGIN'][i]
             _qtd_empregados__inicio = self.after_READ['emps inicio'][i] or 0
-            _qtd_empregados__final = self.after_READ['emps final'][i+15] or 0
+            _qtd_empregados__final = self.after_READ['emps final'][i] or 0
             # Defis exclusivos
 
             # +2 Pois começa da linha 2, logo o excel está reconhendo isso como index
@@ -302,13 +302,21 @@ class Defis(InitialSetting, Legato, WDShorcuts):
                 self.send_keys_anywhere(Keys.RIGHT)
                 self.send_keys_anywhere(Keys.TAB)
                 self.send_keys_anywhere(Keys.RIGHT)
+                self.send_keys_anywhere(Keys.TAB)
 
                 # -- vai pra orientações gerais
                 # se 3 => De toda MP
                 driver.execute_script(
                     "javascript:mostraEscondeDados('ctl00_conteudo_todemp')")
                 WebDriverWait(self.driver, 5)
-                self.send_keys_anywhere(Keys.TAB, 12, pause=.001)
+                sm_tabs = 12
+                try:
+                    self.tag_with_text("a", "Inatividade em ")
+                    sm_tabs += 1
+                except NoSuchElementException:
+                    print("sm_tabs still the same")
+                self.send_keys_anywhere(
+                    Keys.TAB, sm_tabs, pause=.001)  # sem mov pode fazer mudar
 
                 self.send_keys_anywhere('0')
                 self.send_keys_anywhere(Keys.TAB, pause=.01)
@@ -329,6 +337,8 @@ class Defis(InitialSetting, Legato, WDShorcuts):
                     self.send_keys_anywhere(Keys.TAB)
                     self.send_keys_anywhere(
                         self.socios_valor_isento[ins]+"00")
+                    # TODO: só incrementa 00 nos dois se nao tem cents no final
+                    # ex: 1400,03 = 140003
                     self.send_keys_anywhere(Keys.TAB)
                     self.send_keys_anywhere(
                         self.socios_valor_tributado[ins]+"00")
