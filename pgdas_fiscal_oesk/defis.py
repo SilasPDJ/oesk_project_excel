@@ -168,6 +168,16 @@ class Legato:
             else:
                 yield sh
 
+    @staticmethod
+    def trata_sendvals(val):
+        # TODO: só incrementa 00 nos dois se nao tem cents no final
+        # ex: 1400,03 = 140003
+        a = int(val) == float(val)
+        if a:
+            return val + "00"
+        else:
+            return val
+
 
 class Defis(InitialSetting, Legato, WDShorcuts):
     def __init__(self):
@@ -330,15 +340,17 @@ class Defis(InitialSetting, Legato, WDShorcuts):
                 self.send_keys_anywhere(Keys.TAB, 5, pause=.01)
 
                 for ins in range(len(self.socios_now__cnpj)):
-                    __soc_cota = self.socios_now__cota[ins]
+                    __valisento = self.trata_sendvals(
+                        self.socios_valor_isento[ins])
+
+                    __soc_cota = self.trata_sendvals(
+                        self.socios_now__cota[ins])
                     __sta = (int(__soc_cota) /
                              self._socios__soma_cotas) * 1000
                     self.send_keys_anywhere(self.socios_now__cpf[ins])
                     self.send_keys_anywhere(Keys.TAB)
-                    self.send_keys_anywhere(
-                        self.socios_valor_isento[ins]+"00")
-                    # TODO: só incrementa 00 nos dois se nao tem cents no final
-                    # ex: 1400,03 = 140003
+                    self.send_keys_anywhere(__valisento)
+
                     self.send_keys_anywhere(Keys.TAB)
                     self.send_keys_anywhere(
                         self.socios_valor_tributado[ins]+"00")
