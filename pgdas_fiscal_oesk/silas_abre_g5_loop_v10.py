@@ -89,18 +89,17 @@ class G5(Contimatic):
         elif imposto_a_calcular == 'ICMS':
 
             print(__client, nf_out)
-            self.abre_ativa_programa('G5 ')
-
-            if "ok" != nf_out.lower() != "s":
-                # ativa robô
-                self.__ativa_robo_once(pygui.getActiveWindow())
-                self.importa_nf_icms_saidas()  # saídas somente
             _already_exist = self.walget_searpath("".join([n for n in self.compt_used if n.isnumeric()]),
                                                   self.client_path, 2)
             if not _already_exist:
+                self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
-                self.__saida_entrada('s')
-                sleep(5)
+                self.__ativa_robo_once(pygui.getActiveWindow())
+
+                if "ok" != nf_out.lower() != "s":  # != ent saidas importadas
+                    self.importa_nf_icms_saidas()  # saídas somente
+                # self.__saida_entrada('s')
+                sleep(10)
                 self.foxit_save__icms()
 
                 if '0' not in nf_in:
@@ -116,7 +115,7 @@ class G5(Contimatic):
                 pygui.hotkey('f2')
                 sleep(.5)
                 foritab(6, 'enter')
-                sleep(10)
+                sleep(20)
                 self.foxit_save__icms()
 
                 all_keys('alt', 'f4')
@@ -227,13 +226,11 @@ class G5(Contimatic):
         robotimatic_config_path(path2import)  # ↑
 
         self.go2robo_options()
-        foritab(1, 'up', 'right', 'down', 'enter', interval=0.25)
+        foritab(1, 'up', 'right', 'enter', interval=0.25)
         # aí tem que sleepar pq ta importando, TODO: calcular o sleep
         print('sleeping')
         sleep(2.5*60)
         # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
-
-        # TODO: Relatórios à pasta
 
     def importa_nf_icms_entradas(self):
         self.go2robo_options()

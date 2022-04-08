@@ -155,10 +155,11 @@ class Backend:
                         obj_list.append(TUPLA_DATA)
 
                 if imposto_a_calcular != "SEM_MOV":
-                    if imposto_a_calcular.upper() == "ISS":
-                        append_me(LIST_ISS)
-                    elif imposto_a_calcular.upper() == "ICMS":
-                        append_me(LIST_ICMS)
+                    if nf_out.lower().strip() != 'não há' or nf_in.lower().strip() != 'não há':
+                        if imposto_a_calcular.upper() == "ISS":
+                            append_me(LIST_ISS)
+                        elif imposto_a_calcular.upper() == "ICMS":
+                            append_me(LIST_ICMS)
 
                 if specific == razao_social:
                     return TUPLA_DATA
@@ -231,11 +232,6 @@ class Backend:
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                        ginfess_link,  compt=COMPT, show_driver=False)
-
-            def g5():
-                if nf_out != 'não há' or nf_in != 'não há':
-                    G5(razao_social, cnpj, cpf, codigo_simples,
-                       valor_tot, imposto_a_calcular, nf_out, nf_in, compt=COMPT)
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
