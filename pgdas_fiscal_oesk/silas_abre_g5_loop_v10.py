@@ -45,6 +45,7 @@ class G5(Contimatic):
             # (pois o xml e excel vem do ginfess_download)....
 
             if self.registronta() and "ok" != nf_out.lower() != "s":
+                # TODO: incrementar if != ok0, então procura importar
                 meus_3_valores_atuais = tres_valores_faturados(
                     self.client_path)
                 self.abre_ativa_programa('G5 ')  # vscode's cause
@@ -89,7 +90,6 @@ class G5(Contimatic):
 
             print(__client, nf_out)
             self.abre_ativa_programa('G5 ')
-            self.activating_client(self.formatar_cnpj(__cnpj))
 
             if "ok" != nf_out.lower() != "s":
                 # ativa robô
@@ -98,6 +98,7 @@ class G5(Contimatic):
             _already_exist = self.walget_searpath("".join([n for n in self.compt_used if n.isnumeric()]),
                                                   self.client_path, 2)
             if not _already_exist:
+                self.activating_client(self.formatar_cnpj(__cnpj))
                 self.__saida_entrada('s')
                 sleep(5)
                 self.foxit_save__icms()

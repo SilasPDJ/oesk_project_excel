@@ -19,6 +19,10 @@ class Contimatic(InitialSetting):
 
         for f in self.files_get_anexos_v4(self.client_path, file_type='csv'):
             registronta = True
+        if registronta is False:
+            print('\033[1;31m NÃO TEMOS xml OU csv PARA IMPORTAR\033[m')
+            return False
+            # pois não haverá csv ou xml para importar
 
         for f in self.files_get_anexos_v4(self.client_path, file_type='pdf'):
             if 'ISS' in f.upper() and 'REGISTRO' in f.upper():  # ISSQN

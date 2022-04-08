@@ -127,6 +127,47 @@ class Backend:
         # return LIST_ECAC, LIST_NORMAL
         return full
 
+    def full_g5(self, specific=None):
+        """
+        #  Organiza o G5 para fazer primeiro ISS, depois ICMS
+        """
+        print('ola mundo')
+
+        LIST_ISS = []
+        LIST_ICMS = []
+
+        def get_order():
+
+            for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+                    self.any_to_str(*compt_vals))
+                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                    self.any_to_str(*geral))
+                envio = envio.upper()
+                email = email.strip()
+                dividas_ativas = dividas_ativas.strip().lower()
+                proc_ecac = proc_ecac.lower()
+                TUPLA_DATA = (razao_social, cnpj, cpf,
+                              codigo_simples, valor_tot, imposto_a_calcular, nf_out, nf_in)
+
+                def append_me(obj_list):
+                    if imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
+                        obj_list.append(TUPLA_DATA)
+
+                if imposto_a_calcular != "SEM_MOV":
+                    if imposto_a_calcular.upper() == "ISS":
+                        append_me(LIST_ISS)
+                    elif imposto_a_calcular.upper() == "ICMS":
+                        append_me(LIST_ICMS)
+
+                if specific == razao_social:
+                    return TUPLA_DATA
+            full = LIST_ISS + LIST_ICMS
+            # return LIST_ECAC, LIST_NORMAL
+            return full
+        for v in get_order():
+            G5(*v, compt=COMPT)
+
     def full_dividas(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
@@ -259,8 +300,8 @@ class MainApplication(tk.Frame, Backend):
 
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
-        bt_g5 = self.button('Fazer G5', lambda: self.call_func_v2(
-            'g5', self.selected_client.get()), bg="#F0AA03")
+        bt_g5 = self.button('Fazer G5', lambda: self.full_g5(
+            self.selected_client.get()), bg="#F0AA03")
         bt_jr = self.button('Fazer JR', lambda: self.call_func_v2(
             'jr', self.selected_client.get()), bg="#556353")
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(

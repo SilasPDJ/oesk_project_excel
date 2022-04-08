@@ -42,6 +42,7 @@ class GissGui(InitialSetting, WDShorcuts):
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
+            print(__r_social)
             # self.driver = ginfess_driver()
 
             # holy
