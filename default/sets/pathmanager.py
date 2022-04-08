@@ -59,8 +59,11 @@ class Dirs:
                     return dirnames
             elif whatis == 2:
                 try:
-                    if searched in filenames[0]:
-                        return filenames
+                    listof = []
+                    for filename in filenames:
+                        if searched in filename:
+                            listof.append(filename)
+                    return listof
                 except IndexError:
                     return False
 

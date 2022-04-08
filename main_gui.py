@@ -155,14 +155,14 @@ class Backend:
                         obj_list.append(TUPLA_DATA)
 
                 if imposto_a_calcular != "SEM_MOV":
-                    if nf_out.lower().strip() != 'não há' or nf_in.lower().strip() != 'não há':
+                    if nf_out.lower().strip() != 'não há' and nf_in.lower().strip() != 'não há':
                         if imposto_a_calcular.upper() == "ISS":
                             append_me(LIST_ISS)
                         elif imposto_a_calcular.upper() == "ICMS":
                             append_me(LIST_ICMS)
 
                 if specific == razao_social:
-                    return TUPLA_DATA
+                    return [TUPLA_DATA]  # important for loop
             full = LIST_ISS + LIST_ICMS
             # return LIST_ECAC, LIST_NORMAL
             return full

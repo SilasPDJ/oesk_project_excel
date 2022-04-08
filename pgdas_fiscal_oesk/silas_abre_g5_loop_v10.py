@@ -89,8 +89,12 @@ class G5(Contimatic):
         elif imposto_a_calcular == 'ICMS':
 
             print(__client, nf_out)
-            _already_exist = self.walget_searpath("".join([n for n in self.compt_used if n.isnumeric()]),
-                                                  self.client_path, 2)
+            _already_exist = self.walget_searpath(
+                "APUR_ICMS", self.client_path, 2)
+            _already_exist += self.walget_searpath(
+                "LIVRO_ENTRADA", self.client_path, 2)
+            _already_exist += self.walget_searpath(
+                "LIVRO_SAIDA", self.client_path, 2)
             if not _already_exist:
                 self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
@@ -214,7 +218,10 @@ class G5(Contimatic):
             ativa_foxit_openexplorer()
             sleep(2)
             self.__foxit_explorer_write('I:\\SILAS_NFS')
-
+            # self.__gotowincenter('Foxit Reader')
+            # pygui.hotkey('alt', 'f4')
+            # TODO: testar essa parte comentada acima
+            ativa_foxit_openexplorer()
         path2import = self.__xml_send2cloud_icms()
         print(path2import)
         print('Only Once')
@@ -228,9 +235,19 @@ class G5(Contimatic):
         self.go2robo_options()
         foritab(1, 'up', 'right', 'enter', interval=0.25)
         # aí tem que sleepar pq ta importando, TODO: calcular o sleep
-        print('sleeping')
-        sleep(2.5*60)
+        segs = self._while_importing()
+        print(segs)
         # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
+
+    def _while_importing(self):
+        cont = 0
+        c = 10
+        while "FOXIT READER" not in pygui.getActiveWindowTitle().upper():
+            print('sleeping', pygui.getActiveWindowTitle().upper())
+            sleep(c)
+            cont += c
+            pygui.click(pygui.getActiveWindow().midtop)
+        return cont
 
     def importa_nf_icms_entradas(self):
         self.go2robo_options()
