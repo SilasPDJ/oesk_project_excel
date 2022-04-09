@@ -31,15 +31,8 @@ class Consultar(Initial):
             except IndexError:
                 break
 
-    def get_fieldnames(self):
-        tutti = list(self.DADOS_compt_atual.to_dict().keys())
-        tutti += [f for f in list(self.__DADOS_PADRAO.to_dict().keys())]
-        return tutti
-
     def consultar_compt(self):
-
         df = self.__lsdv(self.DADOS_compt_atual.to_dict())
-
         cont = 0
         while True:
             try:
@@ -51,6 +44,19 @@ class Consultar(Initial):
             except IndexError:
                 break
             cont += 1
+
+    def get_fieldnames(self):
+        # tutti = list(self.DADOS_compt_atual.to_dict().keys())
+        # tutti += [f for f in list(self.__DADOS_PADRAO.to_dict().keys())]
+        df = pd.merge(self.DADOS_compt_atual, self.__DADOS_PADRAO)
+        tutti = list(df.to_dict().keys())
+        return tutti
+
+    def clients_list(self, get_campo=0) -> list:
+        def __lsdv(dta): return list(dta.values())
+        df = pd.merge(self.DADOS_compt_atual, self.__DADOS_PADRAO)
+        dados = list(__lsdv(df.to_dict())[get_campo].values())
+        return dados
 
     def __lsdv(self, dta):
         # list of dict values = lsdv meaning

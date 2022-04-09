@@ -51,17 +51,6 @@ class Backend:
         for v in args:
             yield "".join(str(v))
 
-    def get_data(self, field=None):
-        for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
-                self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
-                self.any_to_str(*geral))
-            if field is None:
-                yield razao_social
-            else:
-                yield eval(field)
-
     def full_pgdas(self):
         LIST_ECAC = []
         LIST_NORMAL = []
@@ -267,7 +256,7 @@ class MainApplication(tk.Frame, Backend):
 
         self.parent = parent
         self.root = parent
-        optmenu_data = list(self.get_data())
+        optmenu_data = CONS.clients_list(0)
         self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
                                                  listboxLength=0, width=60)
 
@@ -280,8 +269,8 @@ class MainApplication(tk.Frame, Backend):
         bt_abre_pasta = self.button(
             'Abre e copia pasta de: ', self.abre_pasta, 'black', 'lightblue')
         bt_copia = self.button(
-            'Copia Campo', lambda: self.get_copia(excel_col.get()
-                                                  ), 'black', 'lightblue')
+            'Copia Campo', lambda: self.get_dataclipboard(excel_col.get()
+                                                          ), 'black', 'lightblue')
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
@@ -317,7 +306,7 @@ class MainApplication(tk.Frame, Backend):
         import locale
         from locale import format_string
         locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
-        v = self.__get_dataclipboard('valor_tot')
+        v = self.get_dataclipboard('Valor Total')
         v_fat = format_string('%.2f', float(v), 1)
         clipboard.copy(v_fat)  # increment
 
@@ -333,36 +322,26 @@ class MainApplication(tk.Frame, Backend):
         clipboard.copy(folder)
         self.selected_client
 
-    def get_copia(self, campo: str):
-        whoses_cnpj = self.selected_client.get()
-        variables = "razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular, "
-        variables += "_razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac"
-        variables = variables.split(", ")
-        self.__getfieldnames
-        for i in range(len(self.__getfieldnames)):
-            exec(f"{variables[i]}='{self.__getfieldnames[i]}'")
-        __vgot = None
-        for v in variables:
-            if eval(f"{v} == '{campo}'"):
-                __vgot = v
-                break
-        else:
-            __vgot = "cnpj"
-        self.__get_dataclipboard(__vgot)
-        # getfieldnames()
+    def get_dataclipboard(self, campo: str):
+        # input(campo)
+        if campo == '':
+            campo = "CNPJ"
+        indcampo = CONS.get_fieldnames().index(campo)
+        selected_list_values = list(
+            self.any_to_str(*CONS.clients_list(indcampo)))
+        whoindex = self.__get_clienid(self.selected_client.get())
+        returned = str(selected_list_values[whoindex])
+        clipboard.copy(returned)
+        return returned
 
-    def __get_dataclipboard(self, campo: str):
-        whoses_cnpj = self.selected_client.get()
-        if whoses_cnpj == '':
-            whoses_cnpj = 'Oesk Contabil'
+    def __get_clienid(self, client_name):
+        cg = consultar_compt()
+        clientid = False
+        cloops = [cloops[0] for cloops in cg]
+        clientid = cloops.index(client_name)
+        return clientid
 
-        cnpjs = list(self.get_data(campo))
-        whoses = list(self.get_data())
-        whoindex = whoses.index(whoses_cnpj)
-        clipboard.copy(cnpjs[whoindex])
-        return cnpjs[whoindex]
     # Elements and placements
-
     @ staticmethod
     def __pack(*els, x=50, y=10, fill='x', side=tk.TOP, expand=0):
         try:
