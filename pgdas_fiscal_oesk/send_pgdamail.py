@@ -27,7 +27,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         if now_email == '':
             print('wtf')
-        elif __declarado in ['S', 'FORA'] and __envio not in ['S', 'OK']:
+        elif __declarado in ['S', 'FORA'] and __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
             print(now_email)
             print(f'VALOR: {_valor}')
             print(f'CLIENTE: {__r_social}')
@@ -38,7 +38,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
             das_anx_files = self.files_get_anexos_v4(
                 self.client_path, file_type='pdf',  upload=False)
-            if _valor != 'SEM VALOR DECLARADO':
+            if _valor != 'SEM VALOR A PAGAR':
                 if len(das_anx_files) < 4:
                     print(
                         f'\033[1;31mAlgo está errado com {__r_social}\033[m')
@@ -78,7 +78,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 {ntt('h2', f'{self.hora_mensagem()}, {client}!')}
 {ntt('h3', 'Seguem anexados:')}
 <h3> 
--> DAS {f"({ntt('span'+blue,tipo_das)})" if valor != 'SEM VALOR DECLARADO' else ''}
+-> DAS {f"({ntt('span'+blue,tipo_das)})" if valor != 'SEM VALOR A PAGAR' else ''}
 sobre faturamento de {ntt('span style="background-color:yellow; color:green"', 'R$ '+valor)}
 </h3>
 
@@ -93,12 +93,12 @@ sobre faturamento de {ntt('span style="background-color:yellow; color:green"', '
         -> O arquivo do boleto contém as iniciais "{ntt('span'+red,'PGDASD-DAS')}"
     </h4>
     '''
-            if valor != 'SEM VALOR DECLARADO' else f"<h3>{ntt('span'+red,'NÃO')} há boleto a pagar.</h3>"
+            if valor != 'SEM VALOR A PAGAR' else f"<h3>{ntt('span'+red,'NÃO')} há boleto a pagar.</h3>"
             }
 <hr>
 </h3> 
 <div>
-Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR DECLARADO' else ''}
+Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR A PAGAR' else ''}
 <h4>Caso haja qualquer conflito, responda sem hesitar esta mensagem neste e-mail.</h4>
 <h4>Todas as declarações são e continuarão sendo feitas minuciosamente.</h4>
 </div>
