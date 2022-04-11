@@ -229,7 +229,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         a = Thread(target=lambda: driver.get(make_login))
         a.start()
         sleep(randsleep2(0.71, 2.49))
-        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))
+        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))  # down, enter
          for i in range(3)]
         pygui.hotkey('ctrl', 'w')
         # driver.close()

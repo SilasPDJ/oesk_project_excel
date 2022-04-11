@@ -110,6 +110,9 @@ class Contimatic(InitialSetting):
                 else:
                     print('DONE activation')
                     break
+                if name.upper().strip() in pygui.getActiveWindowTitle().upper():
+                    print('DONE activation and break')
+                    break
 
     def activating_client(self, client_cnpj):
         x, y = 30, 60
