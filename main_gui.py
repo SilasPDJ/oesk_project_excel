@@ -22,6 +22,7 @@ from ttkwidgets import autocomplete as ttkac
 
 from threading import Thread
 import os
+import sys
 import subprocess
 import clipboard
 
@@ -256,6 +257,8 @@ class MainApplication(tk.Frame, Backend):
 
         self.parent = parent
         self.root = parent
+        LABELS = []
+
         optmenu_data = CONS.clients_list(0)
         self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
                                                  listboxLength=0, width=60)
@@ -300,8 +303,15 @@ class MainApplication(tk.Frame, Backend):
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
         self.selected_client.focus_force()
         self.__pack(self.selected_client, excel_col)
-    # functions
+        self.increment_header_tip(
+            LABELS, "Pressione F5 após atualizar a planilha")
+        # TIPS
+        self.__pack(*LABELS)
 
+        # bt binds
+        self.root.bind("<F5>", self._restart_after_updt)
+
+    # functions
     def get_v_total(self):
         import locale
         from locale import format_string
@@ -340,6 +350,18 @@ class MainApplication(tk.Frame, Backend):
         cloops = [cloops[0] for cloops in cg]
         clientid = cloops.index(client_name)
         return clientid
+
+    # restart program method
+    @staticmethod
+    def _restart_after_updt(e):
+        prgm = sys.executable
+        os.execl(prgm, prgm, * sys.argv)
+
+    # increment tip for list b4 packing
+    @staticmethod
+    def increment_header_tip(labels: list, tip: str, font=("Currier", 12), fg="#000"):
+        labels.append(
+            tk.Label(root, text=tip, font=font, fg=fg))
 
     # Elements and placements
     @ staticmethod
