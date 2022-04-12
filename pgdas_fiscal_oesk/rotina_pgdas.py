@@ -68,10 +68,9 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         elif option == 1:
             # gera das
             venc_month_compt = int(month_compt) + 1
-            # TODO: get last business day of month...
             venc = self.get_last_business_day_of_month(
                 venc_month_compt, int(year_compt))
-            retifica_p_dia = f'{venc}{venc_month_compt:02d}{year_compt}'
+            retifica_p_dia = f'{venc.day:02d}{venc.month:02d}{venc.year}'
             self.get_sub_site(link_gera_das, current_url)
             self.tags_wait('input')
             driver.implicitly_wait(10)
@@ -88,11 +87,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             driver.execute_script(
                 f"document.getElementById('{validade_id}').focus();")
             validade_change = driver.find_element(By.ID, validade_id)
-            for e, val in enumerate(retifica_p_dia):
-                validade_change.send_keys(val)
-                if e == 0:
-                    sleep(.25)
-
+            validade_change.send_keys(retifica_p_dia)
             sleep(1)
             driver.find_element(By.ID, 'btnDataValidade').click()
             # coloquei a validade
@@ -100,6 +95,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
             driver.implicitly_wait(5)
             self.find_submit_form()
+            sleep(5)
             # GERAR DAS
         else:
             return False
