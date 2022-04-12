@@ -38,7 +38,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
             das_anx_files = self.files_get_anexos_v4(
                 self.client_path, file_type='pdf',  upload=False)
-            if _valor != 'SEM VALOR A PAGAR':
+            if _valor != 'SEM VALOR DECLARADO':
                 if len(das_anx_files) < 4:
                     print(
                         f'\033[1;31mAlgo está errado com {__r_social}\033[m')
