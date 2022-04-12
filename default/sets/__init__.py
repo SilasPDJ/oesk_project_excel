@@ -199,46 +199,6 @@ class InitialSetting(Initial, Dirs, Now):
         except FileNotFoundError:
             print('NÃO CONSEGUI RETORNAR SAVE')
 
-    def first_and_last_day_compt(self, compt, sep='/', zdate_wontbe_greater=False):
-        """
-        ELE JÁ PEGA O ANTERIOR MAIS PROX
-        :param str compt:(competencia or whatever). Defaults then call cls.get_compt_only() as default
-        :param sep: separates month/year
-        # É necessario o will_be pois antes dele é botado ao contrário
-        # tipo: 20200430
-        # ano 2020, mes 04, dia 30... (exemplo)
-        :return: ÚLTIMO DIA DO MES
-        """
-        from datetime import date, timedelta
-        from dateutil.relativedelta import relativedelta
-
-        ill_split = ''.join([v for v in compt if v not in '0123456789'])
-        mes, ano = compt.split(ill_split)
-        mes, ano = int(mes), int(ano)
-        #  - timedelta(days=1)
-        # + relativedelta(months=1)
-
-        last_now = date(ano, mes, 1) + relativedelta(months=1)
-        last_now -= timedelta(days=1)
-        first_now = date(ano, mes, 1)
-        z, a = last_now, first_now
-
-        if zdate_wontbe_greater:
-            # last_only
-            _check, _dia_hj = self.__check_date_greater_than_today(z)
-            if _check:
-                z = _dia_hj
-
-        br1st = f'{a.day:02d}{sep}{a.month:02d}{sep}{a.year}'
-        brlast = f'{z.day:02d}{sep}{z.month:02d}{sep}{z.year}'
-        print(br1st, brlast)
-        return br1st, brlast
-
-    def __check_date_greater_than_today(self, mydt: date):
-        from datetime import datetime as dt
-        dia_hj = dt.now()
-        return mydt.day > dia_hj.day, dia_hj
-
     @ staticmethod
     def ate_atual_compt(compt_atual, first_compt=None):
         from datetime import date
