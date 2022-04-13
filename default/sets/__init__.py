@@ -140,7 +140,7 @@ class Initial:
         if faturado == 'das_pend':
             return 'ATENÇÃO, HÁ BOLETO(S) DO PGDAS PENDENTE(S)'
         if 'nan' in faturado or 'zerou' in faturado or float(faturado) == 0:
-            faturado = 'SEM VALOR DECLARADO'
+            faturado = 'SEM VALOR A PAGAR'
             return faturado
         faturado = f'{float(faturado):,.2f}'
         faturado = faturado.replace('.', 'v')

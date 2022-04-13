@@ -96,7 +96,7 @@ class Legato:
         finally:
             faturado = faturado.lower().strip()
             if 'nan' in faturado or 'zerou' in faturado:
-                faturado = 'SEM VALOR DECLARADO'
+                faturado = 'SEM VALOR A PAGAR'
                 return faturado
             faturado = faturado.replace('.', 'v')
             faturado = faturado.replace(',', '.')
