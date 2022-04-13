@@ -102,7 +102,8 @@ class G5(Contimatic):
 
                 if "ok" != nf_out.lower() != "s":  # != ent saidas importadas
                     self.importa_nf_icms_saidas()  # saídas somente
-                # self.__saida_entrada('s')
+                else:
+                    self.__saida_entrada('s')
                 self.foxit_save__icms()
                 self.abre_ativa_programa('G5 ')
                 if '0' not in nf_in:
