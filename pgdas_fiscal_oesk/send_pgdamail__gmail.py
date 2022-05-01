@@ -1,19 +1,18 @@
 # from default import NewSetPaths, ExcelToData
 from default.sets.init_email import EmailExecutor
 from default.sets import InitialSetting
-from win32com import client
 
 
 class PgDasmailSender(EmailExecutor, InitialSetting):
-    outlook_app = client.Dispatch('outlook.application')
-    outlook_app.Session.Accounts.Item(1)  # set email sender
-
     def __init__(self, *args, email, compt, all_valores=None):
+
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
-        self.__venc_das = "20-05-2022"
+        self.__venc_das = "20-04-2022"
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
+
+        EmailExecutor().__init__()
 
         mail_header = f"Fechamentos para apuração do imposto PGDAS, competência: {compt.replace('-', '/')}"
         print('titulo: ', mail_header)
@@ -24,7 +23,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         print(a)
 
         now_email = email
-        now_email = 'silsilinhas@gmail.com'
+        # now_email = 'silsilinhas@gmail.com'
 
         if now_email == '':
             print('wtf')
@@ -63,18 +62,6 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         else:
             print('\033[1;31m', f'ainda não declarado, {__r_social}', '\033[m')
-
-    def main_send_email(self, to, header, attached_msg, pdf_files=None):
-        # return super().main_send_email(to, header, attached_msg, pdf_files)
-        mail = self.outlook_app.CreateItem(0)
-        # mail.To = 'silsilinhas@gmail.com'
-        mail.To = to
-        mail.Subject = header
-        mail.HTMLBody = attached_msg
-        if pdf_files is not None:
-            for pdf in pdf_files:
-                mail.Attachments.Add(pdf)
-        mail.Send()
 
     def mail_pgdas_msg(self, client, cnpj, tipo_das, valor):
         colours = self.zlist_colours_emails()
