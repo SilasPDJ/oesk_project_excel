@@ -244,15 +244,22 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 mes = self.nome_mes(int(mes))
                 self.driver.find_element(By.XPATH,
                                          f"//select[@name='P26_MES']/option[text()='{mes}']").click()
-                self.driver.find_element(By.XPATH,
-                                         f"//select[@name='P26_ANO']/option[text()='{ano}']").click()
+                try:
+                    self.driver.find_element(By.XPATH,
+                                             f"//select[@name='P26_ANO']/option[text()='{ano}']").click()
+                except NoSuchElementException:
+                    print(
+                        f'\033[1;31m{__r_social}, site ainda não atualizou para {ano}...\033[m')
+                    self.driver.save_screenshot(self.certif_feito(
+                        self.client_path, add=f"{__r_social}-ginfessNOTdone-siteDesatualizado"))
                 # CONSULTAR
-                self.driver.execute_script(
-                    "apex.submit({request:'P26_BTN_CONSULTAR'});")
-                print('Digite f9 para continuar')
-                press_key_b4('f9')
-                self.driver.save_screenshot(self.certif_feito(
-                    self.client_path, add=f"{__r_social}-ginfessDone"))
+                else:
+                    self.driver.execute_script(
+                        "apex.submit({request:'P26_BTN_CONSULTAR'});")
+                    print('Digite f9 para continuar')
+                    press_key_b4('f9')
+                    self.driver.save_screenshot(self.certif_feito(
+                        self.client_path, add=f"{__r_social}-ginfessDone"))
             else:
                 print(__r_social)
                 driver.execute_script("javascript:location.reload();")
