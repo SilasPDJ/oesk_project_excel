@@ -352,7 +352,6 @@ class GissGui(InitialSetting, WDShorcuts):
 
     # overriden
     def ate_atual_compt(self, first_compt=None):
-        # TODO: delete-me
         from datetime import date
         from dateutil import relativedelta
         if first_compt is None:
@@ -380,8 +379,6 @@ class GissGui(InitialSetting, WDShorcuts):
                 compt_appended = f'{compt.month:02d}-{compt.year}'
                 # list_compts.append(compt_appended)
                 yield compt_appended
-
-        # TODO: depois faço aprtindo do first_compt
         # O objetivo dessa função é retornar yildar um range de compt, partindo do first_compt
 
         # yield list_compts

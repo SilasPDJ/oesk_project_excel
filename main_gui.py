@@ -252,9 +252,6 @@ class Backend:
                 else:
                     pass
 
-            # não abrir mais a GIA de uma vez
-            # TODO: refatorar os programas pra abrir somente 1x
-
 
 class MainApplication(tk.Frame, Backend):
 
