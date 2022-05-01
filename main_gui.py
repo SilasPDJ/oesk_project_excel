@@ -29,7 +29,7 @@ import clipboard
 from pgdas_fiscal_oesk.silas_jr import JR
 
 
-COMPT = get_compt(-1)
+COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
 
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
@@ -219,9 +219,15 @@ class Backend:
                             compt=COMPT, first_compt=get_compt(-2))
 
             def ginfess():
+                # cria pastas de modo especial pós posse concurso
+                from pgdas_fiscal_oesk._folders_preset import PreSetsFromGinfess
+                pre_sets = PreSetsFromGinfess()
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                        ginfess_link,  compt=COMPT, show_driver=False)
+                if nf_in.upper() != 'NÃO HÁ' or (nf_out.upper() != 'NÃO HÁ' and imposto_a_calcular == 'ICMS'):
+                    pre_sets.files_pathit(razao_social, COMPT)
+                    print('\033[1;31m', razao_social, '\033[m')
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
