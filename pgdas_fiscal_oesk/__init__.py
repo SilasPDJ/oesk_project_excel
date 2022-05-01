@@ -12,7 +12,7 @@ class Consultar(Initial):
         self.ATUAL_COMPT = get_compt(m_cont=-1) if compt is None else compt
 
         self.__DADOS_PADRAO = pd.read_excel(
-            self.MAIN_FILE, sheet_name='DADOS_PADRÃO', dtype=str)
+            self.MAIN_FILE, sheet_name='DADOS_PADRÃO')
         self.DADOS_compt_atual = pd.read_excel(
             self.MAIN_FILE, sheet_name=self.ATUAL_COMPT, dtype=str)
         self.__DADOS_PADRAO, self.DADOS_compt_atual = self.__consuldream()
@@ -31,7 +31,7 @@ class Consultar(Initial):
         dpadrao = dpadrao.reset_index()
         df = df.reset_index()
         # pd.set_option('display.max_rows', None)
-        return df, dpadrao
+        return dpadrao, df
 
     def consultar_geral(self):
         DADOS_PADRAO = self.__lsdv(self.__DADOS_PADRAO.to_dict())
