@@ -21,6 +21,10 @@ class AutocompleteEntry(Entry):
         # incoming int options (2nd arg in tuple): 
             0 -> return
             1 -> on_write (self.changed)
+
+        # sortedlist if True = alphabetical order 
+            whereas elif False = no ordering 
+            :default: True
         """
 
         # extra method execution, on_write or on return of value [I am pdj]
@@ -57,10 +61,17 @@ class AutocompleteEntry(Entry):
 
             self.matchesFunction = matches
 
+        if 'sortedlist' in kwargs:
+            if kwargs['sortedlist']:  # True
+                self.autocompleteList = sorted(autocompleteList)
+            else:  # False
+                self.autocompleteList = autocompleteList
+            del kwargs['sortedlist']  # Entry init's cause
+        else:  # default
+            self.autocompleteList = sorted(autocompleteList)
+
         Entry.__init__(self, *args, **kwargs)
         self.focus()
-
-        self.autocompleteList = autocompleteList
 
         self.var = self["textvariable"]
         if self.var == '':
