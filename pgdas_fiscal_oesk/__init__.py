@@ -14,7 +14,24 @@ class Consultar(Initial):
         self.__DADOS_PADRAO = pd.read_excel(
             self.MAIN_FILE, sheet_name='DADOS_PADRÃO', dtype=str)
         self.DADOS_compt_atual = pd.read_excel(
-            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT)
+            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT, dtype=str)
+        self.__DADOS_PADRAO, self.DADOS_compt_atual = self.__consuldream()
+
+    def __consuldream(self):
+        # não preciso ficar ordenando no excel que nem maluco
+
+        df = self.DADOS_compt_atual
+        dpadrao = self.__DADOS_PADRAO
+
+        df = df.sort_values(by=["Imposto a calcular"])
+        df = df.set_index('Razão Social')
+        dpadrao = dpadrao.set_index('Razão Social')
+        dpadrao = dpadrao.reindex(df.index)
+
+        dpadrao = dpadrao.reset_index()
+        df = df.reset_index()
+        # pd.set_option('display.max_rows', None)
+        return df, dpadrao
 
     def consultar_geral(self):
         DADOS_PADRAO = self.__lsdv(self.__DADOS_PADRAO.to_dict())
@@ -44,6 +61,8 @@ class Consultar(Initial):
             except IndexError:
                 break
             cont += 1
+
+        # df = pd.merge()
 
     def get_fieldnames(self):
         # tutti = list(self.DADOS_compt_atual.to_dict().keys())
