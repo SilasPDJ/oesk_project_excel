@@ -278,8 +278,8 @@ class MainApplication(tk.Frame, Backend):
         bt_abre_pasta = self.button(
             'Abre e copia pasta de: ', self.abre_pasta, 'black', 'lightblue')
         bt_copia = self.button(
-            'Copia Campo', lambda: self.get_dataclipboard(excel_col.get()
-                                                          ), 'black', 'lightblue')
+            'Copia Campo [F4]', lambda: self.get_dataclipboard(excel_col.get()
+                                                               ), 'black', 'lightblue')
         bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
             'pgdas', self.selected_client.get()))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
@@ -316,6 +316,9 @@ class MainApplication(tk.Frame, Backend):
 
         # bt binds
         self.root.bind("<F5>", self._restart_after_updt)
+        self.root.bind("<F4>", lambda x: self.get_dataclipboard(
+            excel_col.get()
+        ))
 
     # functions
     def get_v_total(self):
