@@ -44,6 +44,7 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 
 
 class Backend:
+    # TODO: lista de clientes a segu9ir
     def __init__(self):
         pass
 

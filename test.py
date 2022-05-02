@@ -1,23 +1,37 @@
-from win32com import client
+import os
+from time import sleep
+import pandas as pd
+from pathlib import Path
+import win32com.client as win32
+
+# change to the path to the Excel file
+f_path = "O:\OneDrive\_FISCAL-2021\__EXCEL POR COMPETENCIAS__"
+f_name = 'DALDALE.xlsm'  # Excel File name
+filename = os.path.join(f_path, f_name)
+sheetname = '04-2022'  # change to the name of the worksheet
+
+# create Excel object
+excel = win32.gencache.EnsureDispatch('Excel.Application')
+# excel can be visible or not
+excel.Visible = True
+# open Excel Workbook
+wb = excel.Workbooks.Open(filename)
+# create filter in Excel Worksheet
+wb.Sheets(sheetname)
 
 
-class A:
-    outlook_app = client.Dispatch('outlook.application')
-    outlook_app.Session.Accounts.Item(1)  # set email sender
+excel.SendKeys("%cfsl")  # localizar agora
+excel.SendKeys("M Monteiro Intermediacao de Negocios Eireli")
+excel.SendKeys("{ENTER}")
+excel.SendKeys("{ENTER}")
+sleep(.5)
+excel.SendKeys("{ESC}")
+# excel.Range("2:5").Select()
+range_atual = excel.Range(excel.Selection.Address)
+range_atual.Offset(1, 5).Select()
+# ESCREVE VALOR não retido----------------------
 
-    def main_send_email(self, to, header, attached_msg, pdf_files=None):
-        # return super().main_send_email(to, header, attached_msg, pdf_files)
-        mail = self.outlook_app.CreateItem(0)
-        oesk_dadmail = self.outlook_app.Session.Accounts.Item(1)
-        mail.To = to
-        # mail.To = 'silsilinhas@gmail.com'
-        mail.Subject = header
-        mail.HTMLBody = attached_msg
-        if pdf_files is not None:
-            for pdf in pdf_files:
-                mail.Attachments.Add(pdf)
-        mail.Send()
+range_atual.Offset(1, 6).Select()
+# ESCREVE VALOR retido
 
-
-A().main_send_email("silsilinhas@gmail.com", "Apenas um teste", "<h1 style='background-color: red'>TESTE</h1>",
-                    [r"O:\OneDrive\_FISCAL-2021\2022\04-2022\Vensol Multi Servicos LTDA\Registro_ISS-21776608000182.pdf"])
+print(excel.Selection.Address)

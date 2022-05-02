@@ -557,9 +557,10 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                               fill_type='solid')
         #  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         with_class.insert(0, '')
-        for table, row in zip(with_class, ws['A']):
+        for table, row_a, row_c in zip(with_class, ws['A'], ws['C']):
             if 'notaCancelada' in table:
-                row.fill = redFill
+                row_a.fill = redFill
+                row_c.value = ""  # nota_cancelada
         # ws['A2'].fill = redFill
         wb.save(excel_file)
 
