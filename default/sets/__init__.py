@@ -26,7 +26,7 @@ def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
     return compt
 
 
-def get_all_valores(sem_ret, com_ret, anexo, valor_tot):
+def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
     def split_sep_vals(val, withme=';'):
         val = str(val)
         try:

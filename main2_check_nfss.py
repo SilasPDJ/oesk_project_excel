@@ -29,24 +29,24 @@ IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
 
 
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-    razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = compt_vals
-    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
+    razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios,  imposto_a_calcular = compt_vals
+    __razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
 
     if razao_social == __razao_social:
 
         path = InitialSetting.files_pathit(razao_social, COMPT)
         import os
         lspath = os.listdir(path)
-        # try:
-        #     # print(path)
-        #     f = open(os.path.join(path, 'NF_canceladas.txt')).read()
-        #     print(razao_social)
-        #     input(f) if f != '' else None
-        # except FileNotFoundError:
-        #     pass
-        if razao_social == "MARCOS LEME DO PRADO MLP":
-            GissGui([razao_social, cnpj, giss_login],
-                    compt=COMPT, first_compt=get_compt(-1))
+        try:
+            # print(path)
+            f = open(os.path.join(path, 'NF_canceladas.txt')).read()
+            print(razao_social)
+            input(f) if f != '' else None
+        except FileNotFoundError:
+            pass
+        # if razao_social == "MARCOS LEME DO PRADO MLP":
+        #     GissGui([razao_social, cnpj, giss_login],
+        #             compt=COMPT, first_compt=get_compt(-1))
         # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
 
 

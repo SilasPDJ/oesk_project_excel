@@ -8,6 +8,8 @@ import win32com.client as win32
 f_path = "O:\OneDrive\_FISCAL-2021\__EXCEL POR COMPETENCIAS__"
 f_name = 'DALDALE.xlsm'  # Excel File name
 filename = os.path.join(f_path, f_name)
+
+pd.read_excel(filename)
 sheetname = '04-2022'  # change to the name of the worksheet
 
 # create Excel object
@@ -18,7 +20,7 @@ excel.Visible = True
 wb = excel.Workbooks.Open(filename)
 # create filter in Excel Worksheet
 wb.Sheets(sheetname)
-
+sleep(5)
 
 excel.SendKeys("%cfsl")  # localizar agora
 excel.SendKeys("M Monteiro Intermediacao de Negocios Eireli")
