@@ -12,7 +12,7 @@ import pyautogui as pygui
 from default.interact import *
 
 
-from pgdas_fiscal_oesk.relacao_nfs import tres_valores_faturados, NfCanceled
+from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
 
 from default.sets import get_all_valores
 
@@ -50,13 +50,11 @@ class JROnly(Contimatic):
         self.compt_used = compt
         self.client_path = self.files_pathit(__client)
 
-        meus_3_valores_atuais = tres_valores_faturados(self.client_path)
         # Se tem 3valores[excel], tem XML. Se não tem, não tem
         # (pois o xml e excel vem do ginfess_download)....
 
         registronta = self.registronta()
 
-        # if meus_3_valores_atuais and registronta and "ok" != nf_out.lower() != "s": ########## G5
     def make_it(self):
         all_xls_inside = self.files_get_anexos_v4(
             self.client_path, file_type='xlsx')

@@ -9,7 +9,7 @@ from default.webdriver_utilities.wbs import WDShorcuts
 # from pgdas_fiscal_oesk.contimatic import InitialSetting
 from pgdas_fiscal_oesk.contimatic import Contimatic
 
-from pgdas_fiscal_oesk.relacao_nfs import tres_valores_faturados, NfCanceled
+from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
 
 # from default.webdriver_utilities import *
 from subprocess import Popen
@@ -46,8 +46,6 @@ class G5(Contimatic):
 
             if self.registronta() and "ok" != nf_out.lower() != "s":
                 # TODO: incrementar if != ok0, então procura importar
-                meus_3_valores_atuais = tres_valores_faturados(
-                    self.client_path)
                 self.abre_ativa_programa('G5 ')  # vscode's cause
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # - IMPORTA NF
@@ -62,7 +60,7 @@ class G5(Contimatic):
                 # clientes com arquivo fora do ABC, xlsx != csv...
                 if not isinstance(relacao_notas, IndexError):
                     self.nfcanceladas = NfCanceled(relacao_notas)
-                    if tres_valores_faturados(self.client_path):
+                    if iss_plan_exists(self.client_path, __cnpj, ".xlsx"):
                         timesleep_import = self.nfcanceladas.conta_qtd_nfs()
                     else:
                         timesleep_import = 10

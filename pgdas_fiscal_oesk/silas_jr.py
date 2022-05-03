@@ -6,7 +6,7 @@ from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from pgdas_fiscal_oesk.contimatic import Contimatic
 
-from pgdas_fiscal_oesk.relacao_nfs import tres_valores_faturados, NfCanceled
+from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
 from pyperclip import paste
 # from default.webdriver_utilities import *
 from win10toast import ToastNotifier
@@ -35,16 +35,10 @@ class JR(Contimatic):
         self.compt_used = compt
         self.client_path = self.files_pathit(__client)
 
-        meus_3_valores_atuais = tres_valores_faturados(self.client_path)
-        # Se tem 3valores[excel], tem XML. Se não tem, não tem
-        # (pois o xml e excel vem do ginfess_download)....
-
         registronta = self.registronta()
         print(__client)
         # input(registronta)
         print(__client)
-        # if meus_3_valores_atuais and registronta and "ok" != nf_out.lower() != "s": ########## G5
-
         self.abre_ativa_programa('JR ')
 
         all_xls_inside = self.files_get_anexos_v4(

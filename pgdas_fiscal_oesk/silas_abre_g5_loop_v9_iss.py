@@ -8,7 +8,7 @@ from default.webdriver_utilities.wbs import WDShorcuts
 # from pgdas_fiscal_oesk.contimatic import InitialSetting
 from pgdas_fiscal_oesk.contimatic import Contimatic
 
-from pgdas_fiscal_oesk.relacao_nfs import tres_valores_faturados, NfCanceled
+from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
 from pyperclip import paste
 # from default.webdriver_utilities import *
 
@@ -36,7 +36,8 @@ class G5(Contimatic):
             self.compt_used = compt
             self.client_path = self.files_pathit(__client)
             super().__init__(self.client_path)
-            meus_3_valores_atuais = tres_valores_faturados(self.client_path)
+            issplan_exists = iss_plan_exists(
+                self.client_path, __cnpj, ".xlsx")
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
 
@@ -47,7 +48,7 @@ class G5(Contimatic):
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # - SEM IMPORTA NF
                 # self.start_walk_menu()
-                if tres_valores_faturados(self.client_path):
+                if iss_plan_exists(self.client_path, __cnpj, ".xlsx"):
                     self.mk_nf_canceladas()
                 sleep(1)
                 # generate PDF relat. Prestados 56 #51

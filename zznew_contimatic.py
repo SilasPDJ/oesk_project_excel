@@ -12,7 +12,7 @@ import pyautogui as pygui
 from default.interact import *
 
 
-from pgdas_fiscal_oesk.relacao_nfs import tres_valores_faturados, NfCanceled
+from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
 
 from default.sets import get_all_valores
 
