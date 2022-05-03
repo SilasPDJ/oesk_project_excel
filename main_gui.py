@@ -1,4 +1,5 @@
 from locale import format_string
+from pgdas_fiscal_oesk.ginfess_excel_values import ExcelValuesPreensh
 from pgdas_fiscal_oesk.rotinas_dividas_v2 import RotinaDividas
 from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
@@ -253,6 +254,22 @@ class Backend:
                 else:
                     pass
 
+    def after_ginfess(self, event):
+
+        for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+                self.any_to_str(*compt_vals))
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                self.any_to_str(*geral))
+            envio = envio.upper()
+            email = email.strip()
+            dividas_ativas = dividas_ativas.strip().lower()
+            if imposto_a_calcular.upper() == "ISS":
+                ExcelValuesPreensh(razao_social, cnpj, cpf,
+                                   main_xl_path=main_file, compt=COMPT)
+        prgm = sys.executable
+        # os.execl(prgm, prgm, * sys.argv)
+
 
 class MainApplication(tk.Frame, Backend):
 
@@ -289,7 +306,6 @@ class MainApplication(tk.Frame, Backend):
             'gias', self.selected_client.get()))
         bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
             'ginfess', self.selected_client.get()))
-
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
         bt_g5 = self.button('Fazer G5', lambda: self.full_g5(
@@ -317,6 +333,7 @@ class MainApplication(tk.Frame, Backend):
         self.root.bind("<F4>", lambda x: self.get_dataclipboard(
             excel_col.get()
         ))
+        self.root.bind("<F12>", self.after_ginfess)
 
     # functions
     def get_v_total(self):

@@ -433,7 +433,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         driver.implicitly_wait(5)
         number_in_pages = xml_pages.get_attribute('value')
 
-        html_cod = """           
+        html_cod = """
                     <style>/*.detalheNota:after{background: red; content: 'cancelada';}*/
                     .notaCancelada{
                     background: red
@@ -476,6 +476,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
     def excel_from_html_above(self, excel_file, html):
         from bs4 import BeautifulSoup
         from openpyxl.styles import PatternFill
+        from win32com.client import Dispatch
+        import pythoncom
 
         mylist = pd.read_html(html)
 
@@ -563,6 +565,17 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 row_c.value = ""  # nota_cancelada
         # ws['A2'].fill = redFill
         wb.save(excel_file)
+        wb.close()
+
+        # AUTO FIT ------
+        excel = Dispatch('Excel.Application', pythoncom.CoInitialize())
+
+        wb_disptch = excel.Workbooks.Open(excel_file)
+        excel.ActiveSheet.Columns.AutoFit()
+        wb_disptch.Close(SaveChanges=1)
+        excel.Quit()
+
+        # ------- autofit
 
     def check_done(self, save_path, file_type, startswith=None):
         """
