@@ -107,6 +107,12 @@ class GissGui(InitialSetting, WDShorcuts):
                         self.gerar_cert(f'{loop_compt}_giss-tomador.png')
                         if fez_ok:
                             break
+                        else:
+                            print("\033[1;31m ATENÇÃO AO TODO=checar \033[m")
+                        # TODO: testar se fez_ok for False
+                        # Ou seja: se tiver FEITO a confirmação das notas recebidas
+                        # ... Provavelmente vai funcionar
+
             driver.close()
         print('GISS encerrado!')
 
@@ -214,9 +220,6 @@ class GissGui(InitialSetting, WDShorcuts):
         driver.execute_script("validarFormObra();")
         driver.switch_to.alert.accept()
         driver.switch_to.default_content()
-
-        # TODO: faz login
-        # pressione "ESC" para continuar
 
     def __check_prestador_guias(self):
         def __download_prestador_guias():
