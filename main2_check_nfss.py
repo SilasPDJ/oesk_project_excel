@@ -13,7 +13,6 @@ from default.sets import get_all_valores
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
-from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
 
 COMPT = get_compt(-2)
 
@@ -32,8 +31,7 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios,  imposto_a_calcular = compt_vals
     __razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
 
-    if razao_social == __razao_social:
-
+    if str(cnpj) == "33644218000138":
         path = InitialSetting.files_pathit(razao_social, COMPT)
         import os
         lspath = os.listdir(path)
@@ -45,8 +43,8 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
         except FileNotFoundError:
             pass
         # if razao_social == "MARCOS LEME DO PRADO MLP":
-        #     GissGui([razao_social, cnpj, giss_login],
-        #             compt=COMPT, first_compt=get_compt(-1))
+        GissGui([razao_social, cnpj, giss_login],
+                compt=COMPT, first_compt=get_compt(-12*2))
         # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
 
 

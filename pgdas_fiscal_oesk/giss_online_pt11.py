@@ -36,8 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist(f'{compt}_giss'):
-            # self.driver = driver = ginfess_driver(self.client_path)
-            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = pgdas_driver(self.client_path)
             self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
@@ -201,7 +201,7 @@ class GissGui(InitialSetting, WDShorcuts):
                 if "notas recebidas" in e.alert_text:
                     self.__notas_recebidas()
                     return False
-            return True
+        return True
 
     def __notas_recebidas(self):
         driver = self.driver
