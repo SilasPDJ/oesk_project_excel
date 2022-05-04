@@ -84,6 +84,11 @@ class G5(Contimatic):
                 sleep(3)
                 # F4
                 # TODO: Salvar dentro do local de salvar relatorio, client_path
+            elif "ok" == nf_out:
+                self.abre_ativa_programa('G5 ')  # vscode's cause
+                self.activating_client(self.formatar_cnpj(__cnpj))
+                self.foxit_save__iss(__cnpj)
+
         elif imposto_a_calcular == 'ICMS':
 
             print(__client, nf_out)

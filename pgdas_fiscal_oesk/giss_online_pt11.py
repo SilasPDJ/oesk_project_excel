@@ -36,8 +36,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist(f'{compt}_giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
-            # self.driver = driver = pgdas_driver(self.client_path)
+            # self.driver = driver = ginfess_driver(self.client_path)
+            self.driver = driver = pgdas_driver(self.client_path)
             self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
@@ -71,40 +71,42 @@ class GissGui(InitialSetting, WDShorcuts):
             for loop_compt in self.ate_atual_compt(first_compt):
                 # driver.get(
                 #     'https://www10.gissonline.com.br/interna/default.cfm')
-                driver.refresh()
-                month, year = loop_compt.split('-')
+                while True:
+                    driver.refresh()
+                    month, year = loop_compt.split('-')
 
-                self.calls_write_date = partial(
-                    self.write_date_variascompt, month, year)
-                try:
-                    iframe = driver.find_element(By.XPATH,
-                                                 "//iframe[@name='header']")
-                    driver.switch_to.frame(iframe)
-                except NoSuchElementException:
-                    driver.execute_script(
-                        "window.location.href=('/tomador/tomador.asp');")
-                # principal MENU frame...
-                # a = driver.find_elements(By.TAG_NAME, "iframe")[0]
-                # driver.switch_to.frame(a)
-                # driver.execute_script(
-                #     "javascript: clickTomador(); FunImg('6');")
+                    self.calls_write_date = partial(
+                        self.write_date_variascompt, month, year)
+                    try:
+                        iframe = driver.find_element(By.XPATH,
+                                                     "//iframe[@name='header']")
+                        driver.switch_to.frame(iframe)
+                    except NoSuchElementException:
+                        driver.execute_script(
+                            "window.location.href=('/tomador/tomador.asp');")
+                    # principal MENU frame...
+                    # a = driver.find_elements(By.TAG_NAME, "iframe")[0]
+                    # driver.switch_to.frame(a)
+                    # driver.execute_script(
+                    #     "javascript: clickTomador(); FunImg('6');")
 
-                constr = False
-                try:
-                    driver.find_element(By.XPATH,
-                                        "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
-                    # Try prestador, else = Construção civil
-                except (NoSuchElementException, ElementNotInteractableException):
-                    self.constr_civil()
-                    self.gerar_cert(f'{loop_compt}_giss-construcao.png')
-                    constr = True
-                finally:
-                    driver.switch_to.default_content()
-                    sleep(1)
-                    self.fazendo_principal(loop_compt, constr)
-                    self.gerar_cert(f'{loop_compt}_giss-tomador.png')
-
-                driver.implicitly_wait(10)
+                    constr = False
+                    try:
+                        driver.find_element(By.XPATH,
+                                            "//img[contains(@src,'images/bt_menu__05_off.jpg')]").click()
+                        # Try prestador, else = Construção civil
+                    except (NoSuchElementException, ElementNotInteractableException):
+                        self.constr_civil()
+                        self.gerar_cert(f'{loop_compt}_giss-construcao.png')
+                        constr = True
+                    finally:
+                        driver.switch_to.default_content()
+                        sleep(1)
+                        fez_ok = self.fazendo_principal(
+                            loop_compt, constr)
+                        self.gerar_cert(f'{loop_compt}_giss-tomador.png')
+                        if fez_ok:
+                            break
             driver.close()
         print('GISS encerrado!')
 
@@ -184,14 +186,41 @@ class GissGui(InitialSetting, WDShorcuts):
                     driver.find_element(By.LINK_TEXT, 'Menu Principal').click()
                 except NoSuchElementException:
                     driver.find_element(By.LINK_TEXT, 'OK').click()
-            except UnexpectedAlertPresentException:
-                raise UnexpectedAlertPresentException
-                # TODO: faz login
+            except UnexpectedAlertPresentException as e:
+                try:
+                    driver.switch_to.alert.accept()
+                except NoAlertPresentException:
+                    pass
+                texto = e.alert_text
+                if "notas recebidas" in e.alert_text:
+                    self.__notas_recebidas()
+                    return False
+            return True
+
+    def __notas_recebidas(self):
+        driver = self.driver
+        driver.execute_script(
+            "if(verificaCompetencia())window.location = '/recebidas/listaNotas.cfm?modalidade=T';")
+        # raise UnexpectedAlertPresentException
+        driver.switch_to.default_content()
+        iframe = self.webdriverwait_el_by(
+            By.XPATH, "//iframe[@name='principal']")
+        driver.switch_to.frame(iframe)
+        driver.find_element(By.ID, "marcar").click()
+        self.click_ac_elementors(
+            driver.find_element(By.ID, "aceita2"))
+        driver.implicitly_wait(10)
+        self.webdriverwait_el_by(By.NAME, "form01")
+        driver.execute_script("validarFormObra();")
+        driver.switch_to.alert.accept()
+        driver.switch_to.default_content()
+
+        # TODO: faz login
         # pressione "ESC" para continuar
 
     def __check_prestador_guias(self):
         def __download_prestador_guias():
-            tb = self.driver.find_element(By.TAG_NAME, 'table')
+            tb = self.webdriverwait_el_by(By.TAG_NAME, 'table')
             __meses_guias = tb.find_elements(By.TAG_NAME, 'a')
             MESES, GUIAS = (
                 [mes for mes in __meses_guias if mes.text != ''],
@@ -226,7 +255,10 @@ class GissGui(InitialSetting, WDShorcuts):
                 # gera guias a pagar
                 __meses = []  # for naming certificate of existing guias file
                 for indx in vals_pendentes:
-                    guia, mes = GUIAS[indx], MESES[indx].text
+                    try:
+                        guia, mes = GUIAS[indx], MESES[indx].text
+                    except IndexError:
+                        guia, mes = GUIAS[indx-1], MESES[indx-1].text
                     __meses.append(mes)
                     # generate guia
                     # guia.click()

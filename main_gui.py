@@ -218,7 +218,7 @@ class Backend:
                 if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
                     print(giss_login)
                     GissGui([razao_social, cnpj, giss_login],
-                            compt=COMPT, first_compt=get_compt(-2))
+                            compt=COMPT, first_compt=get_compt(-1))
 
             def ginfess():
                 # cria pastas de modo especial pós posse concurso
