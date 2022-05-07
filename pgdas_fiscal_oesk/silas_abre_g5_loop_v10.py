@@ -540,7 +540,8 @@ class G5(Contimatic):
         pygui.hotkey('right', 'down', 'enter', 'enter', interval=.5)
         sleep(2)
         print('NF canceled')
-        self.nfcanceladas.action()
+        if self.nfcanceladas:
+            self.nfcanceladas.action()
 
     def __get_xml(self):
         b = self.files_get_anexos_v4(self.client_path, file_type='xml')

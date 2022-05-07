@@ -1,15 +1,17 @@
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 # continuar a desenvolver a def real_path, p/ driver
-
+from webdriver_manager.chrome import ChromeDriverManager
 
 link = "Chromedriver/chromedriver.exe"
 this_file_path = os.path.realpath(__file__)
 path = os.path.dirname(this_file_path)
 link = os.path.join(path, link)
 
+SERVICE = Service(ChromeDriverManager().install())
 # procura link chamado pela variável __file__
 
 
@@ -169,7 +171,7 @@ def pgdas_driver_ua(path=''):
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
     driver = webdriver.Chrome(
-        executable_path=chromedriver, options=chrome_options)
+        service=SERVICE, options=chrome_options)
     return driver
 
 
@@ -213,7 +215,7 @@ def ginfess_driver(path=''):
     # real_path_for_chromedriver()
 
     driver = webdriver.Chrome(
-        executable_path=chromedriver, options=chrome_options)
+        service=SERVICE, options=chrome_options)
     # self.tags_wait('body', 'input', 'div')
 
     # sleep(5)
@@ -260,7 +262,7 @@ def proffile_noqr_driver(path='', profile_path=''):
     # vindo do ginfess_driver [magic]
 
     driver = webdriver.Chrome(
-        executable_path=chromedriver, options=chrome_options)
+        service=SERVICE, options=chrome_options)
 
     # self.tags_wait('body', 'input', 'div')
 
@@ -302,7 +304,7 @@ def jucesp_simple_driver():
     # vindo do ginfess_driver [magic]
 
     driver = webdriver.Chrome(
-        executable_path=chromedriver, options=chrome_options)
+        service=SERVICE, options=chrome_options)
 
     # self.tags_wait('body', 'input', 'div')
 
