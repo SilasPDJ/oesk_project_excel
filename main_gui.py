@@ -57,6 +57,7 @@ class Backend:
     def full_pgdas(self):
         LIST_ECAC = []
         LIST_NORMAL = []
+        LIST_ISS = []
         SEM_MOV_ONLY = {"simples": [], "ecac": []}
 
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
@@ -68,6 +69,7 @@ class Backend:
             email = email.strip()
             dividas_ativas = dividas_ativas.strip().lower()
             proc_ecac = proc_ecac.lower()
+            imposto_a_calcular = imposto_a_calcular.upper()
 
             print(razao_social)
 
@@ -105,7 +107,10 @@ class Backend:
                     append_me(LIST_ECAC)
 
                 else:
-                    append_me(LIST_NORMAL)
+                    if imposto_a_calcular == "ISS":
+                        append_me(LIST_ISS)
+                    else:
+                        append_me(LIST_NORMAL)
 
             # PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
             #             compt=COMPT, driver=pgdas_driver)
@@ -113,8 +118,8 @@ class Backend:
 
         SEM_MOV_ONLY['simples']
 
-        full = SEM_MOV_ONLY['simples'] + \
-            SEM_MOV_ONLY['ecac'] + LIST_NORMAL + LIST_ECAC
+        full = SEM_MOV_ONLY['simples'] + LIST_ISS +\
+            LIST_NORMAL + SEM_MOV_ONLY['ecac'] + LIST_ECAC
 
         # return LIST_ECAC, LIST_NORMAL
         return full
@@ -227,7 +232,7 @@ class Backend:
                 if ginfess_link != 'nan':
                     DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                        ginfess_link,  compt=COMPT, show_driver=False)
-                if nf_in.upper() != 'NÃO HÁ' or (nf_out.upper() != 'NÃO HÁ' and imposto_a_calcular == 'ICMS'):
+                if nf_in.upper() != 'NÃO HÁ' or (nf_out.upper() != 'NÃO HÁ' and imposto_a_calcular != 'ISS'):
                     pre_sets.files_pathit(razao_social, COMPT)
                     print('\033[1;31m', razao_social, '\033[m')
 
