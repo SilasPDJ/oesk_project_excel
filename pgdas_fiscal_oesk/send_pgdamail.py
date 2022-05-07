@@ -5,8 +5,6 @@ from win32com import client
 
 
 class PgDasmailSender(EmailExecutor, InitialSetting):
-    outlook_app = client.Dispatch('outlook.application')
-    outlook_app.Session.Accounts.Item(1)  # set email sender
 
     def __init__(self, *args, email, compt, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
@@ -15,7 +13,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
-        mail_header = f"Fechamentos para apuração do imposto PGDAS, competência: {compt.replace('-', '/')}"
+        mail_header = f"{compt.replace('-', '/')} - Relatórios e fechamento da competência. Simples Nacional."
         print('titulo: ', mail_header)
         _valor = self.trata_money_excel(__valor_competencia)
         print(_valor)
@@ -24,8 +22,9 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         print(a)
 
         now_email = email
-        now_email = 'silsilinhas@gmail.com'
+        now_email = 'silsilinhas@gmail.com' if "Controlesis" not in __r_social else email
 
+        input(now_email)
         if now_email == '':
             print('wtf')
         elif __declarado in ['S', 'FORA'] and __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
@@ -38,7 +37,8 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             das_message = self.write_message(self.message)
 
             das_anx_files = self.files_get_anexos_v4(
-                self.client_path, file_type='pdf',  upload=False)
+                self.client_path, file_type='pdf')
+            # if gmail upload is False
             if _valor != 'SEM VALOR A PAGAR':
                 if len(das_anx_files) < 4:
                     print(
@@ -63,10 +63,24 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         else:
             print('\033[1;31m', f'ainda não declarado, {__r_social}', '\033[m')
+        input('teste')
 
     def main_send_email(self, to, header, attached_msg, pdf_files=None):
+        import pythoncom
         # return super().main_send_email(to, header, attached_msg, pdf_files)
+        self.outlook_app = client.Dispatch(
+            'outlook.application', pythoncom.CoInitialize())
+        s = client.Dispatch("Mapi.Session")
         mail = self.outlook_app.CreateItem(0)
+
+        # set the account
+        account = None
+        for acc in mail.Session.Accounts:
+            if "39" in acc.DisplayName:
+                account = acc
+        mail._oleobj_.Invoke(*(64209, 0, 8, 0, account))
+        # mail.SendUsingAccount = self.outlook_app.Session.Accounts.Item(1)
+        # set email sender
         # mail.To = 'silsilinhas@gmail.com'
         mail.To = to
         mail.Subject = header
@@ -75,6 +89,15 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             for pdf in pdf_files:
                 mail.Attachments.Add(pdf)
         mail.Send()
+
+    def write_message(self, text="test", html_plain="html"):
+        """
+        :param text:
+        :param html_plain: html or plain?
+        :return:
+        """
+        # return super().write_message(text, html_plain)
+        return text
 
     def mail_pgdas_msg(self, client, cnpj, tipo_das, valor):
         colours = self.zlist_colours_emails()
