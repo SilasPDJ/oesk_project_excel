@@ -94,6 +94,7 @@ class G5(Contimatic):
             print(__client, nf_out)
             _already_exist = self.walget_searpath(
                 "APUR_ICMS", self.client_path, 2)
+
             _already_exist += self.walget_searpath(
                 "LIVRO_ENTRADA", self.client_path, 2)
             _already_exist += self.walget_searpath(
@@ -102,12 +103,12 @@ class G5(Contimatic):
                 self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 self.__ativa_robo_once(pygui.getActiveWindow())
-
-                if "ok" != nf_out.lower() != "s":  # != ent saidas importadas
-                    self.importa_nf_icms_saidas()  # saídas somente
-                else:
-                    self.__saida_entrada('s')
-                self.foxit_save__icms()
+                if nf_out.upper() != "NÃO HÁ":
+                    if "ok" != nf_out.lower() != "s":  # != ent saidas importadas
+                        self.importa_nf_icms_saidas()  # saídas somente
+                    else:
+                        self.__saida_entrada('s')
+                    self.foxit_save__icms()
                 self.abre_ativa_programa('G5 ')
                 if '0' not in nf_in:
                     # entradas não zeraram
@@ -233,8 +234,9 @@ class G5(Contimatic):
 
         go2_g5_import_params()
         robotimatic_config_path(path2import)  # ↑
-
+        sleep(2)
         self.go2robo_options()
+        sleep(1)
         foritab(1, 'up', 'right', 'enter', interval=0.25)
         # aí tem que sleepar pq ta importando, TODO: calcular o sleep
         segs = self._while_importing()

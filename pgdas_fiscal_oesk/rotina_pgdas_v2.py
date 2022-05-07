@@ -58,9 +58,12 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                 self.send_keys_anywhere(year_compt)
                 self.find_submit_form()
                 sleep(3.5)
-            comp_clic = driver.find_elements(By.CLASS_NAME, 'pa')
-            lenc = len(comp_clic) - 1
-            comp_clic[lenc].click()
+            try:
+                comp_clic = driver.find_elements(By.CLASS_NAME, 'pa')
+                lenc = len(comp_clic) - 1
+                comp_clic[lenc].click()
+            except IndexError:
+                pass
             for i in range(3):
                 sleep(2)
                 self.send_keys_anywhere(Keys.TAB)
