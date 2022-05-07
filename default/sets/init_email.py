@@ -7,7 +7,7 @@ from email.parser import Parser
 
 
 class EmailExecutor:
-    def create_my_login_file(self):
+    def create_my_gmail_login_file(self):
         my_email, my_pass = '', ''
         thispath = os.path.dirname(__file__)
         thispath = os.path.join(thispath,
@@ -40,7 +40,7 @@ class EmailExecutor:
         from email.mime.multipart import MIMEMultipart
         from email.header import Header
 
-        sm, sp = self.create_my_login_file()
+        sm, sp = self.create_my_gmail_login_file()
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.ehlo()
             server.starttls()
