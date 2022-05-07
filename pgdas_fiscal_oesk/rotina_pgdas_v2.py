@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 
 from time import sleep
 # from . import *
@@ -101,7 +101,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         else:
             return False
 
-    def opta_script(self):
+    def opta_script(self, ultrarior=True):
         driver = self.driver
         try:
             # #################################################### opta
@@ -111,7 +111,10 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             from selenium.webdriver.support.ui import Select
             anocalendario = Select(driver.find_element(By.ID, 'anocalendario'))
 
-            anocalendario.select_by_value(f'{self.y()+1}')
+            if ultrarior:
+                anocalendario.select_by_value(f'{self.y()+1}')
+            else:
+                anocalendario.select_by_value(f'{self.y()}')
             self.find_submit_form()
 
             # competencia
@@ -435,7 +438,13 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
             # loga e digita competencia de acordo com o BD
             self.compt_typist(self.compt)
-
+            try:
+                self.webdriverwait_el_by(By.ID, "msgBox", 3)
+                self.opta_script(False)
+            except (NoSuchElementException, TimeoutException):
+                print("No msgBox")
+            else:
+                self.compt_typist(self.compt)
             # declara compt de acordo com o valor
             if not self.compt_already_declared(self.compt):
                 __valor_competencia = 0 if float(
