@@ -128,8 +128,6 @@ class Backend:
         """
         #  Organiza o G5 para fazer primeiro ISS, depois ICMS
         """
-        print('ola mundo')
-
         LIST_ISS = []
         LIST_ICMS = []
 
