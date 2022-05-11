@@ -434,7 +434,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                     self.driver.find_element(By.NAME,
                                              "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
                 except NoSuchElementException:
-                    self.driver.refresh
+                    self.driver.refresh()
             self.current_url = self.driver.current_url
             self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
             self.opta_script() if self.m() == 12 else None

@@ -442,7 +442,6 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         # loga e digita competencia de acordo com o BD
         self.compt_typist(self.compt)
-        self.compt_typist(self.compt)
         try:
             self.webdriverwait_el_by(By.ID, "msgBox", 3)
             self.opta_script(False)
