@@ -22,9 +22,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         print(a)
 
         now_email = email
-        now_email = 'silsilinhas@gmail.com' if "Controlesis" not in __r_social else email
-
-        input(now_email)
+        # now_email = 'silsilinhas@gmail.com'
         if now_email == '':
             print('wtf')
         elif __declarado in ['S', 'FORA'] and __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
@@ -63,14 +61,12 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
         else:
             print('\033[1;31m', f'ainda não declarado, {__r_social}', '\033[m')
-        input('teste')
 
     def main_send_email(self, to, header, attached_msg, pdf_files=None):
         import pythoncom
         # return super().main_send_email(to, header, attached_msg, pdf_files)
         self.outlook_app = client.Dispatch(
             'outlook.application', pythoncom.CoInitialize())
-        s = client.Dispatch("Mapi.Session")
         mail = self.outlook_app.CreateItem(0)
 
         # set the account
@@ -88,7 +84,11 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         if pdf_files is not None:
             for pdf in pdf_files:
                 mail.Attachments.Add(pdf)
-        mail.Send()
+        try:
+            mail.Send()
+            # mail.Save()
+        except Exception as e:
+            mail.Display(True)
 
     def write_message(self, text="test", html_plain="html"):
         """
