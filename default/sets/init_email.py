@@ -124,6 +124,7 @@ class EmailExecutor:
         elif 12 > hora > 0:
             return 'Bom dia'
         elif hora >= 18:
-            return 'Boa noite'
+            # return 'Boa noite'
+            return 'Por gentileza'
         else:
             return 'Meia noite'
