@@ -134,7 +134,7 @@ def pgdas_driver(path=''):
     # real_path_for_chromedriver()
     # vindo do ginfess_driver [magic]
     driver = webdriver.Chrome(
-        executable_path=chromedriver, options=chrome_options)
+        service=SERVICE, options=chrome_options)
     return driver
 
 
