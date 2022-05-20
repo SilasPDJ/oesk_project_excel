@@ -23,12 +23,13 @@ from time import sleep
 
 class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
-    def __init__(self, driver, compt):
+    def __init__(self, driver, compt, client_path):
         # super().__init__(driver)
 
         WDShorcuts.__init__(self, driver)
         self.driver = driver
         self.__set_driver()
+        self._uclient_path = client_path
 
     def simples_and_ecac_utilities(self, option, compt):
         """
@@ -154,7 +155,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver.get(
             'https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/Autentica.aspx?id=60')
         while str(driver.current_url.strip()).endswith('id=60'):
-
+            CAPT = self.__loga_simples_capt()
             self.tags_wait('body')
             self.tags_wait('html')
             self.tags_wait('input')
@@ -180,12 +181,13 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                                              'txtTexto_captcha_serpro_gov_br')
             btn_som = driver.find_element(By.ID,
                                           'btnTocarSom_captcha_serpro_gov_br')
-            sleep(2.5)
-            btn_som.click()
-            sleep(.5)
-            cod_caract.click()
-            print(f'PRESSIONE ENTER P/ PROSSEGUIR, {CLIENTE}')
-            press_keys_b4('enter')
+            # sleep(2.5)
+            # btn_som.click()
+            # sleep(.5)
+            # cod_caract.click()
+            cod_caract.send_keys(CAPT)
+            # print(f'PRESSIONE ENTER P/ PROSSEGUIR, {CLIENTE}')
+            # press_keys_b4('enter')
             while True:
                 try:
                     submit = driver.find_element(By.XPATH,
@@ -198,7 +200,39 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
                     sleep(5)
             sleep(5)
 
+    def __loga_simples_capt(self) -> str:
+        import subprocess
+        import os
+        capt = "capt.png"
+
+        img_req = "captcha-img"
+
+        self.webdriverwait_el_by(By.ID, img_req)
+
+        self.driver.execute_script(f"""
+        let cap = document.querySelector("#{img_req}");
+        let a = document.createElement("a");
+        let capSrc = cap.getAttribute("src")
+        a.setAttribute("href", capSrc);
+        a.setAttribute("download", "{capt}");
+        a.click()
+        """)  # download image
+
+        uclient_path = self._uclient_path
+        capt_image = os.path.join(uclient_path, capt)
+        capt_ready = os.path.join(uclient_path, "capt_omega.txt")
+        simplificar = r"Rscript"
+        scriptpath = os.path.join(os.path.dirname(os.path.abspath(
+            __file__)), "rscripts\\scrap_simple.R")
+        subprocess.run(
+            f"{simplificar} {scriptpath} {capt_image.replace(' ', '&&')} {capt_ready.replace(' ', '&&')}"
+        )
+        os.remove(capt_image)
+        scret = open(capt_ready, "r").read()
+        return str(scret)
+
     # Loga certificado do ecac, padrão
+
     def loga_cert(self):
         """
         :return: mixes the two functions above (show_actual_tk_window, mensagem)
@@ -418,13 +452,13 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
                 if __cli__ == args[0]:
                     self.driver = driver = pgdas_driver_ua()
-                    super().__init__(self.driver, self.compt)
+                    super().__init__(self.driver, self.compt, self.client_path)
                     self.loga_cert()
                 self.enable_download_in_headless_chrome(self.client_path)
                 self.change_ecac_client(__cnpj)
             else:
                 self.driver = driver = pgdas_driver_ua(self.client_path)
-                super().__init__(self.driver, self.compt)
+                super().__init__(self.driver, self.compt, self.client_path)
                 self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
 
             if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":

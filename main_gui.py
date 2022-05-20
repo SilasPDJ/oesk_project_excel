@@ -13,7 +13,7 @@ from pgdas_fiscal_oesk import Consultar
 from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
-from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao as PgdasDeclaracaoFull
+from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
