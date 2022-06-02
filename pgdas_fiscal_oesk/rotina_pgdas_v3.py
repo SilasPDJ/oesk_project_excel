@@ -225,7 +225,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         scriptpath = os.path.join(os.path.dirname(os.path.abspath(
             __file__)), "rscripts\\scrap_simple.R")
         subprocess.run(
-            f"{simplificar} {scriptpath} {capt_image.replace(' ', '&&')} {capt_ready.replace(' ', '&&')}"
+            f"{simplificar} {scriptpath} {capt_image.replace(' ', '&_&')} {capt_ready.replace(' ', '&_&')}"
         )
         os.remove(capt_image)
         scret = open(capt_ready, "r").read()
