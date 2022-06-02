@@ -8,7 +8,7 @@ from clipboard import paste, copy
 import ctypes
 
 
-def jscript_exec(scrpt: str, open_console=False, delay=1):
+def jscript_exec(scrpt: str, open_console=False, close_console=False, delay=2.5):
     # WIN is a constant in fact
     if open_console:
         all_keys("ctrl", "shift", "j")
@@ -21,11 +21,31 @@ def jscript_exec(scrpt: str, open_console=False, delay=1):
     pygui.hotkey("ctrl", "v")
     sleep(.25)
     pygui.hotkey("enter")
+    sleep(1)
+    if close_console:
+        all_keys("ctrl", "shift", "j")  # close_console
     sleep(delay)
 
 
+# declara Funcoes
+FINDSPECIFC = '''
+    let findSpecificELement =  (element, text) =>{
+        for (let el of document.querySelectorAll(element)) {
+        if (el.textContent.includes(text)) {
+            return el
+        }
+        }
+    };
+    '''
+# ---------------------
+
+CHROMEPATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe %s --incognito"
+
 # Focus mainWindow
+
+
 def init():
+    wb.get(CHROMEPATH)
     wb.open("https://cav.receita.fazenda.gov.br/autenticacao/login")
     while True:
         try:
@@ -39,26 +59,7 @@ def init():
 
 
 WIN = init()
-
-# declara Funcoes
-
-
-def declare_funcoes():
-    jscript_exec(
-        '''
-    let findSpecificELement =  (element, text) =>{
-        for (let el of document.querySelectorAll(element)) {
-        if (el.textContent.includes(text)) {
-            return el
-        }
-        }
-    };
-    ''', True
-    )
-
-
-declare_funcoes()
-# ----
+jscript_exec(FINDSPECIFC, True)
 
 
 def login():
@@ -74,7 +75,7 @@ def login():
     let anchors = certDigital.getElementsByTagName("a");
     anchors[0].click();
     '''
-    jscript_exec(script)
+    jscript_exec(script, close_console=True)
 
     [pygui.hotkey("tab") for i in range(3)]
     sleep(1)
@@ -84,34 +85,37 @@ def login():
 
 
 login()
-cnpj = "07083804000140"
-script = f'''
-findSpecificELement("span", "Alterar perfil de acesso").click();
-cnpj = document.querySelector("#txtNIPapel2");
-
-cnpj.value = "07083804000140";
-formPJ = document.querySelector("#formPJ")
-formPJ.querySelector('input[type="button"]').click()
-
-'''
-jscript_exec(script)
+# ALTERA PERFIL DE ACESSO
 
 
-script = '''
-findSpecificELement("a", "Dívida Ativa").click();
-findSpecificELement("a", "Débitos Inscritos em Dívida").click();
-'''
-jscript_exec(script)
+def dividas_ativas_complete(cnpj):
+    script = f'''
+    {FINDSPECIFC}
+    findSpecificELement("span", "Alterar perfil de acesso").click();
+    cnpj = document.querySelector("#txtNIPapel2");
+
+    cnpj.value = "{cnpj}";
+    formPJ = document.querySelector("#formPJ");
+    formPJ.querySelector('input[type="button"]').click();
+    '''
+    jscript_exec(script, True)
+
+    script = f'''
+    {FINDSPECIFC}
+    findSpecificELement("a", "Dívida Ativa").click();
+    findSpecificELement("a", "Débitos Inscritos em Dívida").click();
+    '''
+    jscript_exec(script)
+
+    sleep(3.5)
+    script = '''
+    findSpecificELement("span", "Negociar Dívida").click();
 
 
-sleep(3.5)
-script = '''
-findSpecificELement("span", "Negociar Dívida").click();
+    '''
+
+    jscript_exec(script)
 
 
-''', True
-
-jscript_exec(*script)
-
-
-# jscript_exec()
+pj = "07083804000140"  # CNPJ de TESTE
+# dividas_ativas_complete(pj)
