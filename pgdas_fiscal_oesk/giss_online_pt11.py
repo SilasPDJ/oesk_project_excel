@@ -261,7 +261,10 @@ class GissGui(InitialSetting, WDShorcuts):
                     try:
                         guia, mes = GUIAS[indx], MESES[indx].text
                     except IndexError:
-                        guia, mes = GUIAS[indx-1], MESES[indx-1].text
+                        try:
+                            guia, mes = GUIAS[indx-1], MESES[indx-1].text
+                        except IndexError:
+                            mes = ""
                     __meses.append(mes)
                     # generate guia
                     # guia.click()
