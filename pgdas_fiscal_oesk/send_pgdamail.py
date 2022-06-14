@@ -9,7 +9,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
     def __init__(self, *args, email, compt, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
-        self.__venc_das = "20-05-2022"
+        self.__venc_das = "20-06-2022"
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
@@ -25,7 +25,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         # now_email = 'silsilinhas@gmail.com'
         if now_email == '':
             print('wtf')
-        elif __declarado in ['S', 'FORA'] and __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
+        elif __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
             print(now_email)
             print(f'VALOR: {_valor}')
             print(f'CLIENTE: {__r_social}')
@@ -47,8 +47,13 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
                     self.main_send_email(
                         now_email, mail_header, das_message, das_anx_files)
             else:
-                self.main_send_email(
-                    now_email, mail_header, das_message, das_anx_files)
+                if len(das_anx_files) < 2:
+                    print(
+                        f'\033[1;31mAlgo está errado com {__r_social}\033[m')
+                    print('Vou passar...')
+                else:
+                    self.main_send_email(
+                        now_email, mail_header, das_message, das_anx_files)
 
             # input('security, silsilinhas')
             # self.main_send_email('silsilinhas@gmail.com', mail_header, das_message, das_anx_files)
