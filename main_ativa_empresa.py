@@ -19,7 +19,7 @@ from default.sets import get_all_valores
 from pgdas_fiscal_oesk.rotina_pgdas_v2 import PgdasDeclaracao
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
-from pgdas_fiscal_oesk.silas_abre_g5_loop_v8 import G5
+from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # from win10toast import ToastNotifier
 import os
 os.system('d:/PROGRAMAS/oesk_project_excel-master/venv/Scripts/activate.bat')

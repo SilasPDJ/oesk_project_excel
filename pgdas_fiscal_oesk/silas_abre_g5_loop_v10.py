@@ -1,4 +1,5 @@
 import os
+from typing import final
 import pyautogui as pygui
 from time import sleep
 
@@ -77,8 +78,12 @@ class G5(Contimatic):
                 pygui.move(320, -300)
                 sleep(1)
                 pygui.click()
-                self.mk_nf_canceladas()
-
+                try:
+                    self.mk_nf_canceladas()
+                except Exception as e:
+                    print(e)
+                    pass
+                    # REPOD pegar qual exception
                 self.gera_relatorio_iss()
                 self.foxit_save__iss(__cnpj)
                 sleep(3)
@@ -128,7 +133,7 @@ class G5(Contimatic):
                 all_keys('alt', 'f4')
                 print('fim')
 
-    @staticmethod
+    @ staticmethod
     def __ativa_robo_once(window: pygui.Window):
         pygui.FAILSAFE = False
         pygui.click(window.topright, clicks=0)
@@ -140,7 +145,7 @@ class G5(Contimatic):
         if _screensear.getpixel((15, 10)) == rgb:
             pygui.click()
 
-    @staticmethod
+    @ staticmethod
     def __gotowincenter(win):
         if isinstance(win, str):
             win = pygui.getWindowsWithTitle(win)[0]
@@ -240,17 +245,20 @@ class G5(Contimatic):
         foritab(1, 'up', 'right', 'enter', interval=0.25)
         # aí tem que sleepar pq ta importando, TODO: calcular o sleep
         segs = self._while_importing()
+        sleep(5)
         print(segs)
         # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
 
     def _while_importing(self):
         cont = 0
         c = 10
-        while "FOXIT READER" not in pygui.getActiveWindowTitle().upper():
+        # TODO: Necessário fechar o foxit depois de abrir o server explorer
+        while "FOXIT READER" not in pygui.getActiveWindowTitle().upper() or "LIVRO_SAIDA" not in pygui.getActiveWindowTitle().upper():
             print('sleeping', pygui.getActiveWindowTitle().upper())
             sleep(c)
             cont += c
             pygui.click(pygui.getActiveWindow().midtop)
+            self.__saida_entrada('s')
         return cont
 
     def importa_nf_icms_entradas(self):
@@ -258,7 +266,7 @@ class G5(Contimatic):
         foritab(1, 'up', 'right', 'up', 'enter', interval=0.25)
         sleep(60)
 
-    @staticmethod
+    @ staticmethod
     def go2robo_options():
         pygui.FAILSAFE = False  # Robo_Options
         pygui.click(pygui.getActiveWindow().topright,
@@ -441,36 +449,60 @@ class G5(Contimatic):
 
     def importa_nfs_iss(self):
         def exe_bt_executar(import_items=True):
-            if import_items:
+            def minimenu_gotmore_opts() -> bool:
+                possible_rgbs = [(76, 171, 52), (130, 224, 89), (21, 124, 13)]
+                imbutton = pygui.screenshot(
+                    'is_sp_city.png', region=(841, 791, 20, 20))
+                if imbutton.getpixel((5, 5)) in possible_rgbs:
+                    return 841+5, 791+5
+                return False
+            # g5 opts menu is bigger
+            gotmore_x_y = minimenu_gotmore_opts()
+            if gotmore_x_y:
+                pygui.click(gotmore_x_y)
+            else:
+                if import_items:
+                    pygui.click(pygui.getActiveWindow().center, clicks=0)
+                    pygui.move(-206, 87)
+                    pygui.click()
+
                 pygui.click(pygui.getActiveWindow().center, clicks=0)
-                pygui.move(-206, 87)
+                pygui.move(-25, 150)
                 pygui.click()
+                for _ in range(3):
+                    sleep(2)
+                    pygui.hotkey('enter')
 
-            pygui.click(pygui.getActiveWindow().center, clicks=0)
-            pygui.move(-25, 150)
-            pygui.click()
-            for _ in range(3):
-                sleep(2)
-                pygui.hotkey('enter')
+            # FUNCIONAL P/ TUDO MENOS REPOD
 
-        def preenche_arqpath():
+        def preenche_arqpath(arqpath):
             pygui.click(pygui.getActiveWindow().center, clicks=0)
             sleep(1)
             pygui.move(0, -225)
             pygui.click(duration=1)
-            arqpath = self.__get_xml()
             print(arqpath)
             foritab(2, 'space', 'backspace')
             sleep(1)
             pygui.write(arqpath)
 
-        foritab(1, 'alt', 'right')
-        foritab(2, 'down')
-        foritab(1, 'right', 'up', 'up', 'enter')
-        sleep(5)
+        ARQSPATH = self.__get_xml_nf_csv()
+        for contarq in range(len(ARQSPATH)):
+            if contarq >= 1:
+                pygui.hotkey('alt', 'f4')
+            foritab(1, 'alt', 'right')
+            foritab(2, 'down')
+            foritab(1, 'right', 'up', 'up', 'enter')
+            sleep(5)
+            preenche_arqpath(ARQSPATH[contarq])
 
-        preenche_arqpath()
-        exe_bt_executar()
+            if os.path.basename(ARQSPATH[contarq]).upper().startswith("TOMADOR"):
+                sleep(2.5)
+                pygui.click(x=823, y=382)
+
+            exe_bt_executar()
+            # TODO: reformular exe_executar p/ pegar a parte verde do print
+            if len(ARQSPATH) > 1:
+                sleep(30)
 
     def gera_relatorio_iss(self):
         sleep(1)
@@ -545,16 +577,23 @@ class G5(Contimatic):
         if self.nfcanceladas:
             self.nfcanceladas.action()
 
-    def __get_xml(self):
-        b = self.files_get_anexos_v4(self.client_path, file_type='xml')
+    def __get_xml_nf_csv(self, max_files_amount=2) -> list:
+        importable_files = self.files_get_anexos_v4(
+            self.client_path, file_type='xml')
 
-        if len(b) == 0:
-            b = self.files_get_anexos_v4(self.client_path, file_type='csv')
-        b = b[0]
-        b = b.split('\\')
-        file = f'\\\\{b[-1]}'
-        final = '\\'.join(b[:-1]) + file
-        return final
+        if len(importable_files) == 0:
+            importable_files = self.files_get_anexos_v4(
+                self.client_path, file_type='csv')
+
+        def transform2typable(f: str):
+            ff = f.split('\\')
+            file = f'\\\\{ff[-1]}'
+            final = '\\'.join(ff[:-1]) + file
+            return final
+
+        final_files = list(map(transform2typable,
+                               importable_files[:max_files_amount]))
+        return final_files
 
     def start_walk_menu(self):  # overriden, not necessary
         x, y = 30, 30

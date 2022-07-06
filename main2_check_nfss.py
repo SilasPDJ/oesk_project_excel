@@ -31,10 +31,11 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios,  imposto_a_calcular = compt_vals
     __razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
 
-    if str(cnpj) == "33644218000138":
-        path = InitialSetting.files_pathit(razao_social, COMPT)
-        import os
-        lspath = os.listdir(path)
+    path = InitialSetting.files_pathit(razao_social, COMPT)
+    import os
+    lspath = os.listdir(path)
+
+    def le_canceled():
         try:
             # print(path)
             f = open(os.path.join(path, 'NF_canceladas.txt')).read()
@@ -42,10 +43,12 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
             input(f) if f != '' else None
         except FileNotFoundError:
             pass
-        # if razao_social == "MARCOS LEME DO PRADO MLP":
-        GissGui([razao_social, cnpj, giss_login],
-                compt=COMPT, first_compt=get_compt(-12*2))
-        # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
+    # if razao_social == "MARCOS LEME DO PRADO MLP":
+    # GissGui([razao_social, cnpj, giss_login],
+    #         compt=COMPT, first_compt=get_compt(-12*2))
+    if imposto_a_calcular == "ISS":
+        print(f"ISS: {razao_social}") if 'ISS' in str(
+            lspath).upper() else print(f"\033[1;31m{razao_social}\033[m")
 
 
 # teste
