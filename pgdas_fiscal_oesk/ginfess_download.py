@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import *
+from selenium.webdriver.support.ui import Select
+
 
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from time import sleep
@@ -51,7 +53,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
             driver.maximize_window()
             self.driver.get(link)
-            if self.driver.title != 'NFS-e' and 'tremembe' not in self.driver.current_url:
+            if self.driver.title != 'NFS-e':  # and 'tremembe' not in self.driver.current_url:
                 self.driver.quit()
                 driver = pgdas_driver
                 self.__driver__name = driver.__name__
@@ -118,7 +120,10 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     ccm.send_keys(zero_um[0])
                     senha.send_keys(zero_um[1])
                     trem_cod = self.captcha_hacking()
-                    confirma.send_keys(trem_cod)
+                    sleep(5)
+                    # confirma precisa mudar
+                    # confirma.send_keys(trem_cod)
+
                     # driver.find_element(By.ID, 'btnOk').click()
                     if 'login.php' in driver.current_url:
                         driver.refresh()
@@ -143,14 +148,19 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
                 sleep(5)
 
-                iframe = driver.find_element(By.ID, 'main')
-                driver.switch_to.frame(iframe)
+                # iframe = driver.find_element(By.ID, 'main')
+                # driver.switch_to.frame(iframe)
                 driver.find_element(By.NAME, 'btnAlterar').click()
                 driver.implicitly_wait(5)
+                select_ano = driver.find_element(By.NAME, 'ano')
+                select_mes = Select(driver.find_element(By.NAME, 'mes'))
 
                 # handelling select
                 compt = self.compt
                 mes, ano = compt.split('-')
+                select_mes.select_by_value(mes if len(mes) == 2 else f"0{mes}")
+                select_ano.clear()
+                select_ano.send_keys(ano)
 
                 driver.find_element(By.NAME, 'ano').clear()
                 driver.find_element(By.NAME, 'ano').send_keys(ano)
@@ -168,47 +178,20 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 # iframe = driver.find_element(By.ID, 'iframe')
                 # driver.switch_to.frame(iframe)
 
-                self.tag_with_text('td', 'Encerramento').click()
+                # self.tag_with_text('td', 'Encerramento').click()
                 # driver.switch_to.alert().accept()
 
                 # driver.get('../fechamento/prestado.php')
-                driver.find_element(By.XPATH,
-                                    '//a[contains(@href,"../fechamento/prestado.php")]').click()
-                driver.implicitly_wait(10)
-                try:
-                    driver.find_element(By.ID, 'btnSalvar').click()
-                    driver.implicitly_wait(5)
-                    driver.switch_to.alert().accept()
-                    driver.implicitly_wait(5)
-                    # driver.back()
-                except (NoSuchElementException, NoAlertPresentException):
-                    print('Já encerrado')
-                finally:
-                    driver.implicitly_wait(5)
-                    driver.back()
-                    driver.back()
-                    driver.execute_script("""function abre_arquivo(onde){
-                    var iframe = document.getElementById("main");
-                    iframe.src = onde;
-                    }
-                    """)
-                    driver.execute_script(
-                        "abre_arquivo('dmm/_menuPeriodo.php');")
-                    iframe = driver.find_element(By.ID, 'main')
-                    driver.switch_to.frame(iframe)
-                    driver.find_element(By.NAME, 'btnAlterar').click()
-                    driver.find_element(By.NAME, 'btnOk').click()
-
-                    # ############### validar driver.back()
-
-                url = '/'.join(driver.current_url.split('/')[:-1])
-                driver.get(f'{url}/nfe/nfe_historico_exportacao.php')
+                # driver.get(f'{url}/nfe/nfe_historico_exportacao.php')
+                driver.execute_script(
+                    "abre_arquivo('nfe/nfe_historico_exportacao.php');")
                 driver.implicitly_wait(3)
                 self.tags_wait('html')
                 self.tags_wait('body')
 
-                driver.implicitly_wait(2)
-                driver.find_element(By.ID, 'todos').click()
+                iframe = self.webdriverwait_el_by(By.ID, 'main')
+                driver.switch_to.frame(iframe)
+                self.webdriverwait_el_by(By.ID, 'todos', 20).click()
                 driver.find_element(By.ID, 'btnExportar').click()
                 driver.switch_to.alert.accept()
 
@@ -219,6 +202,21 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 driver.switch_to.default_content()
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add=f"{__r_social}-ginfessDone"))
+
+                # ENCERRAR abaixo
+                # TODO: testar encerrar o bendito período trememberal
+                def tremembeencerrar_mes():
+                    driver.execute_script(
+                        "abre_arquivo('fechamento/tomado.php');")
+                    driver.implicitly_wait(10)
+                    try:
+                        driver.find_element(By.ID, 'btnSalvar').click()
+                        driver.implicitly_wait(5)
+                        driver.switch_to.alert().accept()
+                        driver.implicitly_wait(5)
+                        # driver.back()
+                    except (NoSuchElementException, NoAlertPresentException):
+                        print('Já encerrado')
 
             elif self.driver.current_url == 'https://app.siappa.com.br/issqn_itupeva/servlet/com.issqnwebev3v2.login':
                 self.driver.find_element(By.ID, 'vUSR_COD').send_keys(__cnpj)
@@ -642,7 +640,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
         from pyautogui import hotkey
         from pyperclip import paste
-        img = driver.find_element(By.ID, 'div-img-captcha')
+        addon = driver.find_elements(By.CLASS_NAME, 'input-group-addon')[0]
+        img = addon.find_element(By.TAG_NAME, 'img')
         img_name = 'hacking.png'
         img.screenshot(img_name)
         SbFConverter(img_name)
