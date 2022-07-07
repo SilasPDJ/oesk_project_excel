@@ -164,6 +164,43 @@ class Backend:
         for v in get_order():
             G5(*v, compt=COMPT)
 
+    def ginfess_abcdfirst(self, specific=""):
+        # mudar specific de None pra ""
+        from pgdas_fiscal_oesk._folders_preset import PreSetsFromGinfess
+
+        # ordenação diferente de g5 def
+        def can_be_next(c: int, gs: str) -> bool:
+            gs = gs.lower()
+            if c == 0:
+                return "gissonline" in gs
+            elif c == 1:
+                return True
+            else:
+                return False
+
+        for cont in range(2):
+            for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+                    self.any_to_str(*compt_vals))
+                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                    self.any_to_str(*geral))
+                envio = envio.upper()
+                email = email.strip()
+                dividas_ativas = dividas_ativas.strip().lower()
+                proc_ecac = proc_ecac.lower()
+                pre_sets = PreSetsFromGinfess()
+
+                if ginfess_link != 'nan' and can_be_next(cont, gissonline):
+                    if specific == "" or specific == razao_social:
+                        DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
+                                           ginfess_link,  compt=COMPT, show_driver=False)
+
+                if nf_in.upper() != 'NÃO HÁ' or (nf_out.upper() != 'NÃO HÁ' and imposto_a_calcular != 'ISS'):
+                    pre_sets.files_pathit(razao_social, COMPT)
+                    print('\033[1;31m', razao_social, '\033[m')
+                    # ICMS folder creation
+        # TODO: validar essa função...
+
     def full_dividas(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
@@ -220,19 +257,12 @@ class Backend:
             def giss():
                 if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
                     print(giss_login)
-                    GissGui([razao_social, cnpj, giss_login],
-                            compt=COMPT, first_compt=get_compt(-1))
-
-            def ginfess():
-                # cria pastas de modo especial pós posse concurso
-                from pgdas_fiscal_oesk._folders_preset import PreSetsFromGinfess
-                pre_sets = PreSetsFromGinfess()
-                if ginfess_link != 'nan':
-                    DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                                       ginfess_link,  compt=COMPT, show_driver=False)
-                if nf_in.upper() != 'NÃO HÁ' or (nf_out.upper() != 'NÃO HÁ' and imposto_a_calcular != 'ISS'):
-                    pre_sets.files_pathit(razao_social, COMPT)
-                    print('\033[1;31m', razao_social, '\033[m')
+                    try:
+                        GissGui([razao_social, cnpj, giss_login],
+                                compt=COMPT, first_compt=get_compt(-1))
+                    except Exception as e:
+                        GissGui([razao_social, cnpj, giss_login],
+                                compt=COMPT, first_compt=get_compt(-2))
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
@@ -252,6 +282,8 @@ class Backend:
             if specific == '':
                 eval(f'{FUNC}()')
             else:
+                # specific_list = specific.split(";")
+                # specific_list = [c.strip() for c in specific]
                 if razao_social == specific:
                     return eval(f'{FUNC}()')
                 else:
@@ -307,8 +339,8 @@ class MainApplication(tk.Frame, Backend):
 
         bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v2(
             'gias', self.selected_client.get()))
-        bt_ginfess = self.button('Fazer Ginfess', lambda: self.call_func_v2(
-            'ginfess', self.selected_client.get()))
+        bt_ginfess = self.button(
+            'Fazer Ginfess', lambda: self.ginfess_abcdfirst(self.selected_client.get()))
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
             'giss', self.selected_client.get()))
         bt_g5 = self.button('Fazer G5', lambda: self.full_g5(
