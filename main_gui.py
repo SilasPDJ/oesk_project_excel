@@ -92,7 +92,7 @@ class Backend:
                         raise ValueError(
                             f'{razao_social.upper()} possui problemas na planilha')
 
-            if declarado.upper() != 'S' and declarado != 'OK':
+            if declarado.upper() != 'S' and declarado.upper() != 'OK':
                 print(declarado, valor_tot, imposto_a_calcular)
                 # float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan'] or...
                 # não há certeza de quem das outras planilhas ta sem mov
@@ -227,7 +227,7 @@ class Backend:
             def pgdas():
                 print(razao_social)
 
-                if declarado.upper() != 'S' and declarado != 'OK':
+                if declarado.upper() != 'S' and declarado.upper() != 'OK':
                     print(declarado, valor_tot, imposto_a_calcular)
                     if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
                         # if imposto_a_calcular == 'SEM_MOV':
@@ -252,6 +252,7 @@ class Backend:
                 if imposto_a_calcular == 'LP' and ginfess_cod != 'nan' and declarado != 'S':
                     GIA(razao_social, proc_ecac.replace('.', ''), *ginfess_cod.split('//'),
                         compt=COMPT)
+
                 # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
 
             def giss():
