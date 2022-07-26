@@ -275,7 +275,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(randsleep2(3, 7))
         driver.get("https://cav.receita.fazenda.gov.br/ecac/")
-        sleep(randsleep2(3, 7))
+        sleep(10)
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
