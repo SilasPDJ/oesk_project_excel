@@ -319,7 +319,7 @@ class MainApplication(tk.Frame, Backend):
         LABELS = []
 
         optmenu_data = CONS.clients_list(0)
-        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
+        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, ROOT,
                                                  listboxLength=0, width=60)
 
         self.__getfieldnames = getfieldnames()
@@ -423,7 +423,7 @@ class MainApplication(tk.Frame, Backend):
     @staticmethod
     def increment_header_tip(labels: list, tip: str, font=("Currier", 12), fg="#000"):
         labels.append(
-            tk.Label(root, text=tip, font=font, fg=fg))
+            tk.Label(ROOT, text=tip, font=font, fg=fg))
 
     # Elements and placements
     @ staticmethod
@@ -483,11 +483,11 @@ class MainApplication(tk.Frame, Backend):
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title = 'Autoesk'
+    ROOT = tk.Tk()
+    ROOT.title = 'Autoesk'
 
-    b = MainApplication(root)
+    b = MainApplication(ROOT)
     b.pack(side="top", fill="both", expand=True)
 
-    root.geometry('500x800')
-    root.mainloop()
+    ROOT.geometry('500x800')
+    ROOT.mainloop()
