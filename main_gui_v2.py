@@ -44,6 +44,7 @@ TOTAL_CLIENTES = len(list(consultar_compt()))
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
+entry_row = 1
 
 
 class Backend:
@@ -317,9 +318,12 @@ class MainApplication(tk.Frame, Backend):
         self.parent = parent
         self.root = parent
         LABELS = []
+        self.ENTRIES_CLI = []
 
         optmenu_data = CONS.clients_list(0)
-        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, ROOT,
+        __frame_entris_cli = tk.Frame(self.root)  # entries_frame client
+
+        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, __frame_entris_cli,
                                                  listboxLength=0, width=60)
 
         self.__getfieldnames = getfieldnames()
@@ -357,17 +361,31 @@ class MainApplication(tk.Frame, Backend):
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
             'dividasmail', self.selected_client.get()), bg='red')
 
+        self.addentry(self.ENTRIES_CLI, __frame_entris_cli,
+                      self.selected_client)
+
+        self.__pack(__frame_entris_cli)
+        # self.__pack(self.selected_client, excel_col)
+        self.__pack(excel_col)
+
         self.__pack(bt_abre_pasta, bt_copia, self.valorADeclarar, bt_das, bt_das_full, bt_gias, bt_ginfess,
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
         self.selected_client.focus_force()
-        self.__pack(self.selected_client, excel_col)
+        self.increment_header_tip(
+            LABELS, "CONTROL + / CONTROL -")
         self.increment_header_tip(
             LABELS, "Pressione F5 após atualizar a planilha")
+        self.increment_header_tip(
+            LABELS, "F12 p/ auto preencher GINFESS")
         # TIPS
         self.__pack(*LABELS)
 
         # bt binds
         self.root.bind("<F5>", self._restart_after_updt)
+        self.root.bind_all("<Control-plus>",
+                           lambda x: self.addentry(self.ENTRIES_CLI, __frame_entris_cli))
+        self.root.bind_all("<Control-minus>",
+                           lambda x: self.rmventry(self.ENTRIES_CLI, __frame_entris_cli))
         self.root.bind("<F4>", lambda x: self.get_dataclipboard(
             excel_col.get()
         ))
@@ -418,6 +436,37 @@ class MainApplication(tk.Frame, Backend):
     def _restart_after_updt(e):
         prgm = sys.executable
         os.execl(prgm, prgm, * sys.argv)
+
+    def addentry(self, list_entries, frame, add_only=False):
+        """
+        ### add entries to widget
+        - add_only is the Entry added (default is False)
+        - grid is being used
+        - list_entries = the list to be appended
+        - frame = tk.Frame Widget (makes the possibility to use other system in the main app)
+        """
+
+        global entry_row
+        if not add_only:
+            ent = AutocompleteEntry(CONS.clients_list(0), None, frame,
+                                    listboxLength=0, width=60)
+            ent.grid(row=entry_row, column=0)
+            list_entries.append(ent)
+        else:
+            add_only.grid(row=entry_row, column=0)
+            list_entries.append(add_only)
+        entry_row += 1
+
+    def rmventry(self, list_entries, frame, indx=-1):
+        """
+        ### remove entry from widget
+        - GIVEN the indx = index
+        - grid is being used
+        - frame = tk.Frame Widget (makes the possibility to use other system in the main app)
+        """
+        # for widgets in frame.winfo_children():
+        if len(frame.winfo_children()) > 1:  # security
+            frame.winfo_children()[indx].destroy()
 
     # increment tip for list b4 packing
     @staticmethod
