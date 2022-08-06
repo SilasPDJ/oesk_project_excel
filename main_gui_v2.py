@@ -45,7 +45,6 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
 
-
 class Backend:
     # TODO: lista de clientes a segu9ir
     def __init__(self):
@@ -265,7 +264,7 @@ class Backend:
                                 compt=COMPT, first_compt=get_compt(-1))
                     except Exception as e:
                         GissGui([razao_social, cnpj, giss_login],
-                                compt=COMPT, first_compt=get_compt(-2))
+                                compt=COMPT, first_compt=get_compt(-5))
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
@@ -317,11 +316,12 @@ class MainApplication(tk.Frame, Backend):
         self.parent = parent
         self.root = parent
         LABELS = []
+        ENTRIES = []
 
         optmenu_data = CONS.clients_list(0)
         self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
                                                  listboxLength=0, width=60)
-
+        
         self.__getfieldnames = getfieldnames()
         excel_col = ttkac.AutocompleteEntry(
             self.root, list(self.__getfieldnames))
