@@ -321,10 +321,11 @@ class MainApplication(tk.Frame, Backend):
         self.ENTRIES_CLI = []
 
         optmenu_data = CONS.clients_list(0)
-        __frame_entris_cli = tk.Frame(self.root)  # entries_frame client
+        __frame_entris_cli = tk.Frame(
+            self.root)  # entries_frame client
 
         self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, __frame_entris_cli,
-                                                 listboxLength=0, width=60)
+                                                 listboxLength=0, width=100)
 
         self.__getfieldnames = getfieldnames()
         excel_col = ttkac.AutocompleteEntry(
@@ -364,7 +365,7 @@ class MainApplication(tk.Frame, Backend):
         self.addentry(self.ENTRIES_CLI, __frame_entris_cli,
                       self.selected_client)
 
-        self.__pack(__frame_entris_cli)
+        self.__pack(__frame_entris_cli, fill=tk.BOTH)
         # self.__pack(self.selected_client, excel_col)
         self.__pack(excel_col)
 
@@ -449,7 +450,7 @@ class MainApplication(tk.Frame, Backend):
         global entry_row
         if not add_only:
             ent = AutocompleteEntry(CONS.clients_list(0), None, frame,
-                                    listboxLength=0, width=60)
+                                    listboxLength=0, width=100)
             ent.grid(row=entry_row, column=0)
             list_entries.append(ent)
         else:

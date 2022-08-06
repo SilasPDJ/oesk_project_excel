@@ -1,35 +1,31 @@
 import tkinter as tk
 
-class EntryWithPlaceholder(tk.Entry):
-    def __init__(self, master=None, placeholder="PLACEHOLDER", color='grey'):
-        super().__init__(master)
+root = tk.Tk()
+my_entries = []
+entry_row = 1
 
-        self.placeholder = placeholder
-        self.placeholder_color = color
-        self.default_fg_color = self['fg']
 
-        self.bind("<FocusIn>", self.foc_in)
-        self.bind("<FocusOut>", self.foc_out)
+def addentry():
+    global entry_row
+    ent = tk.Entry(entries_widget, bd=5)
+    ent.grid(row=entry_row, column=0)
 
-        self.put_placeholder()
+    my_entries.append(ent)
+    entry_row = entry_row+1
 
-    def put_placeholder(self):
-        self.insert(0, self.placeholder)
-        self['fg'] = self.placeholder_color
 
-    def foc_in(self, *args):
-        if self['fg'] == self.placeholder_color:
-            self.delete('0', 'end')
-            self['fg'] = self.default_fg_color
+def getter():
+    for entry in my_entries:
+        my_stuff = entry.get()
+        print(my_stuff)
 
-    def foc_out(self, *args):
-        if not self.get():
-            self.put_placeholder()
 
-if __name__ == "__main__": 
-    root = tk.Tk() 
-    username = EntryWithPlaceholder(root, "username")
-    password = EntryWithPlaceholder(root, "password", 'blue')
-    username.pack()
-    password.pack()  
-    root.mainloop()
+entries_widget = tk.Frame(root)
+
+
+addent = tk.Button(root, text="Add Entry", command=addentry)
+addent.pack(side=tk.TOP)
+getent = tk.Button(root, text='get input', command=getter)
+getent.pack(side=tk.TOP)
+entries_widget.pack(side=tk.BOTTOM, fill=tk.X)
+root.mainloop()
