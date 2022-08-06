@@ -45,6 +45,7 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
 
+
 class Backend:
     # TODO: lista de clientes a segu9ir
     def __init__(self):
@@ -264,7 +265,7 @@ class Backend:
                                 compt=COMPT, first_compt=get_compt(-1))
                     except Exception as e:
                         GissGui([razao_social, cnpj, giss_login],
-                                compt=COMPT, first_compt=get_compt(-5))
+                                compt=COMPT, first_compt=get_compt(-2))
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
@@ -316,12 +317,11 @@ class MainApplication(tk.Frame, Backend):
         self.parent = parent
         self.root = parent
         LABELS = []
-        ENTRIES = []
 
         optmenu_data = CONS.clients_list(0)
-        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, root,
+        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, ROOT,
                                                  listboxLength=0, width=60)
-        
+
         self.__getfieldnames = getfieldnames()
         excel_col = ttkac.AutocompleteEntry(
             self.root, list(self.__getfieldnames))
@@ -423,7 +423,7 @@ class MainApplication(tk.Frame, Backend):
     @staticmethod
     def increment_header_tip(labels: list, tip: str, font=("Currier", 12), fg="#000"):
         labels.append(
-            tk.Label(root, text=tip, font=font, fg=fg))
+            tk.Label(ROOT, text=tip, font=font, fg=fg))
 
     # Elements and placements
     @ staticmethod
@@ -483,11 +483,11 @@ class MainApplication(tk.Frame, Backend):
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title = 'Autoesk'
+    ROOT = tk.Tk()
+    ROOT.title = 'Autoesk'
 
-    b = MainApplication(root)
+    b = MainApplication(ROOT)
     b.pack(side="top", fill="both", expand=True)
 
-    root.geometry('500x800')
-    root.mainloop()
+    ROOT.geometry('500x800')
+    ROOT.mainloop()
