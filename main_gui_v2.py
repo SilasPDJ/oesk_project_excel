@@ -217,7 +217,8 @@ class Backend:
             if dividas_ativas != 'não há':
                 yield razao_social, cnpj, dividas_ativas
 
-    def call_func_v2(self, FUNC, specific=None):
+    def call_func_v3(self, FUNC, specifics=[]):
+
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
@@ -282,16 +283,12 @@ class Backend:
             def jr():
                 if 'OK' != declarado.upper() != 'S':
                     JR(razao_social, cnpj, compt=COMPT)
-
-            if specific == '':
-                eval(f'{FUNC}()')
+            if len(specifics) >= 1:
+                for specific in specifics:
+                    if razao_social == specific.get():
+                        return eval(f'{FUNC}()')
             else:
-                # specific_list = specific.split(";")
-                # specific_list = [c.strip() for c in specific]
-                if razao_social == specific:
-                    return eval(f'{FUNC}()')
-                else:
-                    pass
+                eval(f'{FUNC}()')
 
     def after_ginfess(self, event):
 
@@ -338,29 +335,29 @@ class MainApplication(tk.Frame, Backend):
         bt_copia = self.button(
             'Copia Campo [F4]', lambda: self.get_dataclipboard(excel_col.get()
                                                                ), 'black', 'lightblue')
-        bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v2(
-            'pgdas', self.selected_client.get()))
+        bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v3(
+            'pgdas', self.ENTRIES_CLI))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
                                   PgdasDeclaracaoFull(
                                       *self.full_pgdas(), compt=COMPT),
                                   bg='darkgray')
 
-        bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v2(
-            'gias', self.selected_client.get()))
+        bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v3(
+            'gias', self.ENTRIES_CLI))
         bt_ginfess = self.button(
-            'Fazer Ginfess', lambda: self.ginfess_abcdfirst(self.selected_client.get()))
-        bt_giss = self.button('Fazer Giss', lambda: self.call_func_v2(
-            'giss', self.selected_client.get()))
+            'Fazer Ginfess', lambda: self.ginfess_abcdfirst(self.ENTRIES_CLI))
+        bt_giss = self.button('Fazer Giss', lambda: self.call_func_v3(
+            'giss', self.ENTRIES_CLI))
         bt_g5 = self.button('Fazer G5', lambda: self.full_g5(
-            self.selected_client.get()), bg="#F0AA03")
-        bt_jr = self.button('Fazer JR', lambda: self.call_func_v2(
-            'jr', self.selected_client.get()), bg="#556353")
-        bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v2(
-            'pgdasmail', self.selected_client.get()), bg='red')
+            self.ENTRIES_CLI), bg="#F0AA03")
+        bt_jr = self.button('Fazer JR', lambda: self.call_func_v3(
+            'jr', self.ENTRIES_CLI), bg="#556353")
+        bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v3(
+            'pgdasmail', self.ENTRIES_CLI), bg='red')
         bt_dividas_rotina = self.button('Rotina FULL Dívidas', lambda: RotinaDividas(
             *self.full_dividas(), compt=COMPT), bg='darkgray')
-        bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v2(
-            'dividasmail', self.selected_client.get()), bg='red')
+        bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v3(
+            'dividasmail', self.ENTRIES_CLI), bg='red')
 
         self.addentry(self.ENTRIES_CLI, __frame_entris_cli,
                       self.selected_client)
