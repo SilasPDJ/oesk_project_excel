@@ -375,6 +375,8 @@ class MainApplication(tk.Frame, Backend):
         self.increment_header_tip(
             LABELS, "CONTROL + / CONTROL -")
         self.increment_header_tip(
+            LABELS, "F1 p/ abrir pasta")
+        self.increment_header_tip(
             LABELS, "Pressione F5 após atualizar a planilha")
         self.increment_header_tip(
             LABELS, "F12 p/ auto preencher GINFESS")
@@ -390,6 +392,7 @@ class MainApplication(tk.Frame, Backend):
         self.root.bind("<F4>", lambda x: self.get_dataclipboard(
             excel_col.get()
         ))
+        self.root.bind("<F1>", lambda x: self.abre_pasta())
         self.root.bind("<F12>", self.after_ginfess)
 
     # functions
@@ -539,5 +542,5 @@ if __name__ == "__main__":
     b = MainApplication(ROOT)
     b.pack(side="top", fill="both", expand=True)
 
-    ROOT.geometry('500x800')
+    ROOT.geometry('500x900')
     ROOT.mainloop()
