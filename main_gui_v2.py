@@ -293,7 +293,7 @@ class Backend:
             if len(specifics) >= 1:
                 for specific in specifics:
                     if razao_social == specific.get():
-                        return eval(f'{FUNC}()')
+                        eval(f'{FUNC}()')
             else:
                 eval(f'{FUNC}()')
 
@@ -338,7 +338,7 @@ class MainApplication(tk.Frame, Backend):
         self.valorADeclarar = self.button(
             f'', self.get_v_total)
         bt_abre_pasta = self.button(
-            'Abre e copia pasta de: ', self.abre_pasta, 'black', 'lightblue')
+            'Abre e copia pasta de [F1]: ', self.abre_pasta, 'black', 'lightblue')
         bt_copia = self.button(
             'Copia Campo [F4]', lambda: self.get_dataclipboard(excel_col.get()
                                                                ), 'black', 'lightblue')
