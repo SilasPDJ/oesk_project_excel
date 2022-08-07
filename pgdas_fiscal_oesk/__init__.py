@@ -55,12 +55,15 @@ class Consultar(Initial):
             try:
                 once = [
                     list(d.values())[cont] for d in df]
-                yield once
                 if str(once[0]) == 'nan':
                     break
+                yield once
+                cont += 1
             except IndexError:
                 break
-            cont += 1
+
+    def consulta_mix(self):
+        pass
 
         # df = pd.merge()
 
