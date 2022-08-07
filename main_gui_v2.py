@@ -127,7 +127,7 @@ class Backend:
         # return LIST_ECAC, LIST_NORMAL
         return full
 
-    def full_g5(self, specific=None):
+    def full_g5(self, specifics=[]):
         """
         #  Organiza o G5 para fazer primeiro ISS, depois ICMS
         """
@@ -152,15 +152,22 @@ class Backend:
                     if imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                         obj_list.append(TUPLA_DATA)
 
-                if imposto_a_calcular != "SEM_MOV":
-                    if nf_out.lower().strip() != 'não há' or nf_in.lower().strip() != 'não há':
-                        if imposto_a_calcular.upper() == "ISS":
+                if len(specifics) >= 1:
+                    for specific in specifics:
+                        if imposto_a_calcular == "SEM_MOV":
+                            print(
+                                f"\033[1;31mEmpresa {razao_social} não tem movimento...\033[m;")
+                        elif specific == razao_social:
                             append_me(LIST_ISS)
-                        elif imposto_a_calcular.upper() == "ICMS":
-                            append_me(LIST_ICMS)
-
-                if specific == razao_social:
-                    return [TUPLA_DATA]  # important for loop
+                            # Nos 'específicos' não me importo com a ordem
+                else:
+                    if imposto_a_calcular != "SEM_MOV":
+                        if nf_out.lower().strip() != 'não há' or nf_in.lower().strip() != 'não há':
+                            if imposto_a_calcular.upper() == "ISS":
+                                append_me(LIST_ISS)
+                            elif imposto_a_calcular.upper() == "ICMS":
+                                append_me(LIST_ICMS)
+                        # return [TUPLA_DATA]  # important for loop
             full = LIST_ISS + LIST_ICMS
             # return LIST_ECAC, LIST_NORMAL
             return full
@@ -370,22 +377,25 @@ class MainApplication(tk.Frame, Backend):
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
         self.selected_client.focus_force()
         self.increment_header_tip(
-            LABELS, "CONTROL + / CONTROL -")
+            LABELS, "CONTROL + / CONTROL - / F5 = resetar")
         self.increment_header_tip(
             LABELS, "F1 p/ abrir pasta")
         self.increment_header_tip(
-            LABELS, "Pressione F5 após atualizar a planilha")
+            LABELS, "Pressione Control+F5 após atualizar a planilha")
         self.increment_header_tip(
             LABELS, "F12 p/ auto preencher GINFESS")
         # TIPS
         self.__pack(*LABELS)
 
         # bt binds
-        self.root.bind("<F5>", self._restart_after_updt)
+        self.root.bind_all("<Control-F5>", self._restart_after_updt)
         self.root.bind_all("<Control-plus>",
                            lambda x: self.addentry(self.ENTRIES_CLI, __frame_entris_cli))
         self.root.bind_all("<Control-minus>",
-                           lambda x: self.rmventry(self.ENTRIES_CLI, __frame_entris_cli))
+                           lambda x: self.rmventry(__frame_entris_cli))
+
+        self.root.bind("<F5>", lambda x: self.reset_entries(
+            self.ENTRIES_CLI, __frame_entris_cli))
         self.root.bind("<F4>", lambda x: self.get_dataclipboard(
             excel_col.get()
         ))
@@ -438,7 +448,15 @@ class MainApplication(tk.Frame, Backend):
         prgm = sys.executable
         os.execl(prgm, prgm, * sys.argv)
 
-    def addentry(self, list_entries, frame, add_only=False):
+    def reset_entries(self, list_entries, frame):
+        # frame.winfo_children()[indx].destroy()
+        for entry in frame.winfo_children()[-1::-1]:
+            if len(frame.winfo_children()) > 1:  # security
+                entry.destroy()
+        list_entries[0].focus_force()
+
+    @staticmethod
+    def addentry(list_entries, frame, add_only=False):
         """
         ### add entries to widget
         - add_only is the Entry added (default is False)
@@ -458,7 +476,8 @@ class MainApplication(tk.Frame, Backend):
             list_entries.append(add_only)
         entry_row += 1
 
-    def rmventry(self, list_entries, frame, indx=-1):
+    @staticmethod
+    def rmventry(frame, indx=-1):
         """
         ### remove entry from widget
         - GIVEN the indx = index
