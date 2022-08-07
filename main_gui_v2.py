@@ -392,7 +392,7 @@ class MainApplication(tk.Frame, Backend):
         self.root.bind_all("<Control-plus>",
                            lambda x: self.addentry(self.ENTRIES_CLI, __frame_entris_cli))
         self.root.bind_all("<Control-minus>",
-                           lambda x: self.rmventry(__frame_entris_cli))
+                           lambda x: self.rmventry(self.ENTRIES_CLI, __frame_entris_cli))
 
         self.root.bind("<F5>", lambda x: self.reset_entries(
             self.ENTRIES_CLI, __frame_entris_cli))
@@ -477,7 +477,7 @@ class MainApplication(tk.Frame, Backend):
         entry_row += 1
 
     @staticmethod
-    def rmventry(frame, indx=-1):
+    def rmventry(list_entries, frame, indx=-1):
         """
         ### remove entry from widget
         - GIVEN the indx = index
@@ -487,6 +487,8 @@ class MainApplication(tk.Frame, Backend):
         # for widgets in frame.winfo_children():
         if len(frame.winfo_children()) > 1:  # security
             frame.winfo_children()[indx].destroy()
+            # list_entries.pop()
+            del list_entries[-1]
 
     # increment tip for list b4 packing
     @staticmethod
