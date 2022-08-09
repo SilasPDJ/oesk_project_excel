@@ -152,7 +152,7 @@ class Backend:
                     if imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                         obj_list.append(TUPLA_DATA)
 
-                if len(specifics) >= 1:
+                if len(specifics) > 1 or specifics[0].get() != "":
                     for specific in specifics:
                         if imposto_a_calcular == "SEM_MOV":
                             print(
@@ -290,7 +290,7 @@ class Backend:
             def jr():
                 if 'OK' != declarado.upper() != 'S':
                     JR(razao_social, cnpj, compt=COMPT)
-            if len(specifics) >= 1:
+            if len(specifics) > 1 or specifics[0].get() != "":
                 for specific in specifics:
                     if razao_social == specific.get():
                         eval(f'{FUNC}()')
@@ -486,6 +486,7 @@ class MainApplication(tk.Frame, Backend):
         """
         # for widgets in frame.winfo_children():
         if len(frame.winfo_children()) > 1:  # security
+            frame.winfo_children()[indx-1].focus_force()
             frame.winfo_children()[indx].destroy()
             # list_entries.pop()
             del list_entries[-1]
