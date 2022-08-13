@@ -157,7 +157,7 @@ class Backend:
                         if imposto_a_calcular == "SEM_MOV":
                             print(
                                 f"\033[1;31mEmpresa {razao_social} não tem movimento...\033[m;")
-                        elif specific == razao_social:
+                        elif specific.get() == razao_social:
                             append_me(LIST_ISS)
                             # Nos 'específicos' não me importo com a ordem
                 else:
@@ -174,7 +174,7 @@ class Backend:
         for v in get_order():
             G5(*v, compt=COMPT)
 
-    def ginfess_abcdfirst(self, specific=""):
+    def ginfess_abcdfirst(self, specifics=[]):
         # mudar specific de None pra ""
         from pgdas_fiscal_oesk._folders_preset import PreSetsFromGinfess
 
@@ -201,7 +201,12 @@ class Backend:
                 pre_sets = PreSetsFromGinfess()
 
                 if ginfess_link != 'nan' and can_be_next(cont, gissonline):
-                    if specific == "" or specific == razao_social:
+                    if len(specifics) > 1 or specifics[0].get() != "":
+                        for specific in specifics:
+                            if specific.get() == razao_social:
+                                DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
+                                                   ginfess_link,  compt=COMPT, show_driver=False)
+                    else:
                         DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                            ginfess_link,  compt=COMPT, show_driver=False)
 
