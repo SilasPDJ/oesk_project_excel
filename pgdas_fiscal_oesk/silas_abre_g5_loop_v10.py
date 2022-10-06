@@ -28,6 +28,7 @@ import os
 # vai p/ NEEDED_PANDAS
 
 # ctrl_shift+M
+pygui.PAUSE = 0.02
 
 
 class G5(Contimatic):
@@ -75,7 +76,7 @@ class G5(Contimatic):
                 __wcenter = pygui.getActiveWindow().center
 
                 pygui.click(*__wcenter, clicks=0)
-                pygui.move(320, -300)
+                pygui.move(320, -310)
                 sleep(1)
                 pygui.click()
                 try:
@@ -463,22 +464,20 @@ class G5(Contimatic):
             else:
                 if import_items:
                     pygui.click(pygui.getActiveWindow().center, clicks=0)
-                    pygui.move(-206, 87)
+                    pygui.move(10, 100)
                     pygui.click()
 
                 pygui.click(pygui.getActiveWindow().center, clicks=0)
-                pygui.move(-25, 150)
+                pygui.move(0, 200)
                 pygui.click()
-                for _ in range(3):
-                    sleep(2)
-                    pygui.hotkey('enter')
+                foritab(4, "enter", interval=2)
 
             # FUNCIONAL P/ TUDO MENOS REPOD
 
         def preenche_arqpath(arqpath):
             pygui.click(pygui.getActiveWindow().center, clicks=0)
             sleep(1)
-            pygui.move(0, -225)
+            pygui.move(0, -235)
             pygui.click(duration=1)
             print(arqpath)
             foritab(2, 'space', 'backspace')
