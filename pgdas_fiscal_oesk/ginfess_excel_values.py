@@ -10,8 +10,9 @@ from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists
 
 
 class ExcelValuesPreensh(EmailExecutor, InitialSetting):
+    shall_sleep = True
 
-    def __init__(self, *args, main_xl_path, compt):
+    def __init__(self, *args, main_xl_path, compt, shall_sleep=False):
         # TODO: PQ TESTE e AQUI não funcionam da mesma forma?????????????
         # ---------- README: tentar fazer como o botão do F5 e
         #                    só Reabrir o main_gui quando terminar o excel
@@ -28,7 +29,8 @@ class ExcelValuesPreensh(EmailExecutor, InitialSetting):
         excel.Visible = True
         wb = self.excel.Workbooks.Open(main_xl_path)
         wb.Sheets(self.compt)
-
+        if shall_sleep:
+            sleep(2.5)
         plan_exists = self.excel_iss_file = iss_plan_exists(
             self.client_path, __cnpj, ".xlsx")
         if plan_exists:

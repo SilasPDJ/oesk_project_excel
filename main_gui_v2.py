@@ -45,6 +45,7 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
 entry_row = 1
+# addentry vai virar um objeto p/ funcionar corretamente c/ outras entry_row
 
 
 class Backend:
@@ -303,7 +304,7 @@ class Backend:
                 eval(f'{FUNC}()')
 
     def after_ginfess(self, event):
-
+        shall_sleep = True
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
@@ -314,7 +315,8 @@ class Backend:
             dividas_ativas = dividas_ativas.strip().lower()
             if imposto_a_calcular.upper() == "ISS":
                 ExcelValuesPreensh(razao_social, cnpj, cpf,
-                                   main_xl_path=main_file, compt=COMPT)
+                                   main_xl_path=main_file, compt=COMPT, shall_sleep=shall_sleep)
+                shall_sleep = False
         prgm = sys.executable
         # os.execl(prgm, prgm, * sys.argv)
 
