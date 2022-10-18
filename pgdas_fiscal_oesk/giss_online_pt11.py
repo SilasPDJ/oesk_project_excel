@@ -26,6 +26,7 @@ class GissGui(InitialSetting, WDShorcuts):
 
     def __init__(self, dados, compt, first_compt):
         from functools import partial
+        self.__COMPT = compt
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
             __senhas = f.read().split(',')
         # [print(s) for s in __senhas]
@@ -36,8 +37,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist(f'{compt}_giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
-            # self.driver = driver = pgdas_driver(self.client_path)
+            # self.driver = driver = ginfess_driver(self.client_path)
+            self.driver = driver = pgdas_driver(self.client_path)
             self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
@@ -223,12 +224,24 @@ class GissGui(InitialSetting, WDShorcuts):
 
     def __check_prestador_guias(self):
         def __download_prestador_guias():
-            tb = self.webdriverwait_el_by(By.TAG_NAME, 'table')
+            # ---- complementação out/2022
+            t_get_years = self.webdriverwait_el_by(By.TAG_NAME, 'table')
+            ttr_years = t_get_years.find_elements(By.TAG_NAME, 'tr')[1]
+            el_years = ttr_years.find_elements(By.TAG_NAME, 'td')
+            for e in el_years:
+                # print(e, e.text)
+                if e.text == self.__COMPT.split('-')[1]:
+                    print("e click", e.text)
+                    e.click()
+            tb = self.driver.find_elements(By.TAG_NAME, 'table')[1]
+            # ---- fim complementação
+            # pois a primeira é com anos
             __meses_guias = tb.find_elements(By.TAG_NAME, 'a')
             MESES, GUIAS = (
                 [mes for mes in __meses_guias if mes.text != ''],
                 [guia for guia in __meses_guias if guia.text == '']
             )
+            # TODO: Verificar (do código daqpbaixo) se irá ser downloadado boleto.pdf...
             # [print(mes.text) for mes in meses]
             # [print(guia) for guia in guias]
 
@@ -298,17 +311,17 @@ class GissGui(InitialSetting, WDShorcuts):
             self.click_elements_by_tt(self.compt_atual.split('-')[-1])
 
             # tabela com as guias
-            # table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
             table = self.driver.find_elements(By.TAG_NAME, 'table')[1]
-            iframe = table.find_element(By.XPATH, "//iframe[@name='conteudo']")
-            self.driver.switch_to.frame(iframe)
-
+            # -- old
+            # iframe = table.find_element(By.XPATH, "//iframe[@name='conteudo']")
+            # self.driver.switch_to.frame(iframe)
+            # -- ---
             __download_prestador_guias()
-
             # driver.find_element(By.ID, )
             driver.switch_to.default_content()
-        except NoSuchElementException:
-            pass
+        except NoSuchElementException as e:
+            print("Erro na geração de boletos do GISS Online!")
+            raise e
         driver.switch_to.default_content()
         iframe = driver.find_element(By.XPATH, "//iframe[@name='header']")
         driver.switch_to.frame(iframe)
