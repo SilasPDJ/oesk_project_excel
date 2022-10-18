@@ -98,7 +98,8 @@ sobre faturamento de {ntt('span style="background-color:yellow; color:green"', '
 <hr>
 </h3> 
 <div>
-Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR A PAGAR' else ''}
+Este e-mail é automático. Considerar sempre o e-mail mais atual.<br>
+Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR A PAGAR' else ''}
 <h4>Caso haja qualquer conflito, responda sem hesitar esta mensagem neste e-mail.</h4>
 <h4>Todas as declarações são e continuarão sendo feitas minuciosamente.</h4>
 </div>

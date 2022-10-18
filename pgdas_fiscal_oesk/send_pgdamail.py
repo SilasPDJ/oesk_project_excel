@@ -9,7 +9,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
     def __init__(self, *args, email, compt, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
-        self.__venc_das = "20-07-2022"
+        self.__venc_das = "20-10-2022"
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
@@ -56,8 +56,6 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
                         now_email, mail_header, das_message, das_anx_files)
 
             # input('security, silsilinhas')
-            # self.main_send_email('silsilinhas@gmail.com', mail_header, das_message, das_anx_files)
-            """a partir do terceiro argumento, só há mensagens attachedas"""
 
             print(f'Enviado... p/ {now_email}')
             # input('teste')
@@ -139,7 +137,8 @@ sobre faturamento de {ntt('span style="background-color:yellow; color:green"', '
 <hr>
 </h3> 
 <div>
-Este e-mail é automático. Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR A PAGAR' else ''}
+Este e-mail é automático. Considerar sempre o e-mail mais atual.<br>
+Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar o documento." if valor != 'SEM VALOR A PAGAR' else ''}
 <h4>Caso haja qualquer conflito, responda sem hesitar esta mensagem neste e-mail.</h4>
 <h4>Todas as declarações são e continuarão sendo feitas minuciosamente.</h4>
 </div>
