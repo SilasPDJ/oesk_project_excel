@@ -86,7 +86,7 @@ def login():
 # ALTERA PERFIL DE ACESSO
 
 
-def dividas_ativas_complete(cnpj):
+def dividas_ativas_complete(cnpj, compt=None):
     global WIN
     WIN = init()
     jscript_exec(FINDSPECIFC, True)
@@ -118,31 +118,6 @@ def dividas_ativas_complete(cnpj):
     '''
 
     jscript_exec(script)
-
-
-COMPT = get_compt(-1)
-
-CONS = Consultar(COMPT)
-consultar_geral = CONS.consultar_geral
-consultar_compt = CONS.consultar_compt
-
-main_folder = CONS.MAIN_FOLDER
-main_file = CONS.MAIN_FILE
-
-TOTAL_CLIENTES = len(list(consultar_compt()))
-IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
-
-for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-    if e > 0:
-        razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios,  imposto_a_calcular = compt_vals
-        __razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = geral
-        if "mei" != dividas_ativas.lower() != "não há":
-            dividas_ativas_complete(cnpj)
-            # path = InitialSetting.files_pathit(razao_social, COMPT)
-            # dividas_ativas_complete(cnpj)
-            input(f"teste {razao_social} fim")
-            # if razao_social == "MARCOS LEME DO PRADO MLP":
-            # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
 
 
 # pj = "07083804000140"  # CNPJ de TESTE
