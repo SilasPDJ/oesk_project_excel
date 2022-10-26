@@ -62,9 +62,9 @@ class Consultar(Initial):
             except IndexError:
                 break
 
-    def consulta_mix(self):
-        pass
-
+    def consulta_mixed(self):
+        return zip(self.consultar_geral(), self.consultar_compt())
+        # TODO: testar
         # df = pd.merge()
 
     def get_fieldnames(self):
