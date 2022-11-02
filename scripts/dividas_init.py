@@ -1,3 +1,4 @@
+import _import
 import pyautogui as pygui
 from default.interact import *
 from pgdas_fiscal_oesk import Consultar
@@ -75,7 +76,6 @@ class Main:
             return full
         for v in get_order():
             pass
-    
 
 
 M1 = Main()
