@@ -1,4 +1,4 @@
-from locale import format_string
+
 from default.interact import press_key_b4
 from pgdas_fiscal_oesk.ginfess_excel_values import ExcelValuesPreensh
 from pgdas_fiscal_oesk.rotina_dividas_v3 import dividas_ativas_complete as rotina_dividas
@@ -7,7 +7,6 @@ from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 from pgdas_fiscal_oesk.gias import GIA
-from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, ginfess_driver
 from default.sets import get_compt
 from pgdas_fiscal_oesk import Consultar
 
@@ -18,18 +17,9 @@ from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracao
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 
-import tkinter as tk
-from default.interact.autocomplete_entry import AutocompleteEntry
-from ttkwidgets import autocomplete as ttkac
-
-from threading import Thread
-import os
 import sys
-import subprocess
-import clipboard
 
 from pgdas_fiscal_oesk.silas_jr import JR
-# TODO: separar a classe backend da interface
 
 COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
 
@@ -45,7 +35,6 @@ TOTAL_CLIENTES = len(list(consultar_compt()))
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
-entry_row = 1
 # addentry vai virar um objeto p/ funcionar corretamente c/ outras entry_row
 
 

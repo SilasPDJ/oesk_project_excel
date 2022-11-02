@@ -1,4 +1,21 @@
-from main import *
+from __backend import Backend, PgdasDeclaracaoFull
+# from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
+from __backend import COMPT, CONS, TOTAL_CLIENTES, IMPOSTOS_POSSIVEIS
+from __backend import consultar_compt, consultar_geral, getfieldnames
+from __backend import main_folder, main_file
+# from __backend import *
+
+import tkinter as tk
+from default.interact.autocomplete_entry import AutocompleteEntry
+from ttkwidgets import autocomplete as ttkac
+
+from threading import Thread
+import os
+import sys
+import subprocess
+import clipboard
+
+entry_row = 1
 
 
 class MainApplication(tk.Frame, Backend):
