@@ -1,6 +1,7 @@
 from locale import format_string
+from default.interact import press_key_b4
 from pgdas_fiscal_oesk.ginfess_excel_values import ExcelValuesPreensh
-from pgdas_fiscal_oesk.rotinas_dividas_v2 import RotinaDividas
+from pgdas_fiscal_oesk.rotina_dividas_v3 import dividas_ativas_complete as rotina_dividas
 from pgdas_fiscal_oesk.send_dividas import SendDividas
 from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
@@ -28,7 +29,7 @@ import subprocess
 import clipboard
 
 from pgdas_fiscal_oesk.silas_jr import JR
-
+# TODO: separar a classe backend da interface
 
 COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
 
@@ -215,20 +216,50 @@ class Backend:
                     pre_sets.files_pathit(razao_social, COMPT)
                     print('\033[1;31m', razao_social, '\033[m')
                     # ICMS folder creation
-        # TODO: validar essa função...
 
     def full_dividas(self):
-        for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
-                self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
-                self.any_to_str(*geral))
-            envio = envio.upper()
-            email = email.strip()
-            dividas_ativas = dividas_ativas.strip().lower()
-            proc_ecac = proc_ecac.lower()
-            if dividas_ativas != 'não há':
-                yield razao_social, cnpj, dividas_ativas
+        """
+        #  Organiza o G5 para fazer primeiro ISS, depois ICMS
+        """
+        # LIST_ISS = []
+        # LIST_ICMS = []
+        LIST_DIVIDAS = []
+
+        def get_order():
+            print("\n\n\033[1;31m~~~~~~Possuem dívidas ativas~~~~~~~~\n\033[m")
+            for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
+                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+                    self.any_to_str(*compt_vals))
+                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                    self.any_to_str(*geral))
+                envio = envio.upper()
+                email = email.strip()
+                dividas_ativas = dividas_ativas.strip().lower()
+                proc_ecac = proc_ecac.lower()
+                TUPLA_DATA = (razao_social, cnpj, cpf,
+                              codigo_simples, valor_tot, imposto_a_calcular, proc_ecac)
+
+                def append_me(obj_list):
+                    if imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
+                        obj_list.append(TUPLA_DATA)
+
+                if dividas_ativas != "não há":
+                    print(razao_social)
+                    append_me(LIST_DIVIDAS)
+                    # print(razao_social, _razao_social)
+                # return [TUPLA_DATA]  # important for loop
+            # full = LIST_ISS + LIST_ICMS
+            full = LIST_DIVIDAS
+            # return LIST_ECAC, LIST_NORMAL
+            return full
+
+        for e, v in enumerate(get_order()):
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("Pressione f8 para prosseguir")
+            print("\033[1;31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[m")
+            # if e == 0:
+            press_key_b4("f8")
+            rotina_dividas(v[1])
 
     def call_func_v3(self, FUNC, specifics=[]):
 
@@ -368,8 +399,8 @@ class MainApplication(tk.Frame, Backend):
             'jr', self.ENTRIES_CLI), bg="#556353")
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v3(
             'pgdasmail', self.ENTRIES_CLI), bg='red')
-        bt_dividas_rotina = self.button('Rotina FULL Dívidas', lambda: RotinaDividas(
-            *self.full_dividas(), compt=COMPT), bg='darkgray')
+        bt_dividas_rotina = self.button(
+            'Rotina FULL Dívidas', self.full_dividas, bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v3(
             'dividasmail', self.ENTRIES_CLI), bg='red')
 
