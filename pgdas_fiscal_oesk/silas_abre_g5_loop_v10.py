@@ -10,7 +10,7 @@ from default.webdriver_utilities.wbs import WDShorcuts
 # from pgdas_fiscal_oesk.contimatic import InitialSetting
 from pgdas_fiscal_oesk.contimatic import Contimatic
 
-from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
+from pgdas_fiscal_oesk.relacao_nfs import NfCanceled
 
 # from default.webdriver_utilities import *
 from subprocess import Popen
@@ -62,7 +62,11 @@ class G5(Contimatic):
                 # clientes com arquivo fora do ABC, xlsx != csv...
                 if not isinstance(relacao_notas, IndexError):
                     self.nfcanceladas = NfCanceled(relacao_notas)
-                    if iss_plan_exists(self.client_path, __cnpj, ".xlsx"):
+                    _wb_exists = self.walget_searpath("_"+__cnpj+".xlsx",
+                                                      self.client_path, 2)
+                    self.excel_iss_file = dict(
+                        enumerate(_wb_exists)).get(0, False)
+                    if _wb_exists:
                         timesleep_import = self.nfcanceladas.conta_qtd_nfs()
                     else:
                         timesleep_import = 10

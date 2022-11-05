@@ -1,20 +1,6 @@
 import pandas as pd
 
 
-def iss_plan_exists(*excel_path):
-    import os
-
-    ext = excel_path[-1]
-    ext = f".{ext}".replace("..", ".")
-    # o último argumento vai ser a extensão
-    try:
-        with open(os.path.join(*excel_path[:-1])+ext) as f:
-            return f.name
-    except FileNotFoundError as e:
-        print(e)
-        return False
-
-
 class NfCanceled:
 
     import pyautogui as pygui

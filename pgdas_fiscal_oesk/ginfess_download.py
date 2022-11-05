@@ -54,7 +54,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             driver.maximize_window()
             self.driver.get(link)
             if self.driver.title != 'NFS-e':  # and 'tremembe' not in self.driver.current_url:
-                self.driver.quit()
+                # self.driver.quit()
+                self.driver.close()
                 driver = pgdas_driver
                 self.__driver__name = driver.__name__
                 self.driver = driver = pgdas_driver(self.client_path)
@@ -86,7 +87,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
                     # Creation initial
                     excel_file = os.path.join(
-                        self.client_path, f'{__cnpj}.xlsx')
+                        self.client_path, f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx')
                     # Aqui
                     self.excel_from_html_above(
                         excel_file, html=self.ginfess_table_valores_html_code())

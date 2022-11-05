@@ -6,8 +6,6 @@ import os
 from time import sleep
 import pandas as pd
 
-from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists
-
 
 class ExcelValuesPreensh(EmailExecutor, InitialSetting):
     shall_sleep = True
@@ -24,6 +22,11 @@ class ExcelValuesPreensh(EmailExecutor, InitialSetting):
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
         # self.excel_iss_file = os.path.join(
         #     self.client_path, f'{__cnpj}.xlsx')
+        print(__r_social)
+        _wb_exists = self.walget_searpath("_"+__cnpj+".xlsx",
+                                          self.client_path, 2)
+        self.excel_iss_file = dict(
+            enumerate(_wb_exists)).get(0, False)
 
         self.excel = excel = win32.Dispatch("Excel.Application")
         excel.Visible = True
@@ -31,9 +34,7 @@ class ExcelValuesPreensh(EmailExecutor, InitialSetting):
         wb.Sheets(self.compt)
         if shall_sleep:
             sleep(2.5)
-        plan_exists = self.excel_iss_file = iss_plan_exists(
-            self.client_path, __cnpj, ".xlsx")
-        if plan_exists:
+        if _wb_exists:
             v_clifolder_tot, v_clifolder_ret, v_clifolder_nret = self.gethe3values()
             # excel can be visible or not
             # wb = self.excel.Workbooks.Open(self.main_xl_path)

@@ -6,7 +6,7 @@ from default.sets import InitialSetting
 from default.webdriver_utilities.wbs import WDShorcuts
 from pgdas_fiscal_oesk.contimatic import Contimatic
 
-from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
+# from pgdas_fiscal_oesk.relacao_nfs import iss_plan_exists, NfCanceled
 from pyperclip import paste
 # from default.webdriver_utilities import *
 from win10toast import ToastNotifier
