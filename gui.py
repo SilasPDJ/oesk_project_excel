@@ -81,6 +81,8 @@ class MainApplication(tk.Frame, Backend):
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
         self.selected_client.focus_force()
         self.increment_header_tip(
+            LABELS, "Terminal: arg1 = compt, arg2 = loop_compt")
+        self.increment_header_tip(
             LABELS, "CONTROL + / CONTROL - / F5 = resetar")
         self.increment_header_tip(
             LABELS, "F1 p/ abrir pasta")

@@ -22,6 +22,7 @@ import sys
 from pgdas_fiscal_oesk.silas_jr import JR
 
 COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
+GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(sys.argv) > 2 else COMPT
 
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
@@ -30,7 +31,6 @@ getfieldnames = CONS.get_fieldnames
 
 main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
-
 TOTAL_CLIENTES = len(list(consultar_compt()))
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
@@ -288,7 +288,7 @@ class Backend:
             def gias():
                 if imposto_a_calcular == 'LP' and ginfess_cod != 'nan' and declarado != 'S':
                     GIA(razao_social, proc_ecac.replace('.', ''), *ginfess_cod.split('//'),
-                        compt=COMPT)
+                        compt=COMPT, first_compt=GIAS_GISS_COMPT)
 
                 # Login e senha estão vindo de ginfess cod, pois o "ginfess" deles é a GIA
 
@@ -297,10 +297,10 @@ class Backend:
                     print(giss_login)
                     try:
                         GissGui([razao_social, cnpj, giss_login],
-                                compt=COMPT, first_compt=get_compt(-1))
+                                compt=COMPT, first_compt=GIAS_GISS_COMPT)
                     except Exception as e:
                         GissGui([razao_social, cnpj, giss_login],
-                                compt=COMPT, first_compt=get_compt(-2))
+                                compt=COMPT, first_compt=GIAS_GISS_COMPT)
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la

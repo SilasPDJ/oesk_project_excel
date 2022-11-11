@@ -134,20 +134,6 @@ class Initial:
                 wf.write(way)
                 return way
 
-    def trata_money_excel(self, faturado):
-
-        faturado = str(faturado).lower().strip()
-        if faturado == 'das_pend':
-            return 'ATENÇÃO, HÁ BOLETO(S) DO PGDAS PENDENTE(S)'
-        if 'nan' in faturado or 'zerou' in faturado or float(faturado) == 0:
-            faturado = 'SEM VALOR A PAGAR'
-            return faturado
-        faturado = f'{float(faturado):,.2f}'
-        faturado = faturado.replace('.', 'v')
-        faturado = faturado.replace(',', '.')
-        faturado = faturado.replace('v', ',')
-        return faturado
-
 
 class InitialSetting(Initial, Dirs, Now):
 
@@ -229,4 +215,17 @@ class InitialSetting(Initial, Dirs, Now):
                 # list_compts.append(compt_appended)
                 yield compt_appended
 
+    def trata_money_excel(self, faturado):
+
+        faturado = str(faturado).lower().strip()
+        if faturado == 'das_pend':
+            return 'ATENÇÃO, HÁ BOLETO(S) DO PGDAS PENDENTE(S)'
+        if 'nan' in faturado or 'zerou' in faturado or float(faturado) == 0:
+            faturado = 'SEM VALOR A PAGAR'
+            return faturado
+        faturado = f'{float(faturado):,.2f}'
+        faturado = faturado.replace('.', 'v')
+        faturado = faturado.replace(',', '.')
+        faturado = faturado.replace('v', ',')
+        return faturado
     # yield list_compts

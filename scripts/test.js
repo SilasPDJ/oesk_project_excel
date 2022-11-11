@@ -6,4 +6,4 @@ let findSpecificELement = (element, text) => {
     }
 };
 
-findSpecificELement("a", "Dívida Ativa").click()
+findSpecificELement("a", "Dívida Ativa").click();
