@@ -62,7 +62,7 @@ class G5(Contimatic):
                 # clientes com arquivo fora do ABC, xlsx != csv...
                 if not isinstance(relacao_notas, IndexError):
                     self.nfcanceladas = NfCanceled(relacao_notas)
-                    _wb_exists = self.walget_searpath("_"+__cnpj+".xlsx",
+                    _wb_exists = self.walget_searpath(f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx',
                                                       self.client_path, 2)
                     self.excel_iss_file = dict(
                         enumerate(_wb_exists)).get(0, False)

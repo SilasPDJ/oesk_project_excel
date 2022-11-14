@@ -6,6 +6,9 @@ import os
 from time import sleep
 import pandas as pd
 
+# _wb_exists = self.walget_searpath
+# f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx'
+
 
 class ExcelValuesPreensh(EmailExecutor, InitialSetting):
     shall_sleep = True
@@ -22,8 +25,7 @@ class ExcelValuesPreensh(EmailExecutor, InitialSetting):
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
         # self.excel_iss_file = os.path.join(
         #     self.client_path, f'{__cnpj}.xlsx')
-        print(__r_social)
-        _wb_exists = self.walget_searpath("_"+__cnpj+".xlsx",
+        _wb_exists = self.walget_searpath(f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx',
                                           self.client_path, 2)
         self.excel_iss_file = dict(
             enumerate(_wb_exists)).get(0, False)
