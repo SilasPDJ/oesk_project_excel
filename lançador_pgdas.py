@@ -5,6 +5,24 @@ p = pygui
 COMPT = get_compt(-1)
 
 
+class CreateWebbrowserSession:
+    import webbrowser as wb
+    CHROMEPATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe %s --incognito"
+
+    def init(self):
+        self.wb.get(self.CHROMEPATH)
+        self.wb.open("https://cav.receita.fazenda.gov.br/autenticacao/login")
+        while True:
+            try:
+                pygui.getActiveWindow
+                win = pygui.getWindowsWithTitle("eCAC - Centro")[0]
+                pygui.click(win.center, clicks=0)
+            except IndexError:
+                sleep(5)
+            else:
+                return win
+
+
 def press(keys="F8"):
     keys = keys.upper()
     if keys == "F8":
@@ -45,14 +63,14 @@ def ate_atual_compt(first_compt=None):
             yield compt_appended
 
 
-for compt in ate_atual_compt(get_compt(-13)):
+for compt in ate_atual_compt(get_compt(6)):
     sleep(5)
     pygui.write(compt)
-    sleep(.5)
+    sleep(2)
     pygui.hotkey("enter")
-    sleep(.5)
-    press()
-    sleep(.5)
+    sleep(2)
+    # press()
+    sleep(2)
     for i in range(3):
         if i >= 1:
             pygui.hotkey("backspace")

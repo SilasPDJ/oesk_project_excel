@@ -62,7 +62,7 @@ class Dirs:
                     listof = []
                     for filename in filenames:
                         if searched in filename:
-                            listof.append(filename)
+                            listof.append(os.path.join(dirpath, filename))
                     return listof
                 except IndexError:
                     return False
