@@ -9,7 +9,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
     def __init__(self, *args, email, compt, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
-        self.__venc_das = "20-10-2022"
+        self.__venc_das = "21-11-2022"
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
@@ -37,7 +37,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             das_anx_files = self.files_get_anexos_v4(
                 self.client_path, file_type='pdf')
             # if gmail upload is False
-            if _valor != 'SEM VALOR A PAGAR':
+            if _valor != 'SEM VALOR A PAGAR' and __valor_competencia != 'das_pend':
                 if len(das_anx_files) < 4:
                     print(
                         f'\033[1;31mAlgo está errado com {__r_social}\033[m')
