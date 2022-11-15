@@ -230,11 +230,10 @@ class G5(Contimatic):
             self.__saida_entrada('s')
             ativa_foxit_openexplorer()
             sleep(2)
+            self.__gotowincenter('Foxit Reader')
+            pygui.hotkey('alt', 'f4')
+            sleep(2)
             self.__foxit_explorer_write('I:\\SILAS_NFS')
-            # self.__gotowincenter('Foxit Reader')
-            # pygui.hotkey('alt', 'f4')
-            # TODO: testar essa parte comentada acima
-            ativa_foxit_openexplorer()
         path2import = self.__xml_send2cloud_icms()
         print(path2import)
         print('Only Once')
@@ -432,7 +431,8 @@ class G5(Contimatic):
                     else:
                         __lfid = [d for d in os.listdir(
                             __mypath)]
-                        pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                        # pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                        pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}'
                         if not os.path.exists(filesincloud_checkerpath):
                             sleeplen = len(__lfid) / 20 + 10
                             __local_explorer_copy2(__mypath)

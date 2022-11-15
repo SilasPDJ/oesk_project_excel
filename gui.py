@@ -46,7 +46,7 @@ class MainApplication(tk.Frame, Backend):
         bt_copia = self.button(
             'Copia Campo [F4]', lambda: self.get_dataclipboard(excel_col.get()
                                                                ), 'black', 'lightblue')
-        bt_das = self.button('Gerar PGDAS', lambda: self.call_func_v3(
+        bt_das = self.button('PGDAS - Procura PGDASD-DELARACAO.pdf', lambda: self.call_func_v3(
             'pgdas', self.ENTRIES_CLI))
         bt_das_full = self.button('Gerar PGDAS FULL', lambda:
                                   PgdasDeclaracaoFull(
