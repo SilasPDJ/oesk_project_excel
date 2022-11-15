@@ -510,7 +510,10 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         self.find_submit_form()
         self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
         self.webdriverwait_el_by(By.TAG_NAME, "body", 30)
-        self.find_submit_form()
+        try:
+            self.find_submit_form()
+        except TimeoutException:
+            pass
         self.simples_and_ecac_utilities(2, compt)
         self.driver.save_screenshot(self.certif_feito(
             self.client_path, add="SimplesNacional-SemMovimento"))
