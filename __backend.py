@@ -264,9 +264,10 @@ class Backend:
             def pgdas():
                 print(razao_social)
 
-                if declarado.upper() != 'S' and declarado.upper() != 'OK':
+                if declarado.upper() != 'OK' and imposto_a_calcular != 'LP':
                     print(declarado, valor_tot, imposto_a_calcular)
-                    if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
+                    # if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
+                    if str(valor_tot) == "0":
                         # if imposto_a_calcular == 'SEM_MOV':
                         PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
                                         compt=COMPT)
