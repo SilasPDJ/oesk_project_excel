@@ -312,22 +312,29 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         self.tags_wait('img')
         driver.implicitly_wait(10)
 
+        name_c = 'x-window-dlg', 'ext-el-mask', 'x-shadow'
         try:
             try:
                 button_with_text('OK').click()
+                for name in name_c:
+                    try:
+                        # TODO: fazer de mim uma função...
+                        self.del_dialog_box(name)
+                    except NoSuchElementException:
+                        print('Except dentro do except e no for, [linha 323]')
+                        ...
             except (NoSuchElementException, ElementClickInterceptedException):
                 pass
             driver.find_element(By.XPATH, '//img[@src="imgs/001.gif"]').click()
         except (NoSuchElementException, ElementClickInterceptedException):
             pass
-        name_c = 'x-window-dlg', 'ext-el-mask', 'x-shadow'
 
         try:
             for name in name_c:
-                try:
+                try:  # TODO: fazer de mim uma função...
                     self.del_dialog_box(name)
                 except NoSuchElementException:
-                    print('Except dentro do except e no for, [linha 310]')
+                    print('Except dentro do except e no for, [linha 336]')
                     ...
                 driver.implicitly_wait(5)
             button_with_text('OK').click()
@@ -503,9 +510,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             add_soma = f'C{len(df[2])+1}'
             add_soma = df[2].sum()
             # df.loc[2] = add_soma
-
             # input(add_soma)
-
             while True:
                 try:
                     wb = df.to_excel(writer, sheet_name='Sheet1',
