@@ -62,11 +62,6 @@ class Consultar(Initial):
             except IndexError:
                 break
 
-    def consulta_mixed(self):
-        return zip(self.consultar_geral(), self.consultar_compt())
-        # TODO: testar
-        # df = pd.merge()
-
     def get_fieldnames(self):
         # tutti = list(self.DADOS_compt_atual.to_dict().keys())
         # tutti += [f for f in list(self.__DADOS_PADRAO.to_dict().keys())]

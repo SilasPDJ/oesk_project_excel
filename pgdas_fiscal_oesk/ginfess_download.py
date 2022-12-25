@@ -317,8 +317,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             try:
                 button_with_text('OK').click()
                 for name in name_c:
-                    try:
-                        # TODO: fazer de mim uma função...
+                    try:  # ...
                         self.del_dialog_box(name)
                     except NoSuchElementException:
                         print('Except dentro do except e no for, [linha 323]')
@@ -331,7 +330,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
 
         try:
             for name in name_c:
-                try:  # TODO: fazer de mim uma função...
+                try:  # ...
                     self.del_dialog_box(name)
                 except NoSuchElementException:
                     print('Except dentro do except e no for, [linha 336]')

@@ -185,6 +185,22 @@ class InitialSetting(Initial, Dirs, Now):
         except FileNotFoundError:
             print('NÃO CONSEGUI RETORNAR SAVE')
 
+    def convert_img2pdf(self, filepath_png: str, filepath_newpdf: str, mainpath=None):
+        from PIL import Image
+        # GiaScreenShoot.png
+        # f'Recibo_{compt}.pdf'
+        if mainpath is not None:
+            filepath_png = os.path.join(mainpath, filepath_png)
+            filepath_newpdf = os.path.join(mainpath, filepath_newpdf)
+        self.driver.save_screenshot(filepath_png)
+        image1 = Image.open(filepath_png)
+        try:
+            im1 = image1.convert('RGB')
+        except ValueError:
+            im1 = image1
+        im1.save(filepath_newpdf)
+        os.remove(filepath_png)
+
     @ staticmethod
     def ate_atual_compt(compt_atual, first_compt=None):
         from datetime import date

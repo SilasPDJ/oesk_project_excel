@@ -127,23 +127,12 @@ class GIA(InitialSetting, WDShorcuts):
                 print('Glória a Deus f7 p continuar')
                 press_key_b4('f7')
                 """
-                self.save_save_img2pdf(loop_compt)
+                self.convert_img2pdf(
+                    'GiaScreenShoot.png', f'Recibo_{loop_compt}.pdf', self.client_path)
                 driver.close()
                 sleep(5)
                 # pygui.hotkey('enter')
                 # ############################################ parei daqui
-
-    def save_save_img2pdf(self, compt):
-        from PIL import Image
-        path1 = f'{self.client_path}/GiaScreenShoot.png'
-        path2 = f'{self.client_path}/Recibo_{compt}.pdf'
-        self.driver.save_screenshot(path1)
-        image1 = Image.open(path1)
-        try:
-            im1 = image1.convert('RGB')
-        except ValueError:
-            im1 = image1
-        im1.save(path2)
 
     def save_novagia_pdf(self):
         from shutil import copy
@@ -241,4 +230,3 @@ class GIA(InitialSetting, WDShorcuts):
     #     import os
     #     save = os.path.join(self.client_path, arq)
     #     self.driver.save_screenshot(save)
-

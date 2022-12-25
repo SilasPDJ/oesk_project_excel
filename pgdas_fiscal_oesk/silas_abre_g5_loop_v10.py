@@ -46,8 +46,7 @@ class G5(Contimatic):
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
 
-            if self.registronta() and "ok" != nf_out.lower() != "s":
-                # TODO: incrementar if != ok0, então procura importar
+            if self.registronta() and "ok" != nf_out.lower() not in ['s', 'ok', 'ok0']:
                 self.abre_ativa_programa('G5 ')  # vscode's cause
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # - IMPORTA NF
