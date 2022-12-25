@@ -66,27 +66,29 @@ class Backend:
             imposto_a_calcular = imposto_a_calcular.upper()
 
             print(razao_social)
+            # corrigir o full para enviar email junto quando chegar SQL
+            TUPLA_DATA = (razao_social, cnpj, cpf,
+                          codigo_simples, valor_tot, proc_ecac)
 
             def append_me(obj_list):
                 if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
                     if imposto_a_calcular != 'LP':
-                        obj_list.append((razao_social, cnpj, cpf,
-                                        codigo_simples, valor_tot, proc_ecac, None))
+                        obj_list.append((*TUPLA_DATA, None))
                 elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
                     all_valores = get_all_valores(
                         sem_ret, com_ret, anexo, valor_tot)
 
                     if all_valores:
                         obj_list.append(
-                            (razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac, all_valores))
+                            (*TUPLA_DATA, all_valores))
                     elif all_valores is False:
-                        obj_list.append((razao_social, cnpj, cpf,
-                                        codigo_simples, valor_tot, proc_ecac, None))
+                        obj_list.append((*TUPLA_DATA, None))
                     else:  # None
                         raise ValueError(
                             f'{razao_social.upper()} possui problemas na planilha')
-
-            if declarado.upper() != 'S' and declarado.upper() != 'OK':
+            if declarado.upper() != 'S' and declarado.upper() != 'OK' and (sem_ret != "nan" or com_ret != "nan"):
+                # ret!='nan' remove o erro de declarar sem o "zerou na planilha"
+                # Não precisa mais ficar necessariamente ficar marcando "OK"
                 print(declarado, valor_tot, imposto_a_calcular)
                 # float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan'] or...
                 # não há certeza de quem das outras planilhas ta sem mov
@@ -196,7 +198,7 @@ class Backend:
                         for specific in specifics:
                             if specific.get() == razao_social:
                                 DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
-                                                   ginfess_link,  compt=COMPT, show_driver=False)
+                                                   ginfess_link,  compt=COMPT, show_driver=True)
                     else:
                         DownloadGinfessGui(razao_social, cnpj, ginfess_cod,
                                            ginfess_link,  compt=COMPT, show_driver=False)
@@ -264,7 +266,9 @@ class Backend:
             def pgdas():
                 print(razao_social)
 
-                if declarado.upper() != 'OK' and imposto_a_calcular != 'LP':
+                if declarado.upper() != 'OK' and imposto_a_calcular != 'LP' and (sem_ret != "nan" or com_ret != "nan"):
+                    # ret!='nan' remove o erro de declarar sem o "zerou na planilha"
+                    # NÃO PRECISA MAIS NECESSARIAMENTE FICAR MARCANDO COM OK...
                     print(declarado, valor_tot, imposto_a_calcular)
                     # if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
                     if str(valor_tot) == "0":
@@ -285,6 +289,9 @@ class Backend:
                         else:  # None
                             raise ValueError(
                                 f'{razao_social.upper()} possui problemas na planilha')
+                else:
+                    print(
+                        f"Não irei declarar {razao_social}, pois não 'zerou' ou não declarou valor")
 
             def gias():
                 if imposto_a_calcular == 'LP' and ginfess_cod != 'nan' and declarado != 'S':
