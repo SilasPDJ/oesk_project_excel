@@ -22,13 +22,13 @@ class ChangePng:
                         except FileNotFoundError:
                             pass
                     elif option == 1:
-                        
+                        pass
                         # png2pdf
 
 
         # try to always use F5
 
-
+from default.sets import InitialSetting
 
 ChangePng('SimplesNacional', 0)
 

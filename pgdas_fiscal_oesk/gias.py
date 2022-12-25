@@ -128,7 +128,8 @@ class GIA(InitialSetting, WDShorcuts):
                 press_key_b4('f7')
                 """
                 self.convert_img2pdf(
-                    'GiaScreenShoot.png', f'Recibo_{loop_compt}.pdf', self.client_path)
+                    self.driver.save_screenshot('GiaScreenShoot.png'),
+                    f'Recibo_{loop_compt}.pdf', self.client_path)
                 driver.close()
                 sleep(5)
                 # pygui.hotkey('enter')
