@@ -12,6 +12,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 
 from time import sleep
+from default.sets.pathmanager import HasJson
 # from . import *
 # qualquer coisa me devolve
 
@@ -471,6 +472,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                     self.driver.refresh()
             self.current_url = self.driver.current_url
             self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
+            self.criar_json_das_atrasados()
+            self.gerar_das_atrasados_sem_parc()
             self.opta_script() if self.m() == 12 else None
 
             # loga e digita competencia de acordo com o BD
@@ -515,8 +518,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         except TimeoutException:
             pass
         self.simples_and_ecac_utilities(2, compt)
-        self.driver.save_screenshot(self.certif_feito(
-            self.client_path, add="SimplesNacional-SemMovimento"))
+        # self.driver.save_screenshot(self.certif_feito(
+        #     self.client_path, add="SimplesNacional-SemMovimento"))
 
     def declaracao_anexos(self, __valores_de_anexos, valor_competencia, cnpj):
         def new_seleciona_anexo(which_one):
@@ -621,8 +624,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         except NoSuchElementException:
             driver.find_elements(By.CLASS_NAME, 'btn-success')[0].click()
 
-        self.driver.save_screenshot(self.certif_feito(
-            self.client_path, add='SimplesNacional'))
+        # self.driver.save_screenshot(self.certif_feito(
+        #     self.client_path, add='SimplesNacional'))
 
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
@@ -634,3 +637,59 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # driver.find_elements(By.CLASS_NAME, 'btn-success')[1].click()
 
         self.simples_and_ecac_utilities(2, self.compt)
+
+    def criar_json_das_atrasados(self) -> None:
+        from bs4 import BeautifulSoup
+        import os
+        driver = self.driver
+        try:
+            self.tag_with_text('span', 'DEVEDOR')
+            # return
+        except NoSuchElementException:
+            return
+        onlif = 'Debitos'
+        if onlif not in driver.current_url:
+            driver.execute_script(
+                f"""window.location.href += '{onlif}'""")
+        table_webelement = self.webdriverwait_el_by(
+            By.TAG_NAME, 'form').find_element(By.TAG_NAME, 'table')
+        # html = pd.read_html(table_data.get_attribute('innerHTML'))
+
+        soup = BeautifulSoup(table_webelement.get_attribute(
+            'innerHTML'), 'html.parser')
+        print('~'*30)
+        print('~'*30)
+        print('~'*30)
+        # input(soup)
+        # HasJson.dump_json()
+        list_parcs = []
+        for tb__compt, exibi, val_em_aberto in zip(soup.select('tr td:nth-child(2)'), soup.select('tr td:nth-child(9)'), soup.select('tr td:nth-child(8)')):
+            # print(exibi.text)
+            # print(tb__compt.text)
+            list_parcs.append({tb__compt.text: exibi.text,
+                              'em_aberto': val_em_aberto.text})
+        if len(list_parcs) >= 1:
+            HasJson.dump_json(list_parcs, os.path.join(
+                self.client_path, 'DAS_EM_ABERTO.json'))
+
+    def gerar_das_atrasados_sem_parc(self):
+        import os
+        self.driver.get(self.current_url)
+
+        das_json = HasJson.load_json(os.path.join(
+            self.client_path, 'DAS_EM_ABERTO.json'))
+
+        # list of compts pendentes:
+        pend_compts = []
+        for lspart in das_json:
+            pend_compts.append(list(lspart.keys())[0])
+        for e, lspart in enumerate(das_json):
+            n_parc = lspart[pend_compts[e]]
+            print_parcs = "\033[1;31mSem parcelamento\033[m" if n_parc == "0" else "\033[1;33mJÁ ESTÁ PARCELADO\033[m"
+            print(
+                n_parc, pend_compts[e], print_parcs)
+            if n_parc == "0":
+                self.simples_and_ecac_utilities(1, pend_compts[e])
+                self.driver.get(self.current_url)
+                # TODO: testar-me
+        self.driver.get(self.current_url)
