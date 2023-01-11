@@ -151,7 +151,7 @@ class WDShorcuts:
         else:
             print('certo')
 
-    def webdriverwait_el_by(self, by, el, time=10):
+    def webdriverwait_el_by(self, by: By, el: str, time=10):
         # will be that instead of by_id
         driver = self.__arg_driver
         return WebDriverWait(driver, time).until(

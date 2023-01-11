@@ -93,7 +93,7 @@ sobre faturamento de {ntt('span style="background-color:yellow; color:green"', '
         -> O arquivo do boleto contém as iniciais "{ntt('span'+red,'PGDASD-DAS')}"
     </h4>
     '''
-            if valor != 'SEM VALOR A PAGAR' else f"<h3>{ntt('span'+red,'NÃO')} há boleto a pagar.</h3>"
+            if valor != 'SEM VALOR A PAGAR' else f"<h3>{ntt('span'+red,'-')}</h3>"
             }
 <hr>
 </h3> 

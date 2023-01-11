@@ -438,7 +438,7 @@ class G5(Contimatic):
                             SILASNFS_WINDOW.activate()
                             self.__foxit_explorer_write(
                                 pathimport)
-
+                            sleep(1)
                             all_keys('ctrl', 'v')
                             print(sleeplen, 'sleep time')
                             sleep(sleeplen)

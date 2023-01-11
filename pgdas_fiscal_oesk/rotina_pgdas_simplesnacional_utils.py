@@ -39,7 +39,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         from datetime import datetime
         now_year = str(datetime.now().year)
         compt = ''.join(v for v in compt if v.isdigit())
-        month_compt = compt[:2]
+        # month_compt = compt[:2]
         year_compt = compt[2:]
 
         driver = self.driver
@@ -68,9 +68,10 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
         elif option == 1:
             # gera das
-            venc_month_compt = int(month_compt) + 1
+            data_vencimento = datetime.now()
+            venc_month_compt = data_vencimento.month
             venc = self.get_last_business_day_of_month(
-                venc_month_compt, int(year_compt))
+                venc_month_compt, data_vencimento.year)
             retifica_p_dia = f'{venc.day:02d}{venc.month:02d}{venc.year}'
             self.get_sub_site(link_gera_das, current_url)
             self.tags_wait('input')
@@ -323,7 +324,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         driver.get(antigo)
         driver.get(
             'https://cav.receita.fazenda.gov.br/ecac/Aplicacao.aspx?id=10009&origem=menu')
-        driver.switch_to.frame(driver.find_element(By.TAG_NAME, "iframe"))
+        driver.switch_to.frame(self.webdriverwait_el_by(By.TAG_NAME, "iframe"))
         sleep(2)
         while True:
             try:
@@ -422,7 +423,7 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
             return False
         else:
             return True
-    
+
     def sair_com_seguranca(self):
         self.driver.get('https://cav.receita.fazenda.gov.br/ecac/')
         self.webdriverwait_el_by(By.ID, 'sairSeguranca').click()

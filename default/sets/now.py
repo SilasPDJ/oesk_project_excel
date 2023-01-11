@@ -111,7 +111,8 @@ class Now:
             mes = dia_hj.month
         if ano is None:
             ano = dia_hj.year
-
+        if mes > 12:
+            mes = 12
         last_now = date(ano, mes, 1) + relativedelta(months=1)
         last_now -= timedelta(days=1)
 
