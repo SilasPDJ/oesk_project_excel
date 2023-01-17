@@ -68,11 +68,11 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
-            dividas_ativas = dividas_ativas.strip().lower()
+
             proc_ecac = proc_ecac.lower()
             imposto_a_calcular = imposto_a_calcular.upper()
 
@@ -141,11 +141,11 @@ class Backend:
             for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
                 razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                     self.any_to_str(*compt_vals))
-                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                     self.any_to_str(*geral))
                 envio = envio.upper()
                 email = email.strip()
-                dividas_ativas = dividas_ativas.strip().lower()
+
                 proc_ecac = proc_ecac.lower()
                 TUPLA_DATA = (razao_social, cnpj, cpf,
                               codigo_simples, valor_tot, imposto_a_calcular, nf_out, nf_in)
@@ -194,11 +194,11 @@ class Backend:
             for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
                 razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                     self.any_to_str(*compt_vals))
-                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                     self.any_to_str(*geral))
                 envio = envio.upper()
                 email = email.strip()
-                dividas_ativas = dividas_ativas.strip().lower()
+
                 proc_ecac = proc_ecac.lower()
                 pre_sets = PreSetsFromGinfess()
 
@@ -217,60 +217,15 @@ class Backend:
                     print('\033[1;31m', razao_social, '\033[m')
                     # ICMS folder creation
 
-    def full_dividas(self):
-        """
-        #  Organiza o G5 para fazer primeiro ISS, depois ICMS
-        """
-        # LIST_ISS = []
-        # LIST_ICMS = []
-        LIST_DIVIDAS = []
-
-        def get_order():
-            print("\n\n\033[1;31m~~~~~~Possuem dívidas ativas~~~~~~~~\n\033[m")
-            for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
-                    self.any_to_str(*compt_vals))
-                _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
-                    self.any_to_str(*geral))
-                envio = envio.upper()
-                email = email.strip()
-                dividas_ativas = dividas_ativas.strip().lower()
-                proc_ecac = proc_ecac.lower()
-                TUPLA_DATA = (razao_social, cnpj, cpf,
-                              codigo_simples, valor_tot, imposto_a_calcular, proc_ecac)
-
-                def append_me(obj_list):
-                    if imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
-                        obj_list.append(TUPLA_DATA)
-
-                if dividas_ativas != "não há":
-                    print(razao_social)
-                    append_me(LIST_DIVIDAS)
-                    # print(razao_social, _razao_social)
-                # return [TUPLA_DATA]  # important for loop
-            # full = LIST_ISS + LIST_ICMS
-            full = LIST_DIVIDAS
-            # return LIST_ECAC, LIST_NORMAL
-            return full
-
-        for e, v in enumerate(get_order()):
-            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            print("Pressione f8 para prosseguir")
-            print("\033[1;31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[m")
-            # if e == 0:
-            press_key_b4("f8")
-            rotina_dividas(v[1])
-
     def call_func_v3(self, FUNC, specifics=[]):
 
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
-            dividas_ativas = dividas_ativas.strip().lower()
 
             def pgdas():
                 print(razao_social)
@@ -319,10 +274,10 @@ class Backend:
                                 imposto_a_calcular, envio, email=email, compt=COMPT, all_valores=[])
 
             def dividasmail():
-                if dividas_ativas != 'não há':
-                    if div_envios in ('', 'nan'):
-                        SendDividas(razao_social, div_envios,
-                                    email=email, compt=COMPT)
+                return
+                if div_envios in ('', 'nan'):
+                    SendDividas(razao_social, div_envios,
+                                email=email, compt=COMPT)
 
             def jr():
                 if 'OK' != declarado.upper() != 'S':
@@ -339,11 +294,10 @@ class Backend:
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
             envio = envio.upper()
             email = email.strip()
-            dividas_ativas = dividas_ativas.strip().lower()
             if imposto_a_calcular.upper() == "ISS":
                 ExcelValuesPreensh(razao_social, cnpj, cpf,
                                    main_xl_path=main_file, compt=COMPT, shall_sleep=shall_sleep)
@@ -400,7 +354,7 @@ class MainApplication(tk.Frame, Backend):
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v3(
             'pgdasmail', self.ENTRIES_CLI), bg='red')
         bt_dividas_rotina = self.button(
-            'Rotina FULL Dívidas', self.full_dividas, bg='darkgray')
+            'Rotina Dívidas - DSTV', lambda: print("DESATIVADO POR ENQT"), bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v3(
             'dividasmail', self.ENTRIES_CLI), bg='red')
 

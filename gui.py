@@ -66,7 +66,7 @@ class MainApplication(tk.Frame, Backend):
         bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v3(
             'pgdasmail', self.ENTRIES_CLI), bg='red')
         bt_dividas_rotina = self.button(
-            'Rotina FULL Dívidas', self.full_dividas, bg='darkgray')
+            'Rotina Dívidas - DSTV', lambda: print("DESATIVADO POR ENQT"), bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v3(
             'dividasmail', self.ENTRIES_CLI), bg='red')
 

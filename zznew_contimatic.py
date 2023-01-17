@@ -40,11 +40,10 @@ def any_to_str(*args):
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
     razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios = list(
         any_to_str(*compt_vals))
-    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+    __razao_social, cnpj, cpf, codigo_simples, imposto_a_calcular, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
         any_to_str(*geral))
     envio = envio.upper()
     email = email.strip()
-    dividas_ativas = dividas_ativas.strip().lower()
 
     if imposto_a_calcular == 'ICMS':
         __new_folder = 'NOVA_CONTIMATIC'

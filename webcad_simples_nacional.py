@@ -40,7 +40,7 @@ class Main(Backend):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
             values = [cnpj, ginfess_link, gissonline, ginfess_cod, giss_login]
 
@@ -59,7 +59,7 @@ class Main(Backend):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
             razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
-            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, dividas_ativas, proc_ecac = list(
+            _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
             driver.get("http://localhost:8501/cadastrar_empresa")
             # el = driver.find_element()
@@ -87,7 +87,7 @@ class Main(Backend):
 
             if codigo_simples == "-":
                 proc_ecac = "SIM"
-            PREENCHER_02 = [anexo, codigo_simples, proc_ecac, dividas_ativas]
+            PREENCHER_02 = [anexo, codigo_simples, proc_ecac]
             _withcol_2 = driver.find_elements(By.TAG_NAME, "input")[
                 len(_withcol_1):]
             for _indx, el in enumerate(_withcol_2[1:]):

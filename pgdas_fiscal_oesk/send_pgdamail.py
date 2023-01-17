@@ -9,7 +9,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
     def __init__(self, *args, email, compt, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
-        self.__venc_das = "20-12-2022"
+        self.__venc_das = "20-01-2023"
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
@@ -26,7 +26,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         if now_email == '':
             print('wtf')
         elif __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
-            print(now_email)    
+            print(now_email)
             print(f'VALOR: {_valor}')
             print(f'CLIENTE: {__r_social}')
             self.message = self.mail_pgdas_msg(
@@ -37,7 +37,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             das_anx_files = self.files_get_anexos_v4(
                 self.client_path, file_type='pdf')
             # if gmail upload is Fals
-            # 
+            #
             # e
             if _valor != 'SEM VALOR A PAGAR' and __valor_competencia != 'das_pend':
                 if len(das_anx_files) < 4:
