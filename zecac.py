@@ -135,7 +135,7 @@ IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
 
 for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
     if e > 0:
-        razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios,  imposto_a_calcular = compt_vals
+        razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio,  imposto_a_calcular = compt_vals
         __razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = geral
 
         dividas_ativas_complete(cnpj)

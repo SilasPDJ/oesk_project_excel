@@ -66,7 +66,7 @@ class Backend:
         SEM_MOV_ONLY = {"simples": [], "ecac": []}
 
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
             _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
@@ -139,7 +139,7 @@ class Backend:
         def get_order():
 
             for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                     self.any_to_str(*compt_vals))
                 _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                     self.any_to_str(*geral))
@@ -192,7 +192,7 @@ class Backend:
 
         for cont in range(2):
             for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+                razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                     self.any_to_str(*compt_vals))
                 _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                     self.any_to_str(*geral))
@@ -220,7 +220,7 @@ class Backend:
     def call_func_v3(self, FUNC, specifics=[]):
 
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
             _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
@@ -275,9 +275,6 @@ class Backend:
 
             def dividasmail():
                 return
-                if div_envios in ('', 'nan'):
-                    SendDividas(razao_social, div_envios,
-                                email=email, compt=COMPT)
 
             def jr():
                 if 'OK' != declarado.upper() != 'S':
@@ -292,7 +289,7 @@ class Backend:
     def after_ginfess(self, event):
         shall_sleep = True
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
             _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))

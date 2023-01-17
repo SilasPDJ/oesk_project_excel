@@ -38,7 +38,7 @@ class Main(Backend):
 
     def cadastro_rotina_servicos(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
             _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
@@ -57,7 +57,7 @@ class Main(Backend):
 
     def cadastro_geral(self):
         for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, div_envios, imposto_a_calcular = list(
+            razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio, imposto_a_calcular = list(
                 self.any_to_str(*compt_vals))
             _razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = list(
                 self.any_to_str(*geral))
