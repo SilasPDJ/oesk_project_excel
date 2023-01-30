@@ -56,6 +56,9 @@ class GissGui(InitialSetting, WDShorcuts):
                 driver.find_element(By.XPATH,
                                     '//input[@name="TxtSenha"]').send_keys(__senhas[cont_senha])
                 print(f'Senha: {__senhas[cont_senha]}', end=' ')
+
+                self.preenche_captcha()
+
                 cont_senha += 1
                 driver.find_element(By.LINK_TEXT, "Acessar").click()
                 try:
@@ -117,6 +120,49 @@ class GissGui(InitialSetting, WDShorcuts):
             driver.close()
         print('GISS encerrado!')
 
+    def preenche_captcha(self):
+        import os
+        # from pgdas_fiscal_oesk.sbfconverter import SbFConverter
+        from pyperclip import paste
+
+        def generate_autentic_list() -> list:
+            autentic_list = list()
+            iframe = self.webdriverwait_el_by(By.ID, 'frmDiv')
+            self.driver.switch_to.frame(iframe)
+            # vNumero > img:nth-child(5)
+            for i in range(1, 5):
+                query = f"body > table > tbody > tr > td:nth-child({i}) > img"
+                img_name = f'giss.png'
+                img = self.driver.find_element(By.CSS_SELECTOR, query)
+                src = img.get_attribute("src")
+
+                autentic_list.append(src.split("/images/autentic_")[-1][0])
+                # print(autentic_list)
+                # print('~'*30)
+            print(autentic_list)
+            return autentic_list
+
+        autentic_list = generate_autentic_list()
+        self.driver.switch_to.default_content()
+        # get numbers =
+        autenticate = {}
+
+        query = f"#vNumero > img"
+        img_nums = self.driver.find_elements(By.CSS_SELECTOR, query)
+        for el in img_nums:
+            src = el.get_attribute("src")
+            tec = src.split("tec_")[-1][0]
+            autenticate[tec] = el
+        #     query = f"#vNumero > img:nth-child({i})"
+        #     el = self.driver.find_element(By.CSS_SELECTOR, query)
+        #     autenticate[tec] = el
+            # print("~~Gerando giss cpt~~", src)
+        print("~~Gerando giss cpt~~")
+        print(autenticate)
+        for v in autentic_list:
+            sleep(.5)
+            autenticate[v].click()
+
     def gerar_cert(self, arq):
         import os
         save = os.path.join(self.client_path, arq)
@@ -133,7 +179,11 @@ class GissGui(InitialSetting, WDShorcuts):
             self.calls_write_date()
 
         if not self.certifs_exist('GUIASpendentes-giss.png', endswith=True, at_least=1):
-            self.__check_prestador_guias()
+            try:
+                self.__check_prestador_guias()
+            except StaleElementReferenceException:
+                driver.switch_to.default_content()
+                print("Stale...")
             driver.switch_to.frame('principal')
 
             # p/ checkar somente 1x
