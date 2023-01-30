@@ -62,6 +62,15 @@ class Consultar(Initial):
             except IndexError:
                 break
 
+    def consultar_dividas(self):
+        # forma de substituir o while true com for
+        import os
+        divdf = pd.read_excel(
+            os.path.join(self.MAIN_FOLDER, 'parcelamentos.xlsx'), sheet_name=self.ATUAL_COMPT, dtype=str)
+        divdf = self.__lsdv(divdf.to_dict())
+        for cont in range(len(divdf)):
+            yield [list(d.values())[cont] for d in divdf]
+
     def get_fieldnames(self):
         # tutti = list(self.DADOS_compt_atual.to_dict().keys())
         # tutti += [f for f in list(self.__DADOS_PADRAO.to_dict().keys())]

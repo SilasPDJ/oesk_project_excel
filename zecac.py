@@ -123,27 +123,29 @@ def dividas_ativas_complete(cnpj):
 COMPT = get_compt(-1)
 
 CONS = Consultar(COMPT)
-consultar_geral = CONS.consultar_geral
-consultar_compt = CONS.consultar_compt
+# consultar_geral = CONS.consultar_geral
+# consultar_compt = CONS.consultar_compt
 
 main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
 
-TOTAL_CLIENTES = len(list(consultar_compt()))
+TOTAL_CLIENTES = len(list(CONS.consultar_compt()))
 IMPOSTOS_POSSIVEIS = ['ICMS, ISS']
 
+for client in CONS.consultar_dividas():
 
-for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt())):
-    if e > 0:
-        razao_social, declarado, nf_out, nf_in, sem_ret, com_ret, valor_tot, anexo, envio,  imposto_a_calcular = compt_vals
-        __razao_social, cnpj, cpf, codigo_simples, email, gissonline, giss_login, ginfess_cod, ginfess_link, proc_ecac = geral
+    razao_social, cnpj, tipo_divida, status, outro = client
 
+    print(razao_social
+          )
+    status = status.lower()
+    if status != 'ok' and status != 's' and status != 'cancelado':
         dividas_ativas_complete(cnpj)
         # path = InitialSetting.files_pathit(razao_social, COMPT)
         # dividas_ativas_complete(cnpj)
         input(f"teste {razao_social} fim")
-        # if razao_social == "MARCOS LEME DO PRADO MLP":
-        # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
+    # if razao_social == "MARCOS LEME DO PRADO MLP":
+    # print(lspath) if 'REGISTRO_ISS' in str(lspath).upper() else None
 
 
 # pj = "07083804000140"  # CNPJ de TESTE
