@@ -27,6 +27,8 @@ class Dirs:
     def certifs_exist(self, startswith, at_least=2, endswith: bool = False):
         # if endswith is True, it will search for endswith instead
         arqs_search = self.files_get_anexos_v4(self.client_path, 'png')
+        arqs_search += self.files_get_anexos_v4(self.client_path, 'pdf')
+        # certificados gias são em PDF...
         arqs_search = [
             self.path_leaf(f, True) for f in arqs_search]
         if endswith is False:
@@ -148,6 +150,31 @@ class Dirs:
                     if rm_zip:
                         sleep(5)
                         remove(file)
+
+    @staticmethod
+    def sort_files_by_most_recent(folderpath):
+        return sorted([os.path.join(folderpath, f)
+                       for f in os.listdir(folderpath)],
+                      key=lambda x: os.path.getmtime(
+                          os.path.join(folderpath, x)),
+                      reverse=True)
+
+    @staticmethod
+    def get_documents_folder_location():
+        """
+        :returns: user Documents folder location 
+        """
+        from platform import system
+        import win32com
+        import pythoncom
+        if system() == 'Windows':
+            pythoncom.CoInitialize()
+            shell = win32com.client.Dispatch("WScript.Shell")
+            my_documents = shell.SpecialFolders("MyDocuments")
+            # print(my_documents)
+        else:
+            my_documents = os.path.expanduser("~/Documents")
+        return my_documents
 
 
 class HasJson:

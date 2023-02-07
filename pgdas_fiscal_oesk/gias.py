@@ -45,8 +45,7 @@ class GIA(InitialSetting, WDShorcuts):
         # self.GIA()
 
         # if certificado...
-        if not self.certifs_exist('GiaScreenShoot', 1):
-
+        if not self.certifs_exist('ReciboGIA', 1):
             for loop_compt in self.ate_atual_compt(first_compt, compt):
                 janelas_gias = pygui.getWindowsWithTitle('GIA')
                 for win in janelas_gias:
@@ -83,7 +82,7 @@ class GIA(InitialSetting, WDShorcuts):
                 foritab(7, 'tab')
                 pygui.hotkey('enter', 'enter', interval=.25)
                 pygui.hotkey('enter')
-                self.save_novagia_pdf()
+                self.save_novagia()
 
                 self.driver = driver = pgdas_driver(self.client_path)
                 super().__init__(self.driver)
@@ -107,10 +106,9 @@ class GIA(InitialSetting, WDShorcuts):
                 # enter entrar
                 sleep(5)
                 driver.find_element(By.LINK_TEXT, 'Nova GIA').click()
+                self.webdriverwait_el_by(By.PARTIAL_LINK_TEXT,
+                                         'Documentos Fiscais (Normal, Substit.e Coligida)').click()
                 sleep(3)
-                driver.find_element(By.PARTIAL_LINK_TEXT,
-                                    'Documentos Fiscais (Normal, Substit. e Coligida)').click()
-                sleep(2)
                 driver_clicks = driver.find_elements(By.XPATH,
                                                      "//input[@type='file']")
 
@@ -128,18 +126,23 @@ class GIA(InitialSetting, WDShorcuts):
                 print('Glória a Deus f7 p continuar')
                 press_key_b4('f7')
                 """
+                png_name = 'GiaScreenShoot.png'
+                self.driver.save_screenshot(
+                    os.path.join(self.client_path, png_name))
+                # convert_img2pdf is only joining both or NOT joining both...
                 self.convert_img2pdf(
-                    self.driver.save_screenshot('GiaScreenShoot.png'),
-                    f'Recibo_{loop_compt}.pdf', self.client_path)
+                    png_name,
+                    f'ReciboGIA_{loop_compt}.pdf', self.client_path)
                 driver.close()
                 sleep(5)
                 # pygui.hotkey('enter')
                 # ############################################ parei daqui
 
-    def save_novagia_pdf(self):
+    def save_novagia(self):
         from shutil import copy
-        pathinit = '%USERPROFILE%\\Documents\\SEFAZ\\GIA\\TNormal'
-        pathinit += f'\\{os.listdir(pathinit)[0]}'
+        pathinit = os.path.join(
+            self.get_documents_folder_location(), 'SEFAZ/GIA/TNORMAL')
+        pathinit = self.sort_files_by_most_recent(pathinit)[0]
         # copy(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal\{}".format(os.listdir(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal")[0]), r"C:\Users\user\OneDrive\_FISCAL-2021\2021\01-2021\GIA_Tharles Marli")
         copy(pathinit, self.client_path)
 
