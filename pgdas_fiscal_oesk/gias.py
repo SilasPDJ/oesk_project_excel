@@ -35,7 +35,8 @@ class GIA(InitialSetting, WDShorcuts):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
 
         # drivers declarados
-        menuX, menuY = 20, 27
+        # menuX, menuY = 20, 27
+        self.menuX, self.menuY = 26, 31
 
         def fecha_janela_contribuintes_gia():
             sleep(1)
@@ -71,10 +72,10 @@ class GIA(InitialSetting, WDShorcuts):
                     print('Não precisei fechar')
                 self.pt1_gia_software(IE, loop_compt)
 
-                pygui.doubleClick(menuX+35, menuY)
+                pygui.doubleClick(self.menuX+35, self.menuY)
                 # consistir
                 sleep(3)
-                pygui.click(menuX, menuY)
+                pygui.click(self.menuX, self.menuY)
                 sleep(.5)
                 foritab(2, 'up')
                 pygui.hotkey('enter')
@@ -137,7 +138,7 @@ class GIA(InitialSetting, WDShorcuts):
 
     def save_novagia_pdf(self):
         from shutil import copy
-        pathinit = r'C:\Users\user\Documents\SEFAZ\GIA\TNormal'
+        pathinit = '%USERPROFILE%\\Documents\\SEFAZ\\GIA\\TNormal'
         pathinit += f'\\{os.listdir(pathinit)[0]}'
         # copy(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal\{}".format(os.listdir(r"C:\Users\User\Documents\SEFAZ\GIA\TNormal")[0]), r"C:\Users\user\OneDrive\_FISCAL-2021\2021\01-2021\GIA_Tharles Marli")
         copy(pathinit, self.client_path)
@@ -146,14 +147,16 @@ class GIA(InitialSetting, WDShorcuts):
         cpt_write = "".join(cpt_write.split('-'))
         print(cpt_write
               )
-        menuX, menuY = 20, 27
-        [pygui.click(menuX, menuY, duration=2.5) for i in range(1)]
+        [pygui.click(self.menuX, self.menuY, duration=2.5) for i in range(1)]
         sleep(2)
         pygui.hotkey('tab', 'enter', interval=.25)
-        pygui.hotkey('tab', 'tab')
+        sleep(.5)
+        foritab(2, 'tab')
         pygui.write(ie, interval=.1)
         foritab(2, 'tab', 'enter')
-        pygui.hotkey('tab', 'tab', 'enter')
+        # pygui.hotkey('tab', 'tab', 'enter')
+        foritab(2, 'tab')
+        pygui.hotkey('enter')
         sleep(.2)
         pygui.write(cpt_write)
         sleep(.5)
