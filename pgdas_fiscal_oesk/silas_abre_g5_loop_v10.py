@@ -489,8 +489,6 @@ class G5(Contimatic):
 
         ARQSPATH = self.__get_xml_nf_csv()
         for contarq in range(len(ARQSPATH)):
-            if contarq >= 1:
-                pygui.hotkey('alt', 'f4')
             foritab(1, 'alt', 'right')
             foritab(2, 'down')
             foritab(1, 'right', 'up', 'up', 'enter')
@@ -499,7 +497,7 @@ class G5(Contimatic):
 
             if os.path.basename(ARQSPATH[contarq]).upper().startswith("TOMADOR"):
                 sleep(2.5)
-                pygui.click(x=823, y=382)
+                pygui.click(x=981, y=356)
 
             exe_bt_executar()
             # TODO: reformular exe_executar p/ pegar a parte verde do print
