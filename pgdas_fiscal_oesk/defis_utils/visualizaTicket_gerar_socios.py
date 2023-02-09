@@ -36,7 +36,7 @@ CONS = Consultar(COMPT)
 # pdf2jpg()
 # jpg2txt()
 
-class VisualizaTicket(InitialSetting, Legato):
+class __VisualizaTicket(InitialSetting, Legato):
 
     contador = 1
 
@@ -109,29 +109,46 @@ class VisualizaTicket(InitialSetting, Legato):
         pasinit = txt
 
         user = splitxt = txt.split()
-        USED = ' '.join(user)
+        TXT_USED = ' '.join(user)
 
         # input(used)
 
-        backup1 = USED
+        backup1 = TXT_USED
 
         # ############################################## caças responsivas
+        # ####### caça objeto social
+        from re import finditer, findall
+        # first = [(m.start(), m.end()) for m in finditer("NACIONALIDADE BRASILEIRA")]
+
+        finder = [(m.start(), m.end())
+                  for m in finditer("NACIONALIDADE BRASILEIRA", txt)]
+
+        nomes_list = []
+        for inindx, endindx in finder:
+            __pnome = txt[inindx-100:inindx-1]
+            __pnome = "".join(__pnome.split("\n")[-1:])
+            nome = "".join(__pnome.split(",")[0])
+            nomes_list.append(nome)
+
+        # input("treste")
+        # ----------------------------
         # ####### caça CPFs
 
         cpfs = []
-        for e, cpf in enumerate(USED.split()):
+        for e, cpf in enumerate(TXT_USED.split()):
             cpf = self.str_with_mask(cpf, '000.000.000-00')
             if cpf:
                 cpfs.append(cpf)
 
         cpfs = list(dict.fromkeys(cpfs))
+        # -----------------------------
         cotas = []
         # preciso fazer o set pois ele vai usar os ultimos
-        for v1, v2 in zip(range(0, len(USED)), range(20, len(USED))):
-            if v2 == len(USED):
+        for v1, v2 in zip(range(0, len(TXT_USED)), range(20, len(TXT_USED))):
+            if v2 == len(TXT_USED):
                 break
-            if '$'.lower() in USED[v1].lower():
-                val = USED[v1:v2]
+            if '$'.lower() in TXT_USED[v1].lower():
+                val = TXT_USED[v1:v2]
                 try:
                     val = val[:val.index(',')+3]
 
@@ -143,20 +160,22 @@ class VisualizaTicket(InitialSetting, Legato):
         if 'RETIRA-SE' in splitxt:
             retirado = cpfs[-1]
             cpfs = cpfs[:-1]
-
+            # nomes = nomes[:-1]
+        print(nomes_list)
         dalecotas = [f.split()[1] for f in cotas]
         dalecotas = [f.replace('.', '') for f in dalecotas]
         dalecotas = [f'R$ {r}' for r in dalecotas]
         print(cpfs)
         print(self.dirf_nome)
-        print('-'*30)
+        # print('-'*30)
         if len(cpfs) > 3:
             cpfs = cpfs[-2:]
-        for cpf, cota in zip(cpfs, dalecotas):
+        for nome, cpf, cota in zip(nomes_list, cpfs, dalecotas):
             self.contador += 1
             ws2.cell(self.contador, 1).value = self.dirf_nome
             ws2.cell(self.contador, 2).value = cpf
-            ws2.cell(self.contador, 3).value = cota
+            ws2.cell(self.contador, 3).value = nome
+            ws2.cell(self.contador, 4).value = cota
 
         print(dalecotas)
 
@@ -172,8 +191,8 @@ ws1 = wks[0]
 ws2 = wks[1]
 ws3 = wks[2]
 
-VisualizaTicket()
 
-
-# mcp.save(os.path.dirname(InitialSetting().compt_and_filename()[1])+'\\teste.xlsx')
-mcp.save(my_file)
+def main():
+    __VisualizaTicket()
+    # mcp.save(os.path.dirname(InitialSetting().compt_and_filename()[1])+'\\teste.xlsx')
+    mcp.save(my_file)
