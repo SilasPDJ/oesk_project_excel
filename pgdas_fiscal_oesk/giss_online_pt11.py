@@ -158,7 +158,7 @@ class GissGui(InitialSetting, WDShorcuts):
         #     autenticate[tec] = el
             # print("~~Gerando giss cpt~~", src)
         print("~~Gerando giss cpt~~")
-        print(autenticate)
+        # print(autenticate)
         for v in autentic_list:
             sleep(.5)
             autenticate[v].click()
