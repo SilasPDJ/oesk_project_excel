@@ -97,6 +97,8 @@ class Defis(Legato, SimplesNacionalUtilities):
                                            for v in self.socios_now__cota)
 
             self.client_path = self.files_pathit(_cliente, self.compt)
+            # if _cert_or_login == "certificado":
+            #     continue
             if _ja_declared not in ['S', 'OK', 'FORA']:
                 print('-' * 60)
                 # print(f'CNPJ: {CNPJ}, {CNPJ.strip()==self.socios_now__cnpj[0]}')
@@ -202,7 +204,8 @@ class Defis(Legato, SimplesNacionalUtilities):
 
                     __valisento = self.trata_sendvals(
                         self.socios_valor_isento[ins])
-                    __valtributado = self.socios_valor_tributado[ins]
+                    __valtributado = self.trata_sendvals(
+                        self.socios_valor_tributado[ins])
                     __soc_cota = self.trata_sendvals(
                         self.socios_now__cota[ins])
                     if int(__soc_cota) % 1 > 0:

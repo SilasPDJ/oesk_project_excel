@@ -144,8 +144,13 @@ class Legato:
     def trata_sendvals(val):
         # TODO: só incrementa 00 nos dois se nao tem cents no final
         # ex: 1400,03 = 140003
-        a = int(val) == float(val)
-        if a:
-            return val + "00"
-        else:
+        try:
+            int(val)
+        except ValueError:
             return val
+        else:
+            a = int(val) == float(val)
+            if a:
+                return val + "00"
+            else:
+                return val
