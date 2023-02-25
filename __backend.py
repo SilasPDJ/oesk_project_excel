@@ -16,13 +16,15 @@ from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
 from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 import sys
 
 from pgdas_fiscal_oesk.silas_jr import JR
 
 COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
-GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(sys.argv) > 2 else COMPT
+GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
+    sys.argv) > 2 else get_compt(-2)
 
 CONS = Consultar(COMPT)
 consultar_geral = CONS.consultar_geral
@@ -258,12 +260,19 @@ class Backend:
             def giss():
                 if giss_login.lower().strip() not in ['ginfess cód', 'não há'] and giss_login != 'nan':
                     print(giss_login)
-                    try:
-                        GissGui([razao_social, cnpj, giss_login],
-                                compt=COMPT, first_compt=GIAS_GISS_COMPT)
-                    except Exception as e:
-                        GissGui([razao_social, cnpj, giss_login],
-                                compt=COMPT, first_compt=GIAS_GISS_COMPT)
+                    gcont = -2
+                    while True:
+                        try:
+                            # GissGui([razao_social, cnpj, giss_login],
+                            #         compt=COMPT, first_compt=get_compt(gcont))
+                            GissGui([razao_social, cnpj, giss_login],
+                                    compt=COMPT, first_compt=get_compt(gcont))
+                            gcont -= 1
+                            break
+                        except UnexpectedAlertPresentException:
+                            pass
+                        except Exception as e:
+                            raise e
 
             def pgdasmail():
                 # Eu devo tratar o envio aqui, mas por enquanto ta la
@@ -273,6 +282,7 @@ class Backend:
             def dividasmail():
                 return
                 SendDividas
+
             def jr():
                 if 'OK' != declarado.upper() != 'S':
                     JR(razao_social, cnpj, compt=COMPT)
