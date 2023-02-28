@@ -100,6 +100,7 @@ class Defis(Legato, SimplesNacionalUtilities):
             # if _cert_or_login == "certificado":
             #     continue
             if _ja_declared not in ['S', 'OK', 'FORA']:
+                # TODO: conferir PDFs salvo, que nem declaração PGDAS
                 print('-' * 60)
                 # print(f'CNPJ: {CNPJ}, {CNPJ.strip()==self.socios_now__cnpj[0]}')
                 self.the_print()
@@ -116,7 +117,8 @@ class Defis(Legato, SimplesNacionalUtilities):
 
                     self.current_url = driver.current_url
                     self.opta_script() if self.m() == 12 else None
-
+                    self.driver.get(
+                        "https://sinac.cav.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/defis.app/entrada.aspx")
                 else:
                     self.loga_simples(CNPJ, _cpf, _cod_sim, _cliente)
                     self.current_url = driver.current_url

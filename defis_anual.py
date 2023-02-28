@@ -17,7 +17,6 @@ def diff_month(_from, now=None):
 # print(diff_month(_from))
 
 
-
 # ------------ etapas ...
 # ConsultaJucesp()
 # generate_excel_from_jucesp_tickets()  # method
