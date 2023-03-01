@@ -7,6 +7,7 @@ import os
 
 
 def get_compt(m_cont=-1, y_cont=0, past_only=True, sep='-'):
+    # TODO: Fazer inverso do get_compt
     from datetime import timedelta, datetime
     from dateutil.relativedelta import relativedelta
     month = datetime.now().month
