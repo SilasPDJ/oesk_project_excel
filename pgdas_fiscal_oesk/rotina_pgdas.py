@@ -1,5 +1,6 @@
 # dale
 from random import randint
+from typing_extensions import override
 # from default.sets import InitialSetting
 # from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
@@ -116,6 +117,12 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 elnow.parentElement.classList.contains('active') ? null : elnow.click();
             """)
             # Só ativa se ainda não estiver ativado
+            self.driver.execute_script("""
+            for (el of document.getElementsByClassName("active atividade item-grupo")){
+                el.click()
+            }
+            """)
+            # clica nos que tavam marcados anteriormente
 
         # https://www.contabeis.com.br/ferramentas/simples-nacional/6920601/
         driver = self.driver
@@ -276,3 +283,124 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 self.driver.get(self.current_url)
                 # TODO: testar-me
         self.driver.get(self.current_url)
+
+
+class PgdasDeclaracaoRetificaVarias(PgdasDeclaracao):
+    def __init__(self, *args, compt, main_compt, all_valores=None):
+        __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
+        # __anexo,  __valor_n_ret, __valor_ret, already_declared
+
+        # competencia declarada
+        self.compt = compt
+        self.client_path = self.files_pathit(
+            __r_social.strip(), compt, f"{main_compt.split('-')[1]}/{main_compt}_retificadoras")
+        print(
+            "\033[1;31m Estou procurando declarações. EXCLUIR CASO RETIFICAR\033[m")
+        # self.client_path = self.pathit(self.compt, main_path, __r_social)
+        if not self.walget_searpath("PGDASD-DECLARACAO", self.client_path, 2):
+            # drivers declarados
+            self.driver = pgdas_driver_ua(self.client_path)
+
+            # self.driver.maximize_window;()
+
+            SimplesNacionalUtilities.__init__(
+                self, self.driver, self.compt, self.client_path)
+            [print('\033[1;33m', __cod_simples, '\033[m')for i in range(1)]
+
+            if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':
+
+                self.loga_cert()
+                self.change_ecac_client(__cnpj)
+            else:
+                self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
+            if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":
+                print("pressione f9 para continuar")
+                press_keys_b4("f9")
+                try:
+                    self.driver.find_element(By.NAME,
+                                             "ctl00$ContentPlaceHolder$btnContinuarSistema").click()
+                except NoSuchElementException:
+                    self.driver.refresh()
+            self.current_url = self.driver.current_url
+            self.link_gera_das, self.download_protocolos_das = 'Das/PorPa', '/Consulta'
+            # antes da compt typist:
+            try:
+                self.tag_with_text('span', 'DEVEDOR')
+                # self.criar_json_das_atrasados()
+                # self.gerar_das_atrasados_sem_parc()
+                # Não é importante nesta class...
+            except NoSuchElementException:
+                pass
+            self.opta_script() if self.m() == 12 else None
+
+            # loga e digita competencia de acordo com o BD
+            self.compt_typist(self.compt)
+            try:
+                self.webdriverwait_el_by(By.ID, "msgBox", 3)
+                self.opta_script(False)
+            except (NoSuchElementException, TimeoutException):
+                print("No msgBox")
+            else:
+                self.compt_typist(self.compt)
+            # declara compt de acordo com o valor
+            # podeRetificar nem pergunta...
+            if not self.compt_already_declared(self.compt, pode_retificar=True):
+
+                __valor_competencia = 0 if float(
+                    __valor_competencia) == 0 else __valor_competencia
+
+                if float(__valor_competencia) == 0:
+                    self.declaracao_sem_movimento(__valor_competencia)
+
+                else:
+
+                    self.declaracao_anexos(
+                        all_valores, __valor_competencia, __cnpj)
+
+            else:
+                print('is already declared')
+
+    @override
+    def compt_already_declared(self, compt, pode_retificar=False):
+        driver = self.driver
+        try:
+            js_confirm = driver.find_element(By.ID, 'jsMsgBoxConfirm')
+            """
+            tk_msg('F2 para somente gerar os últimos 3 arquivos de declarações.\n F4 para RETIFICAR'
+                   '\nF10 p/ consolidar para ultima data do mês\n\n'
+                   '\nF11 Para passar para o próximo cliente \n\n'
+                   'Espere ou clique OK', 10)
+            """
+            print('F2 para somente gerar os últimos 3 arquivos de declarações.\n F4 para RETIFICAR'
+                  '\nF10 p/ consolidar para ultima data do mês\n\n'
+                  '\nF11 Para passar para o próximo cliente \n\n'
+                  'Espere ou clique OK')
+            # não consegui callback em mensagem
+            if pode_retificar:
+                which_one = 'f4'
+            else:
+                which_one = press_keys_b4('f2', 'f4', 'f10', 'f11')
+            print(type(which_one))
+            print(which_one)
+
+            if which_one == 'f2':
+                # consultar declarações, baixar arquivos
+                self.simples_and_ecac_utilities(2, compt)
+
+            elif which_one == 'f4':
+                print('RETIFICA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                driver.execute_script("""
+                window.location.href = '/SimplesNacional/Aplicacoes/ATSPO/pgdasd2018.app/Pa/Retificar'""")
+                # raise vai fazer a ratificação
+                raise NoSuchElementException
+            elif which_one == 'f10':
+                self.simples_and_ecac_utilities(1, compt)
+                # F10 p/ consolidar para ultima data do mês
+            elif which_one == 'f11':
+                pass
+        except NoSuchElementException:
+            # already_declared is False...
+            # próxima etapa
+            return False
+        else:
+            return True

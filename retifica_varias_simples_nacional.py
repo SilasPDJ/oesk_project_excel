@@ -2,6 +2,8 @@
 # from pgdas_fiscal_oesk import rotina_pgdas
 
 # from default.sets.pathmanager import Dirs
+from datetime import datetime
+import pandas as pd
 from pgdas_fiscal_oesk.gias import GIA
 from default.webdriver_utilities.pre_drivers import pgdas_driver, ginfess_driver
 from default.sets import InitialSetting, get_compt
@@ -19,7 +21,7 @@ from default.sets import get_all_valores
 # from win10toast import ToastNotifier
 import os
 
-from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
+from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracaoRetificaVarias
 # os.system('d:/PROGRAMAS/oesk_project_excel-master/venv/Scripts/activate.bat')
 COMPT = get_compt(-1)
 
@@ -50,40 +52,30 @@ for e, (geral, compt_vals) in enumerate(zip(consultar_geral(), consultar_compt()
     proc_ecac = proc_ecac.lower()
     imposto_a_calcular = imposto_a_calcular.upper()
 
-    def pgdas(compt=COMPT):
-        print(razao_social)
-
-        if declarado.upper() != 'OK' and imposto_a_calcular != 'LP' and (sem_ret != "nan" or com_ret != "nan"):
-            # ret!='nan' remove o erro de declarar sem o "zerou na planilha"
-            # NÃO PRECISA MAIS NECESSARIAMENTE FICAR MARCANDO COM OK...
-            print(declarado, valor_tot, imposto_a_calcular)
-            # if float(valor_tot) == 0 or str(valor_tot) in ['zerou', 'nan']:
-            if str(valor_tot) == "0":
-                # if imposto_a_calcular == 'SEM_MOV':
-                PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                compt=compt)
-            elif imposto_a_calcular.strip() in IMPOSTOS_POSSIVEIS:
-                all_valores = get_all_valores(
-                    sem_ret, com_ret, anexo, valor_tot)
-                print(all_valores)
-                if all_valores:
-                    PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                    compt=compt,
-                                    all_valores=all_valores)
-                elif all_valores is False:
-                    PgdasDeclaracao(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
-                                    compt=compt,)
-                else:  # None
-                    raise ValueError(
-                        f'{razao_social.upper()} possui problemas na planilha')
-        else:
-            print(
-                f"Não irei declarar {razao_social}, pois não 'zerou' ou não declarou valor")
-
     if cnpj == '20367544000101':  # CNPJ requerido
         _calc_a_partir = 14 + (12 * 5)
-        for compt in InitialSetting.ate_atual_compt(get_compt(-3), get_compt(_calc_a_partir)):
-            # pgdas()
-            print(compt)
+        df = pd.read_excel(
+            r"O:\OneDrive\_FISCAL-2021\2023\faturamento revisão danilo ano 2022 era do mei_.xlsx")
+        print(df)
+        # compts_loop = list(InitialSetting.ate_atual_compt(
+        #     get_compt(-3), get_compt(_calc_a_partir)))
+
+        # for e, compt in enumerate(compts_loop):
+        for e in range(len(df)):
+            # compt = df_compt = datetime.date(df.iloc[0, e]).strftime("%m-%Y")
+
+            cell_value = df.iloc[e, 0]
+            compt_init = pd.to_datetime(cell_value)
+            compt = compt_init.strftime("%m-%Y")
+            if e > 11:
+                valor_nao_retido = df.iloc[e, 1]
+                anexo = df.iloc[e, -1]
+                valor_tot = valor_nao_retido + 0
+                all_valores = [{'valor_n_retido': valor_nao_retido,
+                               'valor_retido': 0, 'anexo': 'III'}]
+                PgdasDeclaracaoRetificaVarias(razao_social, cnpj, cpf, codigo_simples, valor_tot, proc_ecac,
+                                              compt=compt, main_compt=COMPT,
+                                              all_valores=all_valores)
+
         # path_final = [*str(__path).split('/')[:-1], __new_folder, razao_social]
         # Dirs.pathit(*path_final)
