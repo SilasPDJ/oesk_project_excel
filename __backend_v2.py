@@ -23,35 +23,33 @@ from pgdas_fiscal_oesk.silas_jr import JR
 import sys
 import pandas as pd
 import streamlit as st
-import mysql.connector
+# import mysql.connector
 import sqlite3
+import pymysql
+import MySQLdb
+from sqlalchemy import create_engine
+
 
 def init_connection():
-    return mysql.connector.connect(**st.secrets["mysql"])
+    return MySQLdb.connect(**st.secrets["mysql"])
 
 
-def init_connection_alchemy():
-    from sqlalchemy import create_engine
-    import mysql.connector
+def engine_alc_str() -> str:
     LSCT = list(st.secrets["mysql"].values())  # ListSeCreTs
     # sqlachemy connection
-    str_connection = f'mysql://{LSCT[-2]}:{LSCT[-1]}@{LSCT[0]}/{LSCT[-3]}'
-    return create_engine(str_connection)
-
-
-def init_connection():
-    conn = sqlite3.connect('.streamlit/database.db')
-    return conn
-    #  mysql -uroot -p
+    # str_connection = f'mysql://{LSCT[-2]}:{LSCT[-1]}@{LSCT[0]}/{LSCT[-3]}'
+    str_connection = f'mysql+pymysql://{LSCT[-2]}:{LSCT[-1]}@{LSCT[0]}/{LSCT[-3]}'
+    # create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
+    return str_connection
 
 
 class Consulta(Initial):
-    engine = init_connection()
+    # mysql_conn = init_connection()
 
     def __init__(self, compt=None) -> None:
         super().__init__()
-        self.conn = init_connection()
-        self.cursor = self.conn.cursor()
+        self.mysql_conn = init_connection()
+        self.engine_alc = create_engine(engine_alc_str())
 
         self.MAIN_FOLDER = self.getset_folderspath()
         self.MAIN_FILE = self.getset_folderspath(False)
@@ -71,13 +69,12 @@ class Consulta(Initial):
         self.create_table_sql(df2, self.ATUAL_COMPT)
 
         # df1.to_sql(name="tb_name", con=self.conn,
-        df1.to_sql(name="main", con=self.engine,
-                   if_exists="append", index=False)
-        df2.to_sql(name=self.ATUAL_COMPT, con=self.engine,
-                   if_exists="append", index=False)
-        self.conn.commit()
-        self.cursor.close()
-        self.conn.close()
+        df1.to_sql(name="main", con=self.engine_alc,
+                   if_exists="replace", index=False)
+        df2.to_sql(name=self.ATUAL_COMPT, con=self.engine_alc,
+                   if_exists="replace", index=False)
+        # self.conn.commit()
+        # self.mysql_conn.close()
 
     def consuldream(self):
         # não preciso ficar ordenando no excel que nem maluco
@@ -99,11 +96,14 @@ class Consulta(Initial):
         # Generate a SQL schema string based on the DataFrame columns
         df.columns = [col.lower().replace(" ", "_") for col in df.columns]
         # df, tbname, con=self.conn).replace('"', '`')
+
         schema = pd.io.sql.get_schema(
-            df, tbname, con=self.engine).replace('"', '`')
-        self.cursor.execute(f"DROP TABLE IF EXISTS `{tbname}`;")
-        self.cursor.execute(schema)
-        self.conn.commit()
+            df, tbname, con=self.engine_alc).replace('"', '`')
+        schema = schema.replace('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS ')
+        cursor = self.mysql_conn.cursor()
+        cursor.execute(schema)
+
+        # self.conn.commit()
 
 
 COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
