@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 
 class Now:
@@ -122,3 +123,12 @@ class Now:
             wkday = dt.weekday(last_now)
             print(wkday)
         return last_now
+
+    @staticmethod
+    def str_to_date(date_str: str, format_str: str) -> date:
+        try:
+            dt = datetime.strptime(date_str, format_str)
+            return dt.date()
+        except ValueError:
+            raise ValueError(
+                f"Invalid date string: {date_str}. Expected format: {format_str}")

@@ -7,7 +7,7 @@
 # # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 # from pgdas_fiscal_oesk.gias import GIA
 
-from default.sets import get_compt
+from default.sets import calc_date_compt_offset, get_compt, compt_to_date_obj
 from default.sets import Initial
 from default.sets import get_all_valores
 
@@ -25,9 +25,10 @@ from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, String, Numeric, Date
 from scripts.init_database import MySqlInitConnection
+from default.sets import InitialSetting
 
 
-class Consulta(Initial, MySqlInitConnection):
+class __Consulta(Initial, MySqlInitConnection):
     # mysql_conn = init_connection()
 
     def __init__(self, compt=None) -> None:
@@ -38,19 +39,18 @@ class Consulta(Initial, MySqlInitConnection):
         self.compt = compt
         self.MAIN_FOLDER = self.getset_folderspath()
         self.MAIN_FILE = self.getset_folderspath(False)
-        self.ATUAL_COMPT = get_compt(m_cont=-1) if compt is None else compt
+        self.MAIN_COMPT = get_compt(m_cont=-1) if compt is None else compt
         # TODO: get_compt as date() value type
 
         query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='main'"
         # Create SQLAlchemy engine using the connection string
 
-        self.consuldream()
+        # self.consuldream()
 
         # df = self.pd_read_sql(query)
 
         # s_settings_df = pd.DataFrame(self.engine.connect().execute(text(query)))
         # pd.read_sql(query, self.mysql_conn)
-
     def consuldream(self):
         # não preciso ficar ordenando no excel que nem maluco
 
@@ -81,7 +81,7 @@ class Consulta(Initial, MySqlInitConnection):
         DADOS_PADRAO = pd.read_excel(
             self.MAIN_FILE, sheet_name='DADOS_PADRÃO')
         DADOS_COMPT_ATUAL = pd.read_excel(
-            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT, dtype=str)
+            self.MAIN_FILE, sheet_name=self.MAIN_COMPT, dtype=str)
 
         return DADOS_PADRAO, DADOS_COMPT_ATUAL
         # df_padrao, df_compt_atual = self.consuldream()
@@ -131,9 +131,11 @@ class SqlAchemyOrms(MySqlInitConnection):
         compt = Column(Date())
 
 
-class InsertInDb(Consulta):
+class TablesCreationInDBFromPandas(__Consulta):
+    def __init__(self, compt) -> None:
+        super().__init__(compt)
 
-    def insert_dfs_into_db_init(self):
+    def _insert_dfs_into_db_init(self, str_compt: str):
 
         session = self.Session()
         dados_padrao, df_compt = self.consuldream()
@@ -182,36 +184,43 @@ class InsertInDb(Consulta):
                 anexo=row['Anexo'],
                 envio=row['ENVIO'],
                 imposto_a_calcular=row['Imposto a calcular'],
-                # compt=self.ATUAL_COMPT
+                compt=compt_to_date_obj(str_compt)
                 # TODO: check todos
             )
-            session.add(padrao)
-
+            existing_row = session.query(SqlAchemyOrms.ClientsCompts)\
+                .filter_by(compt=compt_to_date_obj(str_compt))\
+                .filter(SqlAchemyOrms.ClientsCompts.main_empresa_id == main_empresa_id)\
+                .first()
+            if not existing_row:
+                session.add(padrao)
         # Commit the changes to the database
         session.commit()
+
+    def insert_all_dfs_in_mysql(self):
+        # tables_creation_obj = self
+        # for compt in InitialSetting.ate_atual_compt(tables_creation_obj.MAIN_COMPT, '07-2021'):
+        #     tables_creation_obj.insert_dfs_into_db_init(compt)
+        for compt in InitialSetting.ate_atual_compt(self.MAIN_COMPT, '07-2021'):
+            self._insert_dfs_into_db_init(compt)
 
 
 alc = SqlAchemyOrms()
 alc.Base.metadata.create_all(alc.engine)
-insert_in_db = InsertInDb()
-insert_in_db.insert_dfs_into_db_init()
+
+
+COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
+GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
+    sys.argv) > 2 else get_compt(-2)
+IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
+# TODO: GUI para impostos possiveis
+
+tables_creation_obj = TablesCreationInDBFromPandas(COMPT)
+# tables_creation_obj.insert_all_dfs_in_mysql()
+
 
 # session = alc.Session
 
 
-# COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
-# GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
-#     sys.argv) > 2 else get_compt(-2)
-
-# CONS = Consulta(COMPT)
-
-# consultar_geral = CONS.consultar_geral
-# consultar_compt = CONS.consultar_compt
-# getfieldnames = CONS.get_fieldnames
-
-# main_folder = CONS.MAIN_FOLDER
-# main_file = CONS.MAIN_FILE
-# TOTAL_CLIENTES = len(list(consultar_compt()))
 # IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
