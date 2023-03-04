@@ -481,7 +481,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
     def excel_from_html_above(self, excel_file, html):
         from bs4 import BeautifulSoup
         from openpyxl.styles import PatternFill
-        from win32com.client import Dispatch
+        # from win32com.client import Dispatch
+        from comtypes.client import CreateObject, GetActiveObject
+        # desempenho melhor que a de cima
         import pythoncom
 
         mylist = pd.read_html(html)
@@ -571,7 +573,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         wb.close()
 
         # AUTO FIT ------
-        excel = Dispatch('Excel.Application', pythoncom.CoInitialize())
+        # excel = Dispatch('Excel.Application', pythoncom.CoInitialize())
+        excel = CreateObject('Excel.Application', pythoncom.CoInitialize())
 
         wb_disptch = excel.Workbooks.Open(excel_file)
         excel.ActiveSheet.Columns.AutoFit()

@@ -1,5 +1,6 @@
 import os
 from typing import final
+from typing_extensions import override
 import pyautogui as pygui
 from time import sleep
 
@@ -169,13 +170,13 @@ class G5(Contimatic):
     def importa_nf_icms_saidas(self):
 
         def ativa_foxit_openexplorer():
-            self.__gotowincenter('Foxit Reader')
+            self.__gotowincenter('Foxit PDF Reader')
             pygui.getActiveWindow().maximize()
-            pygui.move(-820, -360)
+            pygui.move(-850, -360)
             sleep(10)
             pygui.rightClick()
             sleep(.5)
-            foritab(3, 'up')
+            foritab(5, 'up')
             pygui.hotkey('enter')
 
         def go2_g5_import_params():
@@ -229,10 +230,10 @@ class G5(Contimatic):
             self.__saida_entrada('s')
             ativa_foxit_openexplorer()
             sleep(2)
-            self.__gotowincenter('Foxit Reader')
+            self.__gotowincenter('Foxit PDF Reader')
             pygui.hotkey('alt', 'f4')
             sleep(2)
-            self.__foxit_explorer_write('I:\\SILAS_NFS')
+            self.__foxit_explorer_write('F:\\Importacao')
         path2import = self.__xml_send2cloud_icms()
         print(path2import)
         print('Only Once')
@@ -256,7 +257,7 @@ class G5(Contimatic):
         cont = 0
         c = 10
         # TODO: Necessário fechar o foxit depois de abrir o server explorer
-        while "FOXIT READER" not in pygui.getActiveWindowTitle().upper() or "LIVRO_SAIDA" not in pygui.getActiveWindowTitle().upper():
+        while "Foxit PDF Reader" not in pygui.getActiveWindowTitle().upper() or "LIVRO_SAIDA" not in pygui.getActiveWindowTitle().upper():
             print('sleeping', pygui.getActiveWindowTitle().upper())
             sleep(c)
             cont += c
@@ -325,7 +326,7 @@ class G5(Contimatic):
                         # pra nao criar o mes duas vezes
                     else:
                         self.__foxit_explorer_write(
-                            f'I:\\SILAS_NFS\\{self.compt_used}')
+                            f'F:\\Importacao\\{self.compt_used}')
                         # se o mes ja foi criado então desconsidera
 
                     createfolder(self.__client)
@@ -364,7 +365,7 @@ class G5(Contimatic):
                 return returned
                 # sempre vai existir, pq criará se não...
         SILASNFS_WINDOW = self.__gotowincenter(
-            'SILAS_NFS')
+            'Importacao')
         libre_or_normal = foxitpath_creation_exists()
         if libre_or_normal is not False:
             # TODO: fazer listdir dentro... e procurar outros documentos, etc
@@ -390,7 +391,7 @@ class G5(Contimatic):
                         except IndexError:
                             pass
                         for __mainfolder in listfoldersindir:
-                            __dircreation = pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
+                            __dircreation = pathimport = f'F:\\Importacao\\{self.compt_used}\\{self.__client}\\{clientf}'
                             # yield mainfolder
                             mainfolder__lastfolder = __mainfolder.split(
                                 '\\')[-1]
@@ -430,8 +431,8 @@ class G5(Contimatic):
                     else:
                         __lfid = [d for d in os.listdir(
                             __mypath)]
-                        # pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}\\{clientf}'
-                        pathimport = f'I:\\SILAS_NFS\\{self.compt_used}\\{self.__client}'
+                        # pathimport = f'F:\\Importacao\\{self.compt_used}\\{self.__client}\\{clientf}'
+                        pathimport = f'F:\\Importacao\\{self.compt_used}\\{self.__client}'
                         if not os.path.exists(filesincloud_checkerpath):
                             sleeplen = len(__lfid) / 20 + 10
                             __local_explorer_copy2(__mypath)
@@ -595,6 +596,8 @@ class G5(Contimatic):
                                importable_files[:max_files_amount]))
         return final_files
 
+    @override
     def start_walk_menu(self):  # overriden, not necessary
+        # this decorator is not obligatory, but it's a good practice
         x, y = 30, 30
         pygui.click(x, y)
