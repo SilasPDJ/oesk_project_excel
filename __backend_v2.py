@@ -8,7 +8,6 @@
 # from pgdas_fiscal_oesk.gias import GIA
 
 from default.sets import calc_date_compt_offset, get_compt, compt_to_date_obj
-from default.sets import Initial
 from default.sets import get_all_valores
 
 # from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
@@ -17,6 +16,7 @@ from default.sets import get_all_valores
 # from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 # from selenium.common.exceptions import UnexpectedAlertPresentException
 # from pgdas_fiscal_oesk.silas_jr import JR
+from pgdas_fiscal_oesk import Consulta_DB as Consulta_DB
 
 import sys
 import pandas as pd
@@ -26,68 +26,6 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Integer, String, Numeric, Date
 from scripts.init_database import MySqlInitConnection
 from default.sets import InitialSetting
-
-
-class __Consulta(Initial, MySqlInitConnection):
-    # mysql_conn = init_connection()
-
-    def __init__(self, compt=None) -> None:
-        super().__init__()
-        """
-        Calls SqlInitConnection...
-        """
-        self.compt = compt
-        self.MAIN_FOLDER = self.getset_folderspath()
-        self.MAIN_FILE = self.getset_folderspath(False)
-        self.MAIN_COMPT = get_compt(m_cont=-1) if compt is None else compt
-        # TODO: get_compt as date() value type
-
-        query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='main'"
-        # Create SQLAlchemy engine using the connection string
-
-        # self.consuldream()
-
-        # df = self.pd_read_sql(query)
-
-        # s_settings_df = pd.DataFrame(self.engine.connect().execute(text(query)))
-        # pd.read_sql(query, self.mysql_conn)
-    def consuldream(self):
-        # não preciso ficar ordenando no excel que nem maluco
-
-        df_padrao, df_compt = self._consuldream__read_pandas()
-
-        df_compt = df_compt.sort_values(
-            by=["Imposto a calcular", 'Razão Social'])
-        df_compt = df_compt.set_index('Razão Social')
-        df_padrao = df_padrao.set_index('Razão Social')
-        df_padrao = df_padrao.reindex(df_compt.index)
-
-        _df_compt_with_cnpj = pd.merge(df_compt, df_padrao[['CNPJ']],
-                                       left_index=True, right_index=True)
-
-        merged_df = pd.merge(_df_compt_with_cnpj, df_padrao, on='CNPJ')
-
-        df_padrao = df_padrao.reset_index()
-        df_compt = _df_compt_with_cnpj.reset_index()
-        df_compt = df_compt.drop('Razão Social', axis=1)
-        # df_compt = df_compt.drop('CNPJ', axis=1)
-
-        # dpadrao
-
-        # pd.set_option('display.max_rows', None)
-        return df_padrao, df_compt
-
-    def _consuldream__read_pandas(self):
-        DADOS_PADRAO = pd.read_excel(
-            self.MAIN_FILE, sheet_name='DADOS_PADRÃO')
-        DADOS_COMPT_ATUAL = pd.read_excel(
-            self.MAIN_FILE, sheet_name=self.MAIN_COMPT, dtype=str)
-
-        return DADOS_PADRAO, DADOS_COMPT_ATUAL
-        # df_padrao, df_compt_atual = self.consuldream()
-        # self.pd_insert_df_to_mysql(df_padrao, 'main')
-        # self.pd_insert_df_to_mysql(df_compt_atual, self.ATUAL_COMPT)
-        # old methods are commented
 
 
 class SqlAchemyOrms(MySqlInitConnection):
@@ -131,7 +69,7 @@ class SqlAchemyOrms(MySqlInitConnection):
         compt = Column(Date())
 
 
-class TablesCreationInDBFromPandas(__Consulta):
+class TablesCreationInDBFromPandas(Consulta_DB):
     def __init__(self, compt) -> None:
         super().__init__(compt)
 
