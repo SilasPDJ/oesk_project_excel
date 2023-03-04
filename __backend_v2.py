@@ -22,8 +22,8 @@ import sys
 import pandas as pd
 
 from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy import Column,ForeignKey
-from sqlalchemy import  Integer, String, Numeric, Date
+from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Integer, String, Numeric, Date
 from scripts.init_database import MySqlInitConnection
 
 
@@ -36,65 +36,65 @@ class Consulta(Initial, MySqlInitConnection):
         Calls SqlInitConnection...
         """
         self.compt = compt
+        self.MAIN_FOLDER = self.getset_folderspath()
+        self.MAIN_FILE = self.getset_folderspath(False)
+        self.ATUAL_COMPT = get_compt(m_cont=-1) if compt is None else compt
+        # TODO: get_compt as date() value type
+
         query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='main'"
         # Create SQLAlchemy engine using the connection string
 
-        self.main_creation_of_db()
         self.consuldream()
 
-        df = self.pd_read_sql(query)
+        # df = self.pd_read_sql(query)
 
         # s_settings_df = pd.DataFrame(self.engine.connect().execute(text(query)))
         # pd.read_sql(query, self.mysql_conn)
 
-    def main_creation_of_db(self):
-        compt = self.compt
-        self.MAIN_FOLDER = self.getset_folderspath()
-        self.MAIN_FILE = self.getset_folderspath(False)
-        self.ATUAL_COMPT = get_compt(m_cont=-1) if compt is None else compt
-
-        self.__DADOS_PADRAO = pd.read_excel(
-            self.MAIN_FILE, sheet_name='DADOS_PADRÃO')
-        self.DADOS_compt_atual = pd.read_excel(
-            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT, dtype=str)
-        self.__DADOS_PADRAO, self.DADOS_compt_atual = self.consuldream()
-        padrao, compt_atual = self.consuldream()
-
-        # self.pd_insert_df_to_mysql(df_padrao, 'main')
-        # self.pd_insert_df_to_mysql(df_compt_atual, self.ATUAL_COMPT)
-        # to insert to mysql
-
     def consuldream(self):
         # não preciso ficar ordenando no excel que nem maluco
 
-        df = self.DADOS_compt_atual
-        dpadrao = self.__DADOS_PADRAO
+        df_padrao, df_compt = self._consuldream__read_pandas()
 
-        df = df.sort_values(by=["Imposto a calcular", 'Razão Social'])
-        df = df.set_index('Razão Social')
-        dpadrao = dpadrao.set_index('Razão Social')
-        dpadrao = dpadrao.reindex(df.index)
+        df_compt = df_compt.sort_values(
+            by=["Imposto a calcular", 'Razão Social'])
+        df_compt = df_compt.set_index('Razão Social')
+        df_padrao = df_padrao.set_index('Razão Social')
+        df_padrao = df_padrao.reindex(df_compt.index)
 
-        _df_compt_with_cnpj = pd.merge(df, dpadrao[['CNPJ']],
+        _df_compt_with_cnpj = pd.merge(df_compt, df_padrao[['CNPJ']],
                                        left_index=True, right_index=True)
 
-        merged_df = pd.merge(_df_compt_with_cnpj, dpadrao, on='CNPJ')
+        merged_df = pd.merge(_df_compt_with_cnpj, df_padrao, on='CNPJ')
 
-        dpadrao = dpadrao.reset_index()
-        df = _df_compt_with_cnpj.reset_index()
-        dpadrao = dpadrao.drop('Razão Social', axis=1)
+        df_padrao = df_padrao.reset_index()
+        df_compt = _df_compt_with_cnpj.reset_index()
+        df_compt = df_compt.drop('Razão Social', axis=1)
+        # df_compt = df_compt.drop('CNPJ', axis=1)
 
         # dpadrao
 
         # pd.set_option('display.max_rows', None)
-        return dpadrao, df
+        return df_padrao, df_compt
+
+    def _consuldream__read_pandas(self):
+        DADOS_PADRAO = pd.read_excel(
+            self.MAIN_FILE, sheet_name='DADOS_PADRÃO')
+        DADOS_COMPT_ATUAL = pd.read_excel(
+            self.MAIN_FILE, sheet_name=self.ATUAL_COMPT, dtype=str)
+
+        return DADOS_PADRAO, DADOS_COMPT_ATUAL
+        # df_padrao, df_compt_atual = self.consuldream()
+        # self.pd_insert_df_to_mysql(df_padrao, 'main')
+        # self.pd_insert_df_to_mysql(df_compt_atual, self.ATUAL_COMPT)
+        # old methods are commented
 
 
 class SqlAchemyOrms(MySqlInitConnection):
     Base = declarative_base()
 
-    class Main(Base):
-        __tablename__ = 'main'
+    class MainEmpresas(Base):
+        __tablename__ = 'main_empresas'
 
         id = Column(Integer, primary_key=True)
         razao_social = Column(String(255))
@@ -106,16 +106,18 @@ class SqlAchemyOrms(MySqlInitConnection):
         giss_login = Column(String(50))
         ginfess_cod = Column(String(100))
         ginfess_link = Column(String(500))
-        ha_procuracao_ecac = Column(String(7))
+        ha_procuracao_ecac = Column(String(15))
 
-        padraos = relationship("Padrao", back_populates="main")
+        clients_compts = relationship(
+            "ClientsCompts", back_populates="main_empresas")
 
-    class Padrao(Base):
-        __tablename__ = 'padrao'
+    class ClientsCompts(Base):
+        __tablename__ = 'clients_compts'
 
         id = Column(Integer, primary_key=True)
-        main_id = Column(Integer, ForeignKey('main.id'))
-        main = relationship("Main", back_populates="padraos")
+        main_empresa_id = Column(Integer, ForeignKey('main_empresas.id'))
+        main_empresas = relationship(
+            "MainEmpresas", back_populates="clients_compts")
         # razao_social = Column(String(100))
         declarado = Column(String(5))
         nf_saidas = Column(String(10))
@@ -128,11 +130,73 @@ class SqlAchemyOrms(MySqlInitConnection):
         imposto_a_calcular = Column(String(7))
         compt = Column(Date())
 
+
+class InsertInDb(Consulta):
+
+    def insert_dfs_into_db_init(self):
+
+        session = self.Session()
+        dados_padrao, df_compt = self.consuldream()
+        df_compt = df_compt.fillna('')
+        for col in ['Valor Total', 'Sem retenção', 'Com Retenção']:
+            df_compt[col] = df_compt[col].replace('zerou', 0)
+
+        dados_padrao = dados_padrao.fillna('')
+        dados_padrao = dados_padrao.drop_duplicates(['CNPJ'])
+
+        # df_compt = df_compt.replace(np.nan, '')
+        # Loop over the rows in dados_padrao DataFrame and create MainEmpresas instances
+
+        for idx, row in dados_padrao.iterrows():
+            main = SqlAchemyOrms.MainEmpresas(
+                razao_social=row['Razão Social'],
+                cnpj=row['CNPJ'],
+                cpf=row['CPF'],
+                codigo_simples=row['Código Simples'],
+                email=row['email'],
+                gissonline=row['GissOnline'],
+                giss_login=row['Giss Login'],
+                ginfess_cod=row['Ginfess Cód'],
+                ginfess_link=row['Ginfess Link'],
+                ha_procuracao_ecac=row['Há procuração ECAC']
+            )
+            existing_row = session.query(
+                SqlAchemyOrms.MainEmpresas).filter_by(cnpj=row['CNPJ']).first()
+            if existing_row is None:
+                session.add(main)
+        session.commit()
+        # ---
+        for idx, row in df_compt.iterrows():
+            row['CNPJ']
+            main_empresa_id = session.query(SqlAchemyOrms.MainEmpresas).filter_by(
+                cnpj=row['CNPJ']).first().id
+
+            padrao = SqlAchemyOrms.ClientsCompts(
+                main_empresa_id=main_empresa_id,
+                declarado=row['Declarado'],
+                nf_saidas=row['NF Saídas'],
+                entradas=row['Entradas'],
+                sem_retencao=row['Sem retenção'] or 0,
+                com_retencao=row['Com Retenção'] or 0,
+                valor_total=row['Valor Total'] or 0,
+                anexo=row['Anexo'],
+                envio=row['ENVIO'],
+                imposto_a_calcular=row['Imposto a calcular'],
+                # compt=self.ATUAL_COMPT
+                # TODO: check todos
+            )
+            session.add(padrao)
+
+        # Commit the changes to the database
+        session.commit()
+
+
 alc = SqlAchemyOrms()
 alc.Base.metadata.create_all(alc.engine)
-session = alc.Session
+insert_in_db = InsertInDb()
+insert_in_db.insert_dfs_into_db_init()
 
-
+# session = alc.Session
 
 
 # COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
