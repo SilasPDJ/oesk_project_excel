@@ -48,6 +48,10 @@ elif page == UPDATE_EMPRESAS:
     empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
     razao_social = st.text_input("Razão Social", value=empresa.razao_social)
 
+    df = EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 3)
+    # for e, col in enumerate(df.columns):
+    #     st.selectbox(f'select-{e}', df[col])
+
     if st.button("Update Empresas"):
         if not cnpj or not razao_social:
             st.warning("Please enter CNPJ and Razão Social.")
