@@ -1,4 +1,4 @@
-from scripts.init_database import MySqlInitConnection
+from backend.database import MySqlInitConnection
 from default.sets import Initial
 from default.sets import get_compt
 import pandas as pd

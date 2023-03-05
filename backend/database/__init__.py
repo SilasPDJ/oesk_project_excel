@@ -10,6 +10,9 @@ from sqlalchemy.orm import sessionmaker
 
 
 class MySqlInitConnection:
+
+    # just to declare to methods recieve general orm model
+
     def __init__(self, engine=None) -> None:
         if engine is None:
             self.engine = self.__init_connection()
@@ -50,7 +53,7 @@ class MySqlInitConnection:
             results = conn.execute(text(query), *args)
             return results.fetchall()
 
-    def commit_query(self, query, *args):
+    def commit_text_query(self, query, *args):
         """### INSERT, UPDATE, DELETE
 
         Args:
@@ -67,6 +70,17 @@ class MySqlInitConnection:
 
     def pd_read_sql(self, query) -> pd.read_sql:
         return pd.read_sql(text(query), self.engine.connect())
+
+    def pd_sql_query_select(self, *fields):
+        import sqlalchemy as db
+        with self.engine.connect() as conn:
+            df = pd.read_sql_query(
+                db.select(
+                    *fields
+                ), conn
+
+            )
+            return df
 
     def pd_insert_df_to_mysql(self, df: pd.DataFrame, tb_name: str, if_exists="replace"):
         """this method inserts Dataframe into mysql
