@@ -1,3 +1,4 @@
+from default.sets import get_compt, compt_to_date_obj
 from backend.database.db_interface import DBInterface
 import pandas as pd
 import sqlalchemy as db
@@ -64,10 +65,64 @@ elif page == UPDATE_EMPRESAS:
                 st.error("Failed to update Empresas.")
 
 elif page == UPDATE_COMPT:
-    # compt =
-
+    columns = st.columns(2)
     # empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
-    pass
+    # razao_social = st.text_input("Razão Social", value=empresa.razao_social)
+
+    # cnpj = st.selectbox("Select a cnpj",
+    #                     EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2))
+    # ------------------------------------- VS --------------------------
+    with columns[0]:
+        razao_social = st.selectbox(
+            "Selecione uma razão social", EMPRESAS_ORM_OPERATIONS.generate_df().iloc[:, 0])
+
+        # EMPRESAS_ORM_OPERATIONS.generate_df().iloc[:, 1]
+        cnpj = st.text_input(
+            "Exibindo CNPJ", EMPRESAS_ORM_OPERATIONS.find_by_razao_social(razao_social).cnpj, disabled=True)
+
+        _COMPT = st.date_input("Qual competencia?",
+                               compt_to_date_obj(get_compt(-1)))
+
+        other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
+            cnpj, _COMPT)
+        if other_values:
+            # other_values.main_empresa_id
+            # formatted_number = "${:,.2f}".format(my_number)
+
+            other_values.declarado = st.text_input(
+                "Está Declarado?", other_values.declarado)
+            other_values.nf_saidas = st.text_input(
+                "NF Saídas: ", other_values.nf_saidas)
+            # TODO, mudar para nf_entradas
+            other_values.nf_entradas = st.text_input(
+                "NF Entradas:", other_values.nf_entradas)
+
+            other_values.sem_retencao = st.number_input(
+                "Sem retenção: ", other_values.sem_retencao or 0)
+
+            other_values.com_retencao = st.number_input(
+                "Com retenção: ", other_values.com_retencao or 0)
+            other_values.valor_total = st.number_input(
+                "Valor Total: ", other_values.valor_total or 0)
+            other_values.anexo = st.text_input("Anexo: ", other_values.anexo)
+            other_values.envio = st.text_input("Envio: ", other_values.envio)
+            other_values.imposto_a_calcular = st.text_input("Inposto a calcular",
+                                                            other_values.imposto_a_calcular, disabled=True)
+            if st.button("Enviar"):
+                updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(cnpj,
+                                                                          other_values)
+                if updated:
+                    st.success("Empresas updated successfully.")
+                else:
+                    st.error("Failed to update Competencias.")
+
+        # date = st.date_input("date", other_values.compt)
+
+    # razao_social = st.text_input("Razão Social", value=empresa.razao_social)
+
+    # empresa = EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(cnpj="cnpj", razao_social="razao_social")
+    # empresa.cnpj
+    # COMPT_ORM_OPERATIONS.filter_by_kwargs()
 
 # print(item.cnpj)
 

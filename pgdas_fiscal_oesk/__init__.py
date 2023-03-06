@@ -93,15 +93,15 @@ class Consultar(Initial):
 class Consulta_DB(Initial, MySqlInitConnection):
     # mysql_conn = init_connection()
 
-    def __init__(self, compt=None) -> None:
+    def __init__(self, compt: str) -> None:
         super().__init__()
         """
         Calls SqlInitConnection...
         """
-        self.compt = compt
         self.MAIN_FOLDER = self.getset_folderspath()
         self.MAIN_FILE = self.getset_folderspath(False)
-        self.MAIN_COMPT = get_compt(m_cont=-1) if compt is None else compt
+        self.loop_compt_str = compt
+
         # TODO: get_compt as date() value type
 
         query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='main'"
@@ -143,7 +143,7 @@ class Consulta_DB(Initial, MySqlInitConnection):
         DADOS_PADRAO = pd.read_excel(
             self.MAIN_FILE, sheet_name='DADOS_PADRÃO')
         DADOS_COMPT_ATUAL = pd.read_excel(
-            self.MAIN_FILE, sheet_name=self.MAIN_COMPT, dtype=str)
+            self.MAIN_FILE, sheet_name=self.loop_compt_str, dtype=str)
 
         return DADOS_PADRAO, DADOS_COMPT_ATUAL
         # df_padrao, df_compt_atual = self.consuldream()

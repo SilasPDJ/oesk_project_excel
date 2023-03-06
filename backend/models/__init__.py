@@ -1,5 +1,5 @@
 from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey
 from sqlalchemy import Integer, String, Numeric, Date
 from backend.database import MySqlInitConnection as Connection
 
@@ -36,13 +36,14 @@ class SqlAchemyOrms(Connection):
         main_empresas = relationship(
             "MainEmpresas", back_populates="clients_compts")
         # razao_social = Column(String(100))
-        declarado = Column(String(5))
-        nf_saidas = Column(String(10))
-        entradas = Column(String(10))
+        declarado = Column(String(10))
+        nf_saidas = Column(String(30))
+        nf_entradas = Column(String(30))
         sem_retencao = Column(Numeric(precision=10, scale=2))
         com_retencao = Column(Numeric(precision=10, scale=2))
         valor_total = Column(Numeric(precision=10, scale=2))
         anexo = Column(String(3))
-        envio = Column(String(3))
+        envio = Column(String(10))
         imposto_a_calcular = Column(String(7))
+        possui_das_pendentes = Column(Boolean())
         compt = Column(Date())

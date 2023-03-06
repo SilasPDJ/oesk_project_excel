@@ -7,6 +7,7 @@ import streamlit as st
 # import mysql.connector
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+import sqlalchemy as db
 
 
 class MySqlInitConnection:
@@ -72,7 +73,6 @@ class MySqlInitConnection:
         return pd.read_sql(text(query), self.engine.connect())
 
     def pd_sql_query_select(self, *fields):
-        import sqlalchemy as db
         with self.engine.connect() as conn:
             df = pd.read_sql_query(
                 db.select(

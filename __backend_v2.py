@@ -27,23 +27,37 @@ from backend.models import SqlAchemyOrms
 
 class TablesCreationInDBFromPandas(Consulta_DB):
     def __init__(self, compt) -> None:
-        super().__init__(compt)
+        self.COMPT = compt
 
-    def _insert_dfs_into_db_init(self, str_compt: str):
+    @staticmethod
+    def get_money_as_decimal(money) -> float:
+        str_money = str(money).upper().strip()
+        if str_money == '' or str_money == '0' or str_money == "DAS_PEND":
+            return 0.0
+        else:
+            try:
+                return float(money)
+            except ValueError:
+                return money
+
+    def main_insert_dfs_into_db_init(self, str_compt: str):
+        super().__init__(str_compt)
 
         session = self.Session()
+        compt_as_date = compt_to_date_obj(str_compt)
         dados_padrao, df_compt = self.consuldream()
+
         df_compt = df_compt.fillna('')
         for col in ['Valor Total', 'Sem retenção', 'Com Retenção']:
             df_compt[col] = df_compt[col].replace('zerou', 0)
 
         dados_padrao = dados_padrao.fillna('')
         dados_padrao = dados_padrao.drop_duplicates(['CNPJ'])
-
         # df_compt = df_compt.replace(np.nan, '')
         # Loop over the rows in dados_padrao DataFrame and create MainEmpresas instances
 
         for idx, row in dados_padrao.iterrows():
+
             main = SqlAchemyOrms.MainEmpresas(
                 razao_social=row['Razão Social'],
                 cnpj=row['CNPJ'],
@@ -63,22 +77,32 @@ class TablesCreationInDBFromPandas(Consulta_DB):
         session.commit()
         # ---
         for idx, row in df_compt.iterrows():
-            row['CNPJ']
             main_empresa_id = session.query(SqlAchemyOrms.MainEmpresas).filter_by(
                 cnpj=row['CNPJ']).first().id
+
+            possui_das_pend = True if row['Valor Total'].upper(
+            ).strip() == "DAS_PEND" else False
+            # possui das pendentes?
+
+            row['Sem retenção'] = self.get_money_as_decimal(
+                row['Sem retenção'])
+            row['Com Retenção'] = self.get_money_as_decimal(
+                row['Com Retenção'])
+            row['Valor Total'] = self.get_money_as_decimal(row['Valor Total'])
 
             padrao = SqlAchemyOrms.ClientsCompts(
                 main_empresa_id=main_empresa_id,
                 declarado=row['Declarado'],
                 nf_saidas=row['NF Saídas'],
-                entradas=row['Entradas'],
-                sem_retencao=row['Sem retenção'] or 0,
-                com_retencao=row['Com Retenção'] or 0,
-                valor_total=row['Valor Total'] or 0,
+                nf_entradas=row['Entradas'],
+                sem_retencao=row['Sem retenção'],
+                com_retencao=row['Com Retenção'],
+                valor_total=row['Valor Total'],
                 anexo=row['Anexo'],
                 envio=row['ENVIO'],
                 imposto_a_calcular=row['Imposto a calcular'],
-                compt=compt_to_date_obj(str_compt)
+                possui_das_pendentes=possui_das_pend,
+                compt=compt_as_date
                 # TODO: check todos
             )
             existing_row = session.query(SqlAchemyOrms.ClientsCompts)\
@@ -89,13 +113,6 @@ class TablesCreationInDBFromPandas(Consulta_DB):
                 session.add(padrao)
         # Commit the changes to the database
         session.commit()
-
-    def insert_all_dfs_in_mysql(self):
-        # tables_creation_obj = self
-        # for compt in InitialSetting.ate_atual_compt(tables_creation_obj.MAIN_COMPT, '07-2021'):
-        #     tables_creation_obj.insert_dfs_into_db_init(compt)
-        for compt in InitialSetting.ate_atual_compt(self.MAIN_COMPT, '07-2021'):
-            self._insert_dfs_into_db_init(compt)
 
 
 alc = SqlAchemyOrms()
@@ -108,9 +125,11 @@ GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 
-tables_creation_obj = TablesCreationInDBFromPandas(COMPT)
-# tables_creation_obj.insert_all_dfs_in_mysql()
 
+tables_creation_obj = TablesCreationInDBFromPandas(COMPT)
+
+for compt in InitialSetting.ate_atual_compt(tables_creation_obj.COMPT, '07-2021'):
+    tables_creation_obj.main_insert_dfs_into_db_init(compt)
 
 # session = alc.Session
 
