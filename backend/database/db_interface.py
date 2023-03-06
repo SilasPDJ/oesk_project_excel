@@ -1,5 +1,6 @@
 from typing_extensions import override
 import MySQLdb
+from app import COMPT_ORM_OPERATIONS
 from backend.models import SqlAchemyOrms
 from backend.database import MySqlInitConnection
 import pandas as pd
@@ -101,30 +102,44 @@ class DBInterface:
 
                 return query.first()
 
-        # got the arguments required
-        def update_from_cnpj_and_compt(self, cnpj, other_values):
+        def update_from_cnpj_and_compt(self, cnpj: str, values_obj: COMPT_ORM_OPERATIONS, allowed=[]):
+            """This abstraction updates the COMPTs table using cnpj, getting the other_values as parameter
+    
+
+            Args:
+                cnpj (str): client_cnpj
+                other_values (COMPT_ORM_OPERATIONS): object to be updated
+                allowed (list, optional): If it's None, it'll update the full object. Defaults to [].
+
+            Returns:
+                boolean: True: things have been saved / False: error with DB
+            """
             empresa = None
 
             # Filtered the object to be updated
             with self.conn_obj.Session() as session:
-                empresa = session.query(self.orm).filter_by(compt=other_values.compt).join(
+                empresa = session.query(self.orm).filter_by(compt=values_obj.compt).join(
                     self.orm.main_empresas)\
                     .filter(SqlAchemyOrms.MainEmpresas.cnpj == cnpj).one_or_none()
 
                 if empresa:
                     update_dict = {
-                        'declarado': other_values.declarado,
-                        'nf_saidas': other_values.nf_saidas,
-                        'entradas': other_values.nf_entradas,
-                        'sem_retencao': other_values.sem_retencao,
-                        'com_retencao': other_values.com_retencao,
-                        'valor_total': other_values.sem_retencao + other_values.com_retencao,
-                        'anexo': other_values.anexo,
-                        'envio': other_values.envio,
-                        'imposto_a_calcular': other_values.imposto_a_calcular
+                        'declarado': values_obj.declarado,
+                        'nf_saidas': values_obj.nf_saidas,
+                        'entradas': values_obj.nf_entradas,
+                        'sem_retencao': values_obj.sem_retencao,
+                        'com_retencao': values_obj.com_retencao,
+                        'valor_total': values_obj.sem_retencao + values_obj.com_retencao,
+                        'anexo': values_obj.anexo,
+                        'envio': values_obj.envio,
+                        'imposto_a_calcular': values_obj.imposto_a_calcular
                     }
                     for key, value in update_dict.items():
-                        setattr(empresa, key, value)
+                        if allowed != []:
+                            if key in allowed:
+                                setattr(empresa, key, value)
+                        else:
+                            setattr(empresa, key, value)
 
                     session.add(empresa)
                     session.commit()

@@ -99,74 +99,94 @@ elif page == UPDATE_COMPT:
     # cnpj = st.selectbox("Select a cnpj",
     #                     EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2))
     # ------------------------------------- VS --------------------------
-
     # EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2)
-
+    # -------------------------------------------------------------------
+    # --- Realiza as condições para exibir
     cnpjs = EMPRESAS_ORM_OPERATIONS.generate_df().iloc[:, 1]
+    filtered_cnpjs = []
     for i, cnpj, in enumerate(cnpjs[1:]):
         form_key = f"form_{i:04d}"
 
-        dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
+        # dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
 
         other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
             cnpj, _COMPT)
-
         if other_values:
-            razao_social = dados.razao_social
             if other_values.anexo in filtrar_quais_anexos:
-                with columns[i % num_cols]:
-                    with st.form(key=form_key):
-                        if other_values.declarado:
-                            st.markdown(
-                                '<div style="width: 10px; height: 10px; border-radius: 50%; background-color: green;"></div>', unsafe_allow_html=True)
+                filtered_cnpjs.append(cnpj)
+
+    # --- Realiza a exibição baseado nas condições acima
+    for i, cnpj in enumerate(filtered_cnpjs):
+        form_key = f"form_{i:04d}"
+        dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
+        other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
+            cnpj, _COMPT)
+        # if other_values:
+        razao_social = dados.razao_social
+        with columns[i % num_cols]:
+            div_container = st.container()
+            with st.form(key=form_key):
+                if st.form_submit_button("Alterar Status"):
+                    other_values.declarado = not other_values.declarado
+                    updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
+                        cnpj, other_values, ['declarado'])
+                    if updated:
+                        st.warning("Status de declaração alterado!")
+                    else:
+                        st.error("Falha em conexão")
+                # with div_container:
+                with div_container:
+                    if other_values.declarado:
+                        st.markdown(
+                            '<div style="width: 10px; height: 10px; border-radius: 50%; background-color: green;"></div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown(
+                            '<div style="width: 10px; height: 10px; border-radius: 50%; background-color: red;"></div>', unsafe_allow_html=True)
+                st.code(razao_social)
+                st.code(cnpj)
+                # other_values.main_empresa_id
+                # formatted_number = "${:,.2f}".format(my_number)
+                other_values.sem_retencao = float(
+                    other_values.sem_retencao)
+                other_values.com_retencao = float(
+                    other_values.com_retencao)
+                other_values.valor_total = float(
+                    other_values.valor_total)
+
+                other_values.sem_retencao = st.number_input(
+                    "Sem retenção: ", 0., 9999999., other_values.sem_retencao, 100.00)
+
+                other_values.com_retencao = st.number_input(
+                    "Com retenção: ", 0., 9999999., other_values.com_retencao, 100.00)
+
+                other_values.valor_total = st.number_input(
+                    "Valor Total: ", 0., 9999999., sum_values(other_values.sem_retencao, other_values.com_retencao) or other_values.valor_total, 100.00, disabled=True)
+
+                other_values.anexo = st.text_input(
+                    "Anexo: ", other_values.anexo)
+
+                other_values.nf_saidas = st.text_input(
+                    "NF Saídas: ", other_values.nf_saidas)
+                # TODO, mudar para nf_entradas
+                other_values.nf_entradas = st.text_input(
+                    "NF Entradas:", other_values.nf_entradas)
+
+                other_values.envio = st.text_input(
+                    "Envio: ", other_values.envio)
+                other_values.imposto_a_calcular = st.text_input("Inposto a calcular",
+                                                                other_values.imposto_a_calcular, disabled=True)
+                confirm_changes = True
+                if confirm_changes:
+                    if st.form_submit_button():
+                        updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(cnpj,
+                                                                                  other_values)
+                        if updated:
+                            st.success(
+                                "Empresas updated successfully.")
                         else:
-                            st.markdown(
-                                '<div style="width: 10px; height: 10px; border-radius: 50%; background-color: red;"></div>', unsafe_allow_html=True)
-                        st.code(razao_social)
-                        st.code(cnpj)
-                        # other_values.main_empresa_id
-                        # formatted_number = "${:,.2f}".format(my_number)
-                        other_values.sem_retencao = float(
-                            other_values.sem_retencao)
-                        other_values.com_retencao = float(
-                            other_values.com_retencao)
-                        other_values.valor_total = float(
-                            other_values.valor_total)
-
-                        other_values.sem_retencao = st.number_input(
-                            "Sem retenção: ", 0., 9999999., other_values.sem_retencao, 100.00)
-
-                        other_values.com_retencao = st.number_input(
-                            "Com retenção: ", 0., 9999999., other_values.com_retencao, 100.00)
-
-                        other_values.valor_total = st.number_input(
-                            "Valor Total: ", 0., 9999999., sum_values(other_values.sem_retencao, other_values.com_retencao) or other_values.valor_total, 100.00, disabled=True)
-
-                        other_values.anexo = st.text_input(
-                            "Anexo: ", other_values.anexo)
-
-                        other_values.nf_saidas = st.text_input(
-                            "NF Saídas: ", other_values.nf_saidas)
-                        # TODO, mudar para nf_entradas
-                        other_values.nf_entradas = st.text_input(
-                            "NF Entradas:", other_values.nf_entradas)
-
-                        other_values.envio = st.text_input(
-                            "Envio: ", other_values.envio)
-                        other_values.imposto_a_calcular = st.text_input("Inposto a calcular",
-                                                                        other_values.imposto_a_calcular, disabled=True)
-                        confirm_changes = True
-                        if confirm_changes:
-                            if st.form_submit_button():
-                                updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(cnpj,
-                                                                                          other_values)
-                                if updated:
-                                    st.success(
-                                        "Empresas updated successfully.")
-                                else:
-                                    st.error("Failed to update Competencias.")
-                        # cnpj = st.text_input(
-                        #     "Exibindo CNPJ", EMPRESAS_ORM_OPERATIONS.find_by_razao_social(razao_social).cnpj, disabled=True)
+                            st.error("Failed to update Competencias.")
+                # cnpj = st.text_input(
+                #     "Exibindo CNPJ", EMPRESAS_ORM_OPERATIONS.find_by_razao_social(razao_social).cnpj, disabled=True)
 
         # date = st.date_input("date", other_values.compt)
 
