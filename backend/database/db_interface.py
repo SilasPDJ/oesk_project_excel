@@ -118,7 +118,7 @@ class DBInterface:
                         'entradas': other_values.nf_entradas,
                         'sem_retencao': other_values.sem_retencao,
                         'com_retencao': other_values.com_retencao,
-                        'valor_total': other_values.valor_total,
+                        'valor_total': other_values.sem_retencao + other_values.com_retencao,
                         'anexo': other_values.anexo,
                         'envio': other_values.envio,
                         'imposto_a_calcular': other_values.imposto_a_calcular

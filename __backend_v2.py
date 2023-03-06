@@ -128,8 +128,8 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 
 tables_creation_obj = TablesCreationInDBFromPandas(COMPT)
 
-for compt in InitialSetting.ate_atual_compt(tables_creation_obj.COMPT, '07-2021'):
-    tables_creation_obj.main_insert_dfs_into_db_init(compt)
+# for compt in InitialSetting.ate_atual_compt(tables_creation_obj.COMPT, '07-2021'):
+#     tables_creation_obj.main_insert_dfs_into_db_init(compt)
 
 # session = alc.Session
 
