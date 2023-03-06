@@ -1,20 +1,37 @@
 import streamlit as st
 
-# Define the initial values of your form fields
-name = ""
-email = ""
-age = ""
+from streamlit_tags import st_tags, st_tags_sidebar
+keywords = st_tags(
+    label='# Enter Keywords:',
+    text='Press enter to add more',
+    value=['Zero', 'One', 'Two'],
+    suggestions=['five', 'six', 'seven',
+                 'eight', 'nine', 'three',
+                 'eleven', 'ten', 'four'],
+    maxtags=4,
+    key='1')
 
-# Render the first form
-form1 = st.form("Form 1")
-name = form1.text_input("Name")
-email = form1.text_input("Email")
-if form1.form_submit_button("Next"):
-    # Render the second form if the "Next" button is clicked
-    form2 = st.form("Form 2")
-    age = form2.slider("Age", min_value=0, max_value=100, value=30)
-    if form2.form_submit_button("Submit"):
-        # Process the form data when the "Submit" button is clicked
-        st.write(f"Name: {name}")
-        st.write(f"Email: {email}")
-        st.write(f"Age: {age}")
+keyword = st_tags_sidebar(
+    label='# Enter Keywords:',
+    text='Press enter to add more',
+    value=['Zero', 'One', 'Two'],
+    suggestions=['five', 'six', 'seven',
+                 'eight', 'nine', 'three',
+                 'eleven', 'ten', 'four'],
+    maxtags=4,
+    key='2')
+
+# Define the CSS style for the form
+# css = """
+#     .streamlitTeste {
+#         border: 2px solid green;
+#         border-radius: 5px;
+#         padding: 10px;
+#     }
+# """
+
+# # Add the form to the app with the CSS class
+# style(css)
+# with tag("div", class_="streamlitTeste"):
+#     input_(type="text", label="Enter your name")
+#     button(type="submit", label="Submit")

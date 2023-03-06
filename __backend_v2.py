@@ -90,6 +90,10 @@ class TablesCreationInDBFromPandas(Consulta_DB):
                 row['Com Retenção'])
             row['Valor Total'] = self.get_money_as_decimal(row['Valor Total'])
 
+            esta_declarado = row['Declarado'].upper(
+            ) == 'OK' or row['Declarado'].upper() == 'S'
+            row['Declarado'] = True if esta_declarado else False
+
             padrao = SqlAchemyOrms.ClientsCompts(
                 main_empresa_id=main_empresa_id,
                 declarado=row['Declarado'],
@@ -128,8 +132,8 @@ IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 
 tables_creation_obj = TablesCreationInDBFromPandas(COMPT)
 
-# for compt in InitialSetting.ate_atual_compt(tables_creation_obj.COMPT, '07-2021'):
-#     tables_creation_obj.main_insert_dfs_into_db_init(compt)
+for compt in InitialSetting.ate_atual_compt(tables_creation_obj.COMPT, '07-2021'):
+    tables_creation_obj.main_insert_dfs_into_db_init(compt)
 
 # session = alc.Session
 

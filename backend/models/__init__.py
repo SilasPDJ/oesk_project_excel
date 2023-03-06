@@ -36,7 +36,7 @@ class SqlAchemyOrms(Connection):
         main_empresas = relationship(
             "MainEmpresas", back_populates="clients_compts")
         # razao_social = Column(String(100))
-        declarado = Column(String(10))
+        declarado = Column(Boolean())
         nf_saidas = Column(String(30))
         nf_entradas = Column(String(30))
         sem_retencao = Column(Numeric(precision=10, scale=2))
