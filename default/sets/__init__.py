@@ -117,7 +117,12 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
 
 class Initial:
     main_path = os.path.dirname(os.path.realpath(__file__))
-    main_path += '\with_titlePATH.txt'
+
+    def __init__(self, main_path=None) -> None:
+        if main_path is None:
+            self.main_path += '\with_titlePATH.txt'
+        else:
+            self.main_path += main_path
 
     @classmethod
     def getset_folderspath(cls, folder_path_only=True):
@@ -135,8 +140,8 @@ class Initial:
                 returned = f.read()
         # except FileNotFoundError:
         except (OSError, FileNotFoundError) as e:
-            e('WITH TITLE PATH NOT EXISTENTE ')
-            returned = cls.__select_path_if_not_exists()
+            # e('WITH TITLE PATH NOT EXISTENTE ')
+            returned = cls.__select_path_if_not_exists(cls)
 
         if returned and folder_path_only:
             returned = os.path.dirname(returned)

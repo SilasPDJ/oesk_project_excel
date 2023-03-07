@@ -1,6 +1,5 @@
 from typing_extensions import override
 import MySQLdb
-from app import COMPT_ORM_OPERATIONS
 from backend.models import SqlAchemyOrms
 from backend.database import MySqlInitConnection
 import pandas as pd
@@ -102,9 +101,8 @@ class DBInterface:
 
                 return query.first()
 
-        def update_from_cnpj_and_compt(self, cnpj: str, values_obj: COMPT_ORM_OPERATIONS, allowed=[]):
+        def update_from_cnpj_and_compt(self, cnpj: str, values_obj: object, allowed=[]):
             """This abstraction updates the COMPTs table using cnpj, getting the other_values as parameter
-    
 
             Args:
                 cnpj (str): client_cnpj
