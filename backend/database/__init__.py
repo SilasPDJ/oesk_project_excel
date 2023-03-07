@@ -81,6 +81,7 @@ class MySqlInitConnection:
 
             )
             return df
+
     def pd_sql_query_select(self, query):
         with self.engine.connect() as conn:
             df = pd.read_sql_query(query, conn)
