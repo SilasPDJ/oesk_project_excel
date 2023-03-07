@@ -72,7 +72,7 @@ class MySqlInitConnection:
     def pd_read_sql(self, query) -> pd.read_sql:
         return pd.read_sql(text(query), self.engine.connect())
 
-    def pd_sql_query_select(self, *fields):
+    def pd_sql_query_select_fields(self, *fields):
         with self.engine.connect() as conn:
             df = pd.read_sql_query(
                 db.select(
@@ -80,6 +80,10 @@ class MySqlInitConnection:
                 ), conn
 
             )
+            return df
+    def pd_sql_query_select(self, query):
+        with self.engine.connect() as conn:
+            df = pd.read_sql_query(query, conn)
             return df
 
     def pd_insert_df_to_mysql(self, df: pd.DataFrame, tb_name: str, if_exists="replace"):

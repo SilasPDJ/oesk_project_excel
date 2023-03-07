@@ -25,8 +25,8 @@ class SqlAchemyOrms(Connection):
         clients_compts = relationship(
             "ClientsCompts", back_populates="main_empresas")
 
-    def __repr__(self):
-        return f"<MainEmpresas(cnpj='{self.cnpj}', razao_social='{self.razao_social}')>"
+        def __repr__(self):
+            return f"<MainEmpresas(cnpj='{self.cnpj}', razao_social='{self.razao_social}')>"
 
     class ClientsCompts(Base):
         __tablename__ = 'clients_compts'

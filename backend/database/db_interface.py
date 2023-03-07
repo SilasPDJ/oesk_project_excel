@@ -7,7 +7,7 @@ import pandas as pd
 
 class _StandardOrmMethods:
     # my porpoise is not to get any orm specific attributes  in here
-    def __init__(self, orm, conn_obj: MySqlInitConnection):
+    def __init__(self, orm: SqlAchemyOrms, conn_obj: MySqlInitConnection):
         self.orm = orm
         self.conn_obj = conn_obj
 
@@ -15,9 +15,12 @@ class _StandardOrmMethods:
         public_attributes = self.get_public_attributes(self.orm)
         queried_attributes = [
             getattr(self.orm, attribute) for attribute in public_attributes[start:end:step]]
-        return self.conn_obj.pd_sql_query_select(
+        return self.conn_obj.pd_sql_query_select_fields(
             *queried_attributes
         )
+
+    def select_columns_keys(self):
+        return [column.name for column in self.orm.__table__.columns]
 
     @staticmethod
     def get_public_attributes(orm):
@@ -49,7 +52,7 @@ class DBInterface:
 
         def generate_df(self) -> pd.DataFrame:
 
-            df = self.conn_obj.pd_sql_query_select(
+            df = self.conn_obj.pd_sql_query_select_fields(
                 self.orm.razao_social,
                 self.orm.cnpj,
                 self.orm.cpf,)

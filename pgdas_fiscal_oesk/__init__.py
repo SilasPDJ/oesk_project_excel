@@ -104,11 +104,7 @@ class Consulta_DB(Initial, MySqlInitConnection):
 
         # TODO: get_compt as date() value type
 
-        query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='main'"
-        # Create SQLAlchemy engine using the connection string
-
         # self.consuldream()
-
         # df = self.pd_read_sql(query)
 
         # s_settings_df = pd.DataFrame(self.engine.connect().execute(text(query)))

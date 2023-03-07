@@ -67,7 +67,7 @@ elif page == UPDATE_EMPRESAS:
 
     cnpj = st.selectbox("Select a cnpj",
                         EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2))
-    # cnpj = st.selectbox("Select a cnpj", conn_obj.pd_sql_query_select(
+    # cnpj = st.selectbox("Select a cnpj", conn_obj.pd_sql_query_select_fields(
     #     SqlAchemyOrms.MainEmpresas.cnpj,))
     empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
     razao_social = st.text_input("Razão Social", value=empresa.razao_social)
@@ -108,7 +108,7 @@ elif page == UPDATE_COMPT:
     # ------------------------ Realiza as condições para exibir
     cnpjs = EMPRESAS_ORM_OPERATIONS.generate_df().iloc[:, 1]
 
-    clientes_obj = conn_obj.pd_sql_query_select(
+    clientes_obj = conn_obj.pd_sql_query_select_fields(
         SqlAchemyOrms.MainEmpresas.razao_social)
     # filtrar_quais_clientes = display_clientes_sidebar_selector()
     filtered_cnpjs = []
