@@ -11,20 +11,23 @@ class _StandardOrmMethods:
         self.orm = orm
         self.conn_obj = conn_obj
 
-    def generate_df_v2(self, start, end, step=1) -> pd.DataFrame:
-        public_attributes = self.get_public_attributes(self.orm)
+    def generate_df_v2(self, start=None, end=None) -> pd.DataFrame:
+        columns = self.select_columns_keys()
         queried_attributes = [
-            getattr(self.orm, attribute) for attribute in public_attributes[start:end:step]]
+            getattr(self.orm, attribute) for attribute in columns[start:end]]
         return self.conn_obj.pd_sql_query_select_fields(
             *queried_attributes
         )
 
-    def select_columns_keys(self):
+    def select_columns_keys(self) -> list:
         return [column.name for column in self.orm.__table__.columns]
 
     @staticmethod
-    def get_public_attributes(orm):
-        return [attr for attr in dir(orm) if not attr.startswith("_")]
+    def generate_df_query_results_all(results) -> pd.DataFrame:
+        records = [r.__dict__ for r in results]
+        df = pd.DataFrame.from_records(records)
+        df = df.drop(columns=["_sa_instance_state"])
+        return df
 
 
 class DBInterface:
@@ -49,14 +52,6 @@ class DBInterface:
                     empresa.razao_social = razao_social
                     session.commit()
                     return True
-
-        def generate_df(self) -> pd.DataFrame:
-
-            df = self.conn_obj.pd_sql_query_select_fields(
-                self.orm.razao_social,
-                self.orm.cnpj,
-                self.orm.cpf,)
-            return df
 
         def find_by_cnpj(self, cnpj):
             with self.conn_obj.Session() as session:
@@ -103,6 +98,12 @@ class DBInterface:
                 # return the last
 
                 return query.first()
+
+        def filter_all_by_compt(self, compt):
+            with self.conn_obj.Session() as session:
+                query = session.query(self.orm).filter_by(compt=compt)
+                # return the last
+                return query.all()
 
         def update_from_cnpj_and_compt(self, cnpj: str, values_obj: object, allowed=[]):
             """This abstraction updates the COMPTs table using cnpj, getting the other_values as parameter

@@ -30,8 +30,8 @@ page = st.sidebar.selectbox(
     'Select a Page', [HOME, UPDATE_EMPRESAS, UPDATE_COMPT], 2)  # in this file
 
 st.sidebar.title(f"{page} :flag-br:")
-_COMPT = st.sidebar.date_input("Qual competencia?",
-                               compt_to_date_obj(get_compt(-1)))
+_COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
+                                       compt_to_date_obj(get_compt(-1)))
 
 
 filtrar_quais_anexos = display_anexos_selector()
@@ -66,7 +66,7 @@ elif page == UPDATE_EMPRESAS:
     st.code("hi")
 
     cnpj = st.selectbox("Select a cnpj",
-                        EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2))
+                        EMPRESAS_ORM_OPERATIONS.generate_df_v2(2, 3))
     # cnpj = st.selectbox("Select a cnpj", conn_obj.pd_sql_query_select_fields(
     #     SqlAchemyOrms.MainEmpresas.cnpj,))
     empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
@@ -106,7 +106,7 @@ elif page == UPDATE_COMPT:
     # EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2)
     # -------------------------------------------------------------------
     # ------------------------ Realiza as condições para exibir
-    cnpjs = EMPRESAS_ORM_OPERATIONS.generate_df().iloc[:, 1]
+    cnpjs = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
 
     clientes_obj = conn_obj.pd_sql_query_select_fields(
         SqlAchemyOrms.MainEmpresas.razao_social)
@@ -118,7 +118,7 @@ elif page == UPDATE_COMPT:
         # dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
 
         other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
-            cnpj, _COMPT)
+            cnpj, _COMPT_AS_DATE)
         if other_values:
             #  if EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
             #                         id=other_values.main_empresa_id).razao_social in filtrar_quais_clientes:
@@ -131,7 +131,7 @@ elif page == UPDATE_COMPT:
         form_key = f"form_{i:04d}"
         dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
         other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
-            cnpj, _COMPT)
+            cnpj, _COMPT_AS_DATE)
         # if other_values:
         razao_social = dados.razao_social
         with columns[i % num_cols]:
