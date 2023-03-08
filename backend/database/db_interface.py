@@ -2,6 +2,9 @@ from typing_extensions import override
 import MySQLdb
 from backend.models import SqlAchemyOrms
 from backend.database import MySqlInitConnection
+
+from typing import List, Type
+
 import pandas as pd
 
 
@@ -99,7 +102,7 @@ class DBInterface:
 
                 return query.first()
 
-        def filter_all_by_compt(self, compt):
+        def filter_all_by_compt(self, compt) -> List[Type[SqlAchemyOrms.Base]]:
             with self.conn_obj.Session() as session:
                 query = session.query(self.orm).filter_by(compt=compt)
                 # return the last

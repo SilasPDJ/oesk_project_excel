@@ -30,7 +30,7 @@ class MySqlInitConnection:
         # return mysql.connector.connect(**st.secrets["mysql"])
         # return MySQLdb.Connection(**st.secrets["mysql"])
 
-    def create_table_sql(self, df, tbname):
+    def create_table_if_not_exists(self, df, tbname):
         # Generate a SQL schema string based on the DataFrame columns
         df.columns = [col.lower().replace(" ", "_") for col in df.columns]
         # df, tbname, con=self.conn).replace('"', '`')
@@ -87,14 +87,15 @@ class MySqlInitConnection:
             df = pd.read_sql_query(query, conn)
             return df
 
-    def pd_insert_df_to_mysql(self, df: pd.DataFrame, tb_name: str, if_exists="replace"):
+    def update_df_to_db(self, df: pd.DataFrame, tb_name=None, if_exists="replace"):
         """this method inserts Dataframe into mysql
         Args:
             df (pd.DataFrame): pandas Dataframe that is going to be created in mysql
-            tb_name (str): table name to be created before, it'll be created only if not exists
-            if_exists (str, optional): if_exists pd.to_sql argument. Defaults to "replace".
-        """
-        self.create_table_sql(df, tb_name)
+            tb_name (str, optional): table name to be created before, it'll be created only if not exists
+            if_exists (str: 'fail', 'replace', 'append'): if_exists pd.to_sql argument. Defaults to "replace".
 
+        """
+        if tb_name:
+            self.create_table_if_not_exists(df, tb_name)
         df.to_sql(name=tb_name, con=self.engine,
                   if_exists=if_exists, index=False)
