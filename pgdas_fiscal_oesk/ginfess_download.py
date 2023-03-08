@@ -28,12 +28,15 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
     # only static methods from JsonDateWithDataImprove
 
     def __init__(self, *dados, compt,  show_driver=False):
+        # TODO: settar ginfess_valores nos nos outros municipios
+        # em especial São Paulo
         # driver
         __r_social, __cnpj, _ginfess_cod, link = dados
 
         self.compt = compt
         # mesma coisa de self.any_to_str, só que ele aceita args desempacotados
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
+        self.ginfess_valores = None
 
         # Checa se já existe certificado
         if _ginfess_cod.lower() == 'não há':
@@ -479,6 +482,59 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         # de.send_keys(Keys.TAB)
 
     def excel_from_html_above(self, excel_file, html):
+        import numpy as np
+        from bs4 import BeautifulSoup
+        mylist = pd.read_html(html)
+        soup = BeautifulSoup(html, 'html.parser')
+        nfs_html = [str(table) for table in soup.select('table')]
+        # for table, row_a, row_c in zip(with_class, ws['A'], ws['C']):
+        # if 'notaCancelada' in table:
+        header = ['Nº NF', 'Data', 'Valor', 'Imposto',
+                  'CPF/CNPJ tomador', 'NF cancelada']
+        # df = pd.concat(mylist)
+        df = pd.concat([df.iloc[:, :5] for df in mylist], ignore_index=True)
+
+        def to_number(ind):
+            df[ind] = [d.replace('R$ ', '') for d in df[ind]]
+            df[ind] = [d.replace('.', '') for d in df[ind]]
+            df[ind] = [d.replace(',', '.') for d in df[ind]]
+            df[ind] = pd.to_numeric(df[ind])
+            return df[ind]
+
+        df[2] = to_number(2)
+        df[3] = to_number(3)
+        df['NF cancelada'] = [
+            'notaCancelada' in status_html for status_html in nfs_html]
+        df.columns = range(df.shape[1])  # set back to default the columns name
+        df.columns = header
+
+        # df['Valor'].sum()
+        is_nf_valid = df['NF cancelada'] == False
+        # () evaluates both
+        valor_nao_retido = df.loc[(df['Imposto']
+                                  == 0) & is_nf_valid, 'Valor'].sum()
+        valor_retido = df.loc[(df['Imposto']
+                               > 0) & is_nf_valid, 'Valor'].sum()
+        valor_total = df.loc[is_nf_valid, 'Valor'].sum()
+        # valor_total = df.loc[df['NF cancelada'] == False, 'Valor'].sum()
+        # total_sem_cancelar = df['Valor'].sum()
+        # is_nf_valid
+        # 'NF cancelada' == False then 'NF não foi cancelada, soma'
+        # sum_ = df.iloc[df['Status'] == False, df.columns.get_loc('Valor')].sum()
+        if 'valor_total' not in df.columns:
+            df['valor_nao_retido'] = np.nan
+            df['valor_retido'] = np.nan
+            df['valor_total'] = np.nan
+        df.loc[0, 'valor_nao_retido'] = valor_nao_retido
+        df.loc[0, 'valor_retido'] = valor_retido
+        df.loc[0, 'valor_total'] = valor_total
+
+        self.ginfess_valores = valor_nao_retido, valor_retido, valor_total
+
+        df.to_excel(excel_file, index=False)
+        # TODO send the sum of this values to database, without creating sheet anymore
+
+    def excel_from_html_above__old(self, excel_file, html):
         from bs4 import BeautifulSoup
         from openpyxl.styles import PatternFill
         # from win32com.client import Dispatch

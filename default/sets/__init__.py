@@ -117,12 +117,7 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
 
 class Initial:
     main_path = os.path.dirname(os.path.realpath(__file__))
-
-    def __init__(self, main_path=None) -> None:
-        if main_path is None:
-            self.main_path += '\with_titlePATH.txt'
-        else:
-            self.main_path += main_path
+    main_path = os.path.join(main_path, 'with_titlePATH.txt')
 
     @classmethod
     def getset_folderspath(cls, folder_path_only=True):
@@ -133,24 +128,25 @@ class Initial:
         """
         # filepath = os.path.realpath(__file__)
         # os.path.dirname(filepath)
-        returned = False
+        mainpath = False
         try:
 
             with open(cls.main_path) as f:
-                returned = f.read()
+                mainpath = f.read()
         # except FileNotFoundError:
         except (OSError, FileNotFoundError) as e:
             # e('WITH TITLE PATH NOT EXISTENTE ')
-            returned = cls.__select_path_if_not_exists(cls)
+            mainpath = cls.__select_path_if_not_exists(cls)
 
-        if returned and folder_path_only:
-            returned = os.path.dirname(returned)
-        return returned
+        if mainpath and folder_path_only:
+            return mainpath
+        else:
+            return os.path.join(mainpath, "__EXCEL POR COMPETENCIAS__", "NOVA_FORMA_DE_DADOS.xlsm")
 
-    def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PLANILHA.", savit=main_path):
+    def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL", savit=main_path):
         """[summary]
         Args:
-            some_message (str, optional): []. Defaults to "SELECIONE ONDE ESTÃO SUAS PLANILHAS".
+            some_message (str, optional): []. Defaults to "SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL".
             savit (str, optional): customizable, where to save the info
         Returns:
             [type]: [description]
@@ -159,8 +155,7 @@ class Initial:
         # sh_management = SheetPathManager(file_with_name)
         way = None
         while way is None:
-            way = filedialog.askopenfilename(title=some_message, filetypes=[
-                                             ("Excel files", ".xlsx .xls .xlsm .csv")])
+            way = filedialog.askdirectory(title=some_message)
             if len(way) <= 0:
                 way = None
                 resp = messagebox.askokcancel(
@@ -204,7 +199,7 @@ class InitialSetting(Initial, Dirs, Now):
                 # Se ele não achar o ano vindo do split...
 
         __path = cls.getset_folderspath()
-        path_final = [*str(__path).split('/')[:-1],
+        path_final = [__path,
                       ano, insyear, pasta_client]
         salva_path = Dirs.pathit(*path_final)
         return salva_path

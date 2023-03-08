@@ -1,5 +1,5 @@
 # import pandas as pd
-from default.sets import Initial, compt_to_date_obj
+from default.sets import Initial, InitialSetting, compt_to_date_obj
 from backend.models import SqlAchemyOrms
 from backend.database import MySqlInitConnection
 import pandas as pd
@@ -11,8 +11,9 @@ class TablesCreationInDBFromPandas(MySqlInitConnection):
     Args:
         Consulta_DB (_type_): Brings methods for getting data
     """
-    MAIN_FILE = open(
-        r"O:\HACKING\MY_PROJECTS\oesk_project_excel\default\sets\with_titlePATH.txt").read()
+    MAIN_FILE = InitialSetting.getset_folderspath(False)
+    # MAIN_FILE = open(
+    #     r"O:\HACKING\MY_PROJECTS\oesk_project_excel\default\sets\with_titlePATH.txt").read()
 
     def __init__(self, main_compt, compt_initial) -> None:
         from default.sets import InitialSetting

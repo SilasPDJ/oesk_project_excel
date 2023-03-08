@@ -110,7 +110,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # driver.save_screenshot(self.certif_feito(
         #     self.client_path, add="SimplesNacional-SemMovimento"))
 
-    def declaracao_anexos(self, __valores_de_anexos, valor_competencia, cnpj):
+    def declaracao_anexos(self, __valores_de_anexos: list, valor_competencia, cnpj):
         def new_seleciona_anexo(which_one):
             self.driver.execute_script(f"""
                 let elnow = document.querySelector("a[data-atividade='{cnpj}-{which_one}']");

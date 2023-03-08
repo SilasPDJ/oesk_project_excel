@@ -171,8 +171,6 @@ class Backend:
 
     def ginfess_abcdfirst(self, specifics=[]):
         # mudar specific de None pra ""
-        from pgdas_fiscal_oesk._folders_preset import PreSetsFromGinfess
-
         # ordenação diferente de g5 def
         def can_be_next(c: int, gs: str) -> bool:
             gs = gs.lower()
@@ -193,7 +191,6 @@ class Backend:
                 email = email.strip()
 
                 proc_ecac = proc_ecac.lower()
-                pre_sets = PreSetsFromGinfess()
 
                 if ginfess_link != 'nan' and can_be_next(cont, gissonline):
                     if len(specifics) > 1 or specifics[0].get() != "":
@@ -206,7 +203,6 @@ class Backend:
                                            ginfess_link,  compt=COMPT, show_driver=False)
 
                 if nf_in.upper() != 'NÃO HÁ' or (nf_out.upper() != 'NÃO HÁ' and imposto_a_calcular != 'ISS'):
-                    pre_sets.files_pathit(razao_social, COMPT)
                     print('\033[1;31m', razao_social, '\033[m')
                     # ICMS folder creation
 

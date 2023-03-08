@@ -7,6 +7,7 @@
 # # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 # from pgdas_fiscal_oesk.gias import GIA
 
+from app import COMPT_ORM_OPERATIONS
 from backend.database import MySqlInitConnection
 from backend.models import SqlAchemyOrms
 from default.sets import InitialSetting
@@ -15,12 +16,12 @@ import sys
 from backend.database.db_create import TablesCreationInDBFromPandas
 from backend.database.db_interface import DBInterface
 from default.sets import calc_date_compt_offset, get_compt, compt_to_date_obj
-from default.sets import get_all_valores
+# from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 # from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
 # from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
-# from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
+from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 # from selenium.common.exceptions import UnexpectedAlertPresentException
 # from pgdas_fiscal_oesk.silas_jr import JR
 
@@ -67,35 +68,65 @@ class ComptManager(DBInterface):
         self.engine = self.conn_obj.engine
         self.session = self.conn_obj.Session
 
-        self.DADOS_COMPT = self.COMPT_ORM_OPERATIONS.filter_all_by_compt(
+        __full_query_compts = self.COMPT_ORM_OPERATIONS.filter_all_by_compt(
             self.compt_as_date)
         self.DADOS_COMPT = self.COMPT_ORM_OPERATIONS.generate_df_query_results_all(
-            self.DADOS_COMPT)
+            __full_query_compts)
 
     def call_simples_nacional(self):
         merged_df = self.main_generate_dados()
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
-        tres_valores = ['com_retencao', 'sem_retencao', 'valor_total']
+        anexo_valores = ['sem_retencao', 'com_retencao',  'anexo']
 
-        required_df = merged_df.loc[:, attributes_required+tres_valores]
+        required_df = merged_df.loc[:, attributes_required+anexo_valores]
 
         SEP_INDX = len(attributes_required)
-        for client_row in self._yield_rows(required_df):
+        # for client_row in self._yield_rows(required_df):
+        allowed_column_names = ['declarado']
+
+        for row in merged_df.to_dict(orient='records'):
+            client_row = [row[var] for var in required_df.columns.to_list()]
             print(client_row)
 
-            all_valores = [float(v) for v in client_row[SEP_INDX:]]
+            anexo_valores = [[float(v) for v in client_row[SEP_INDX:]], ]
+            # pois o argumento é uma lista... Próxima implementação, criar tabela específica?
+            # se sim, vai ter que ..mergir.. os dataframes corretamente...
+            # por enquanto só tem umvalor na lista
+            if not row['declarado']:
+                PgdasDeclaracao(*client_row[:SEP_INDX],
+                                compt=self.compt, all_valores=anexo_valores)
+                row['declarado'] = True
 
-            PgdasDeclaracao(*client_row[:SEP_INDX],
-                            compt=self.compt, all_valores=all_valores)
+                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                    row['cnpj'], row, allowed=allowed_column_names)
 
-            # TODO: set row.at[..., declaracao] = True
-            # Como vou atualizar um DF? atualizar pelo ID...
-            # ... Ler gui.py TODO: #
+    def call_ginfess(self):
+        merged_df = self.main_generate_dados()
+        attributes_required = ['razao_social',
+                               'cnpj', 'ginfess_cod', 'ginfess_link']
+        required_df = merged_df.loc[:, attributes_required]
 
-            # self.conn_obj.update_df_to_db()
-            # do that for me please
-            pass
+        allowed_column_names = ['sem_retencao', 'com_retencao',  'valor_total']
+
+        for row in merged_df.to_dict(orient='records'):
+            row_required = [row[var] for var in required_df.columns.to_list()]
+            # all_valores = [float(v) for v in client_row[SEP_INDX:]]
+            if row['ginfess_link'] != '':
+                try:
+                    dgg = DownloadGinfessGui(*row_required[:],
+                                             compt=self.compt)
+                except Exception as e:
+                    pass
+                    print(f'\033[1;31mErro com {row["razao_social"]}\033[m')
+                else:
+                    if dgg.ginfess_valores is not None:
+                        for e, k in enumerate(allowed_column_names):
+                            row[k] = dgg.ginfess_valores[e]
+                        COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                            row['cnpj'], row, allowed=allowed_column_names)
+                print(row)
+                # row['declarado'] = True
 
     def main_generate_dados(self) -> None:
         df_compt = self.DADOS_COMPT
@@ -105,10 +136,10 @@ class ComptManager(DBInterface):
                              left_on='id', right_on='main_empresa_id')
         return merged_df
 
-    def _yield_rows(self, df: pd.DataFrame):
-        variables = df.columns.to_list()
-        for row in df.itertuples(False):
-            yield [getattr(row, var) for var in variables]
+    # def _yield_rows_getattr(self, df: pd.DataFrame):
+    #     variables = df.columns.to_list()
+    #     for row in df.itertuples(False):
+    #         yield [getattr(row, var) for var in variables]
 
     def generate_compts_to_gui(self):
         InitialSetting.ate_atual_compt()
@@ -120,3 +151,10 @@ class ComptManager(DBInterface):
         # clients_list = EMPRESAS.iloc[:, 0].to_list()
 
         # EMPRESAS_ORM_OPERATIONS.
+
+    def transform_dict_to_object(self, dictonary: dict) -> object:
+        class MyObject:
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+        return MyObject(**dictonary)

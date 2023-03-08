@@ -147,6 +147,41 @@ class DBInterface:
                             setattr(empresa, key, value)
 
                     session.add(empresa)
+                    # session.add means insert, merge means commit
+                    # session.merge(empresa)
+                    session.commit()
+                    return True
+
+                return False
+
+        def update_from_cnpj_and_compt__dict(self, cnpj: str, update_dict: dict, allowed=[]):
+            """This abstraction updates the COMPTs table using cnpj, getting the other_values as parameter
+
+            Args:
+                cnpj (str): client_cnpj
+                other_values (COMPT_ORM_OPERATIONS): dictonary to be update
+                allowed (list, optional): If it's None, it'll update the full object. Defaults to [].
+
+            Returns:
+                boolean: True: things have been saved / False: error with DB
+            """
+            empresa = None
+
+            # Filtered the object to be updated
+            with self.conn_obj.Session() as session:
+                empresa = session.query(self.orm).filter_by(compt=update_dict['compt']).join(
+                    self.orm.main_empresas)\
+                    .filter(SqlAchemyOrms.MainEmpresas.cnpj == cnpj).one_or_none()
+                if empresa:
+                    for key, value in update_dict.items():
+                        # Check if the key is allowed to be updated
+                        if allowed != []:
+                            if key not in allowed:
+                                continue
+                        # Update the value of the attribute
+                        setattr(empresa, key, value)
+                    session.merge(empresa)
+                    # session.add means insert, merge means commit
                     session.commit()
                     return True
 
