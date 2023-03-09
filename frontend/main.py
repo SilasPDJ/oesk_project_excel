@@ -31,6 +31,22 @@ def display_status_buttons(text: str, can_display: bool, container: st.container
                 unsafe_allow_html=True)
 
 
+def add_label_to_stcode(label: str, align=None):
+    """Add label to st.code
+
+    Args:
+        label (str): text to add as label
+        align (str, optional): [right, left, center]. Defaults to None.
+    """
+    _divlabel = '<div data-testid="stMarkdownContainer" class="css-184tjsw e16nr0p34">'
+    if align:
+        st.write(
+            f'{_divlabel}<p style="margin:0;text-align:{align}">{label}</p></div>', unsafe_allow_html=True)
+    else:
+        st.write(
+            f'{_divlabel}<p style="margin:0;">{label}</p></div>', unsafe_allow_html=True)
+
+
 def display_success_msg(main_container: st, msg: str):
     cols = main_container.columns(2)
     # ❎

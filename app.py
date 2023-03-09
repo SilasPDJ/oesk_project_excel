@@ -148,14 +148,17 @@ elif page == UPDATE_COMPT:
                 # with div_container:
                 # display_status_buttons()
                 # with div_esta_declarado:
-                display_status_buttons(
-                    "Declarado", other_values.declarado, st.container())
-                display_status_buttons(
-                    "Envio", other_values.envio, st.container())
-
+                status_cols = st.columns(2)
+                with status_cols[0]:
+                    display_status_buttons(
+                        "Declarado", other_values.declarado, st.container())
+                    display_status_buttons(
+                        "Envio", other_values.envio, st.container())
+                with status_cols[1]:
+                    add_label_to_stcode("CNPJ: ", align="center")
+                    st.code(cnpj)
                 # with div_is_sent:
                 st.code(razao_social)
-                st.code(cnpj)
                 # other_values.main_empresa_id
                 # formatted_number = "${:,.2f}".format(my_number)
                 other_values.sem_retencao = float(
@@ -164,11 +167,11 @@ elif page == UPDATE_COMPT:
                     other_values.com_retencao)
                 other_values.valor_total = float(
                     other_values.valor_total)
-                beta_cols = st.columns(2)
-                with beta_cols[0]:
+                inner_cols_values = st.columns(2)
+                with inner_cols_values[0]:
                     other_values.sem_retencao = st.number_input(
                         "Sem retenção: ", 0., 9999999., other_values.sem_retencao, 100.00)
-                with beta_cols[1]:
+                with inner_cols_values[1]:
                     other_values.com_retencao = st.number_input(
                         "Com retenção: ", 0., 9999999., other_values.com_retencao, 100.00)
 
@@ -177,18 +180,25 @@ elif page == UPDATE_COMPT:
                 # other_values.valor_total = st.number_input(
                 #     "Valor Total: ", 0., 9999999., valor_total, 100.00, disabled=True)
                 other_values.valor_total = valor_total
-                st.code("R${:,.2f}".format(valor_total).replace(
-                    ",", "X").replace(".", ",").replace("X", "."))
-
-                _anexo = other_values.anexo
-                other_values.anexo = st.text_input(
-                    "Anexo: ", other_values.anexo)
+                with inner_cols_values[1]:
+                    add_label_to_stcode("Valor Total")
+                    st.code("R${:,.2f}".format(valor_total).replace(
+                        ",", "X").replace(".", ",").replace("X", "."))
+                with inner_cols_values[0]:
+                    _anexo = other_values.anexo
+                    other_values.anexo = st.text_input(
+                        "Anexo: ", other_values.anexo)
                 other_values.imposto_a_calcular = "SEM_MOV" if _anexo == "" else "ICMS" if _anexo in [
                     'I', 'II'] else "ISS"
-                other_values.nf_saidas = st.text_input(
-                    "NF Saídas: ", other_values.nf_saidas)
-                other_values.nf_entradas = st.text_input(
-                    "NF Entradas:", other_values.nf_entradas)
+                status_entradas_saidas_options = [
+                    "NÃO HÁ", "OK", "OK0", "PENDENTE", '', "NAOPRCISA"]
+                inner_cols_nfs = st.columns(2)
+                with inner_cols_nfs[0]:
+                    other_values.nf_saidas = st.selectbox(
+                        "NF Saídas", status_entradas_saidas_options, status_entradas_saidas_options.index(other_values.nf_saidas.upper()))
+                with inner_cols_nfs[1]:
+                    other_values.nf_entradas = st.selectbox(
+                        "NF Entradas:", status_entradas_saidas_options, status_entradas_saidas_options.index(other_values.nf_entradas.upper()))
 
                 # other_values.envio = st.text_input(
                 #     "Envio: ", other_values.envio)
