@@ -5,10 +5,10 @@ from selenium.common.exceptions import TimeoutException, JavascriptException
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
+from selenium import webdriver
 
 class WDShorcuts:
-    def __init__(self, driver):
+    def __init__(self, driver: webdriver.Remote):
         self.__arg_driver = driver
 
     def send_keys_anywhere(self, typed, times=1, pause=.13):

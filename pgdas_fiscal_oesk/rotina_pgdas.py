@@ -237,6 +237,11 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         from bs4 import BeautifulSoup
         import os
         driver = self.driver
+        try:
+            self.tag_with_text('span', 'DEVEDOR')
+            # return
+        except NoSuchElementException as e:
+            raise
         onlif = 'Debitos'
         if onlif not in driver.current_url:
             driver.execute_script(

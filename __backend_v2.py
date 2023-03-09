@@ -3,7 +3,9 @@
 # from pgdas_fiscal_oesk.rotina_dividas_v3 import dividas_ativas_complete as rotina_dividas
 # from pgdas_fiscal_oesk.send_dividas import SendDividas
 # from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
-# from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
+from typing import List
+from default.interact.autocomplete_entry import AutocompleteEntry
+from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 # from pgdas_fiscal_oesk.gias import GIA
 
@@ -73,8 +75,19 @@ class ComptManager(DBInterface):
         self.DADOS_COMPT = self.COMPT_ORM_OPERATIONS.generate_df_query_results_all(
             __full_query_compts)
 
-    def call_simples_nacional(self):
+    def call_simples_nacional(self, specifics_list: List[AutocompleteEntry] = None):
+        # simples_nacional procuradeclaracao_version
+        # só vai chamar compts já criadas...
+        # Como todas foram criadas 09-03-2023, tomar cuidado......
+
         merged_df = self.main_generate_dados()
+        specifics = None
+
+        if specifics_list[0].get() != "":
+            # vem do gui.py...
+            specifics = [cli.get() for cli in specifics_list]
+            merged_df = merged_df[merged_df['razao_social'].isin(specifics)]
+
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
         anexo_valores = ['sem_retencao', 'com_retencao',  'anexo']
@@ -89,11 +102,21 @@ class ComptManager(DBInterface):
             client_row = [row[var] for var in required_df.columns.to_list()]
             print(client_row)
 
-            anexo_valores = [[float(v) for v in client_row[SEP_INDX:]], ]
+            _valores_padrao = [
+                float(v) for v in client_row[SEP_INDX:-1]]+anexo_valores[-1:]
+
+            anexo_valores = [
+                _valores_padrao,
+            ]
             # pois o argumento é uma lista... Próxima implementação, criar tabela específica?
             # se sim, vai ter que ..mergir.. os dataframes corretamente...
             # por enquanto só tem umvalor na lista
-            if not row['declarado']:
+            prossegue = False
+            if specifics:
+                prossegue = True
+            elif not row['declarado']:
+                prossegue = True
+            if prossegue:
                 PgdasDeclaracao(*client_row[:SEP_INDX],
                                 compt=self.compt, all_valores=anexo_valores)
                 row['declarado'] = True
@@ -128,7 +151,44 @@ class ComptManager(DBInterface):
                 print(row)
                 # row['declarado'] = True
 
-    def main_generate_dados(self) -> None:
+    def call_g5(self):
+        main_df = self.main_generate_dados()
+        attributes_required = ['razao_social', 'cnpj', 'cpf',
+                               'codigo_simples', 'valor_total', 'imposto_a_calcular', 'nf_saidas', 'nf_entradas']
+        # anexo_valores = ['sem_retencao', 'com_retencao',  'anexo']
+        # SEP_INDX = len(attributes_required)
+        # -------------------
+        _str_col = 'imposto_a_calcular'
+        icms_dfs = main_df.loc[main_df[_str_col] == 'ICMS', :]
+        iss_dfs = main_df.loc[main_df[_str_col] == 'ISS', :]
+        others = main_df[~main_df[_str_col].isin(
+            icms_dfs[_str_col]) & ~main_df[_str_col].isin(iss_dfs[_str_col])]
+
+        merged_df = pd.concat([icms_dfs, iss_dfs, others])
+
+        required_df = merged_df.loc[:, attributes_required]
+        # order setup
+        # TODO: shall this be a function????
+
+        # for client_row in self._yield_rows(required_df):
+        allowed_column_names = ['nf_saidas', 'nf_entradas']
+
+        for row in merged_df.to_dict(orient='records'):
+            client_row = [row[var] for var in required_df.columns.to_list()]
+            print(client_row)
+
+            # pois o argumento é uma lista... Próxima implementação, criar tabela específica?
+            # se sim, vai ter que ..mergir.. os dataframes corretamente...
+            # por enquanto só tem umvalor na lista
+            if row['nf_saidas'] != 'não há' and row['nf_entradas'] != 'não há':
+                G5(*client_row,
+                   compt=self.compt)
+                row['declarado'] = True
+
+                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                    row['cnpj'], row, allowed=allowed_column_names)
+
+    def main_generate_dados(self) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT
         df_padrao = self.EMPRESAS_DADOS
 
