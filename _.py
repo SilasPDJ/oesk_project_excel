@@ -1,17 +1,12 @@
-# from __backend import Backend, PgdasDeclaracaoFull
-# from __backend import COMPT, CONS, TOTAL_CLIENTES, IMPOSTOS_POSSIVEIS
-# from __backend import consultar_compt, consultar_geral, getfieldnames
-# from __backend import main_folder, main_file
-
-# from __backend_v2 import Consulta_DB
-from __backend_v2 import ComptGuiManager
-from __backend_v2 import GIAS_GISS_COMPT, IMPOSTOS_POSSIVEIS
-# usar class Rotinas
+from __backend import Backend, PgdasDeclaracaoFull
+# from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
+from __backend import COMPT, CONS, TOTAL_CLIENTES, IMPOSTOS_POSSIVEIS
+from __backend import consultar_compt, consultar_geral, getfieldnames
+from __backend import main_folder, main_file
 # from __backend import *
 
 import tkinter as tk
 from default.interact.autocomplete_entry import AutocompleteEntry
-from default.sets import InitialSetting, get_compt
 from ttkwidgets import autocomplete as ttkac
 
 from threading import Thread
@@ -22,67 +17,49 @@ import clipboard
 
 entry_row = 1
 
-COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
 
+class MainApplication(tk.Frame, Backend):
 
-class MainApplication(tk.Frame, ComptGuiManager):
-    # TODO: enviar clientes específicos nos self.call
     def __init__(self, parent, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Backend.__init__(COMPT)
 
-        ComptGuiManager.__init__(self, COMPT)
-
-        # for compt in compts:
-        #     ComptManager.__init__(self, compt)
-
-        # self.main_generate_dados()
-        # self.call_ginfess()
-        # self.call_g5()
-        # OS DADOS já foram incrementados e está chamando a função em backend
-        # linha 89, debug
         self.parent = parent
         self.root = parent
-        LABEL_TIPS = []
-        SMALL_TIPS = []
+        LABELS = []
         self.ENTRIES_CLI = []
 
+        optmenu_data = CONS.clients_list(0)
         __frame_entris_cli = tk.Frame(
             self.root)  # entries_frame client
 
-        self.selected_client = AutocompleteEntry(self.EMPRESAS_DADOS.iloc[:, 1].to_list(), None, __frame_entris_cli,
-                                                 listboxLength=0, width=100, sortedlist=False)
+        self.selected_client = AutocompleteEntry(optmenu_data, self.get_v_total, __frame_entris_cli,
+                                                 listboxLength=0, width=100)
 
-        self.__getfieldnames_main = self.EMPRESAS_ORM_OPERATIONS.select_columns_keys()
-        self.__getfieldnames_compt = self.COMPT_ORM_OPERATIONS.select_columns_keys()
-        # TODO: Alterar COMPT no backend para poder ter uma GUI e selecionar várias COMPTs?
-        # self.EMPRESAS
-        # TODO: Conferir problemas
+        self.__getfieldnames = getfieldnames()
         excel_col = ttkac.AutocompleteEntry(
-            self.root, list(self.__getfieldnames_main[:]))
-        _div_small_tip = int(len(self.__getfieldnames_main[1:])/2)+2
-        self.increment_header_tip(SMALL_TIPS, str(
-            self.__getfieldnames_main[1:_div_small_tip]), ("Currier", 9))
-        self.increment_header_tip(SMALL_TIPS, str(
-            self.__getfieldnames_main[_div_small_tip:]), ("Currier", 9))
+            self.root, list(self.__getfieldnames))
 
-        # self.valorADeclarar = self.button(
-        #     f'', self.get_v_total)
+        self.valorADeclarar = self.button(
+            f'', self.get_v_total)
         bt_abre_pasta = self.button(
             'Abre e copia pasta de [F1]: ', self.abre_pasta, 'black', 'lightblue')
         bt_copia = self.button(
             'Copia Campo [F4]', lambda: self.get_dataclipboard(excel_col.get()
                                                                ), 'black', 'lightblue')
-        bt_das = self.button('PGDAS - Procura PGDASD-DELARACAO.pdf FULL',
-                             lambda: self.call_simples_nacional(self.ENTRIES_CLI))
+        bt_das = self.button('PGDAS - Procura PGDASD-DELARACAO.pdf', lambda: self.call_func_v3(
+            'pgdas', self.ENTRIES_CLI))
+        bt_das_full = self.button('Gerar PGDAS FULL', lambda:
+                                  PgdasDeclaracaoFull(
+                                      *self.full_pgdas(), compt=COMPT),
+                                  bg='darkgray')
 
         bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v3(
             'gias', self.ENTRIES_CLI))
         bt_ginfess = self.button(
-            'Fazer Ginfess', lambda: self.call_ginfess(self.ENTRIES_CLI))
+            'Fazer Ginfess', lambda: self.ginfess_abcdfirst(self.ENTRIES_CLI))
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v3(
             'giss', self.ENTRIES_CLI))
-        bt_g5 = self.button('Fazer G5', lambda: self.call_g5(
+        bt_g5 = self.button('Fazer G5', lambda: self.full_g5(
             self.ENTRIES_CLI), bg="#F0AA03")
         bt_jr = self.button('Fazer JR', lambda: self.call_func_v3(
             'jr', self.ENTRIES_CLI), bg="#556353")
@@ -100,22 +77,21 @@ class MainApplication(tk.Frame, ComptGuiManager):
         # self.__pack(self.selected_client, excel_col)
         self.__pack(excel_col)
 
-        self.__pack(bt_abre_pasta, bt_copia,  bt_das, bt_gias, bt_ginfess,
+        self.__pack(bt_abre_pasta, bt_copia, self.valorADeclarar, bt_das, bt_das_full, bt_gias, bt_ginfess,
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
         self.selected_client.focus_force()
         self.increment_header_tip(
-            LABEL_TIPS, "Terminal: arg1 = compt, arg2 = loop_compt")
+            LABELS, "Terminal: arg1 = compt, arg2 = loop_compt")
         self.increment_header_tip(
-            LABEL_TIPS, "CONTROL + / CONTROL - / F5 = resetar")
+            LABELS, "CONTROL + / CONTROL - / F5 = resetar")
         self.increment_header_tip(
-            LABEL_TIPS, "F1 p/ abrir pasta")
+            LABELS, "F1 p/ abrir pasta")
         self.increment_header_tip(
-            LABEL_TIPS, "Pressione Control+F5 após atualizar a planilha")
+            LABELS, "Pressione Control+F5 após atualizar a planilha")
         self.increment_header_tip(
-            LABEL_TIPS, "F12 p/ auto preencher GINFESS")
+            LABELS, "F12 p/ auto preencher GINFESS")
         # TIPS
-        self.__pack(*SMALL_TIPS)
-        self.__pack(*LABEL_TIPS)
+        self.__pack(*LABELS)
 
         # bt binds
         self.root.bind_all("<Control-F5>", self._restart_after_updt)
@@ -130,28 +106,47 @@ class MainApplication(tk.Frame, ComptGuiManager):
             excel_col.get()
         ))
         self.root.bind("<F1>", lambda x: self.abre_pasta())
-        # self.root.bind("<F12>", self.after_ginfess)
+        self.root.bind("<F12>", self.after_ginfess)
+
+    # functions
+    def get_v_total(self):
+        import locale
+        from locale import format_string
+        locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+        v = self.get_dataclipboard('Valor Total')
+        v_fat = format_string('%.2f', float(v), 1)
+        clipboard.copy(v_fat)  # increment
+
+        self.valorADeclarar['text'] = f' VALOR FATURADO: R$ {v_fat}'
 
     def abre_pasta(self):
-        folder = InitialSetting.files_pathit(self.selected_client.get(), COMPT)
+        folder = "\\".join(main_folder.split('/'))
+        folder = os.path.join(
+            folder, COMPT[3:], COMPT, self.selected_client.get())
         if not os.path.exists(folder):
             os.makedirs(folder)
         subprocess.Popen(f'explorer "{folder}"')
         clipboard.copy(folder)
+        self.selected_client
 
     def get_dataclipboard(self, campo: str):
+        # input(campo)
         if campo == '':
-            campo = "cnpj"
-        found_object = self.EMPRESAS_ORM_OPERATIONS.find_by_razao_social(
-            self.selected_client.get())
-        # Por enquanto somente atributos gerais
-        # razao_social é unique, settei no BD
-        returned = getattr(found_object, campo)
-        # self.EmpresasOrmOperations.
-        # merged_df = self.main_generate_dados()
-
+            campo = "CNPJ"
+        indcampo = CONS.get_fieldnames().index(campo)
+        selected_list_values = list(
+            self.any_to_str(*CONS.clients_list(indcampo)))
+        whoindex = self.__get_clienid(self.selected_client.get())
+        returned = str(selected_list_values[whoindex])
         clipboard.copy(returned)
         return returned
+
+    def __get_clienid(self, client_name):
+        cg = consultar_compt()
+        clientid = False
+        cloops = [cloops[0] for cloops in cg]
+        clientid = cloops.index(client_name)
+        return clientid
 
     # restart program method
     @staticmethod
@@ -166,7 +161,8 @@ class MainApplication(tk.Frame, ComptGuiManager):
                 entry.destroy()
         list_entries[0].focus_force()
 
-    def addentry(self, list_entries, frame, add_only=False):
+    @staticmethod
+    def addentry(list_entries, frame, add_only=False):
         """
         ### add entries to widget
         - add_only is the Entry added (default is False)
@@ -177,7 +173,7 @@ class MainApplication(tk.Frame, ComptGuiManager):
 
         global entry_row
         if not add_only:
-            ent = AutocompleteEntry(self.optmenu_data, None, frame,
+            ent = AutocompleteEntry(CONS.clients_list(0), None, frame,
                                     listboxLength=0, width=100)
             ent.grid(row=entry_row, column=0)
             list_entries.append(ent)
@@ -271,5 +267,5 @@ if __name__ == "__main__":
     b = MainApplication(ROOT)
     b.pack(side="top", fill="both", expand=True)
 
-    ROOT.geometry('500x1000')
+    ROOT.geometry('500x900')
     ROOT.mainloop()

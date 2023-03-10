@@ -43,11 +43,10 @@ class Rotinas:
     def consultar_para_main_application():
         pass
 
-
 # Rotinas()._create_all_datas_using_sheets()
 
 
-class ComptManager(DBInterface):
+class ComptGuiManager(DBInterface):
     # ----  class attributes
     # Consulta junta... DBInterface
     conn_obj = MySqlInitConnection()
@@ -74,6 +73,7 @@ class ComptManager(DBInterface):
             self.compt_as_date)
         self.DADOS_COMPT = self.COMPT_ORM_OPERATIONS.generate_df_query_results_all(
             __full_query_compts)
+        self._specifics = None
 
     def call_simples_nacional(self, specifics_list: List[AutocompleteEntry] = None):
         # simples_nacional procuradeclaracao_version
@@ -81,18 +81,16 @@ class ComptManager(DBInterface):
         # Como todas foram criadas 09-03-2023, tomar cuidado......
 
         merged_df = self.main_generate_dados()
-        specifics = None
-
-        if specifics_list[0].get() != "":
-            # vem do gui.py...
-            specifics = [cli.get() for cli in specifics_list]
-            merged_df = merged_df[merged_df['razao_social'].isin(specifics)]
+        if specifics_list:
+            merged_df = self._get_specifics(specifics_list, merged_df)
+        # if specifics_list[0] != "" , selfl.spefics != None
+        # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
 
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
-        anexo_valores = ['sem_retencao', 'com_retencao',  'anexo']
+        anexo_valores_keys = ['sem_retencao', 'com_retencao',  'anexo']
 
-        required_df = merged_df.loc[:, attributes_required+anexo_valores]
+        required_df = merged_df.loc[:, attributes_required+anexo_valores_keys]
 
         SEP_INDX = len(attributes_required)
         # for client_row in self._yield_rows(required_df):
@@ -102,30 +100,31 @@ class ComptManager(DBInterface):
             client_row = [row[var] for var in required_df.columns.to_list()]
             print(client_row)
 
-            _valores_padrao = [
-                float(v) for v in client_row[SEP_INDX:-1]]+anexo_valores[-1:]
-
-            anexo_valores = [
-                _valores_padrao,
+            # this will be updated to add many anexos
+            valores = {key: row[key] for key in anexo_valores_keys}
+            # valores.update({key: float(row[key])
+            #                for key in anexo_valores_keys[:-1]})
+            all_valores = [
+                valores
             ]
-            # pois o argumento é uma lista... Próxima implementação, criar tabela específica?
-            # se sim, vai ter que ..mergir.. os dataframes corretamente...
-            # por enquanto só tem umvalor na lista
+            # ---
             prossegue = False
-            if specifics:
+            if self._specifics:
                 prossegue = True
             elif not row['declarado']:
                 prossegue = True
             if prossegue:
                 PgdasDeclaracao(*client_row[:SEP_INDX],
-                                compt=self.compt, all_valores=anexo_valores)
+                                compt=self.compt, all_valores=all_valores)
                 row['declarado'] = True
 
                 COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
-    def call_ginfess(self):
+    def call_ginfess(self, specifics_list: List[AutocompleteEntry] = None):
         merged_df = self.main_generate_dados()
+        merged_df = self._get_specifics(specifics_list, merged_df)
+
         attributes_required = ['razao_social',
                                'cnpj', 'ginfess_cod', 'ginfess_link']
         required_df = merged_df.loc[:, attributes_required]
@@ -151,21 +150,16 @@ class ComptManager(DBInterface):
                 print(row)
                 # row['declarado'] = True
 
-    def call_g5(self):
+    def call_g5(self, specifics_list: List[AutocompleteEntry] = None):
         main_df = self.main_generate_dados()
+        main_df = self._get_specifics(specifics_list, main_df)
+
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'imposto_a_calcular', 'nf_saidas', 'nf_entradas']
         # anexo_valores = ['sem_retencao', 'com_retencao',  'anexo']
         # SEP_INDX = len(attributes_required)
         # -------------------
-        _str_col = 'imposto_a_calcular'
-        icms_dfs = main_df.loc[main_df[_str_col] == 'ICMS', :]
-        iss_dfs = main_df.loc[main_df[_str_col] == 'ISS', :]
-        others = main_df[~main_df[_str_col].isin(
-            icms_dfs[_str_col]) & ~main_df[_str_col].isin(iss_dfs[_str_col])]
-
-        merged_df = pd.concat([icms_dfs, iss_dfs, others])
-
+        merged_df = main_df
         required_df = merged_df.loc[:, attributes_required]
         # order setup
         # TODO: shall this be a function????
@@ -188,12 +182,32 @@ class ComptManager(DBInterface):
                 COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
-    def main_generate_dados(self) -> pd.DataFrame:
+    def main_generate_dados(self, df_as_it_is: bool = False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT
         df_padrao = self.EMPRESAS_DADOS
 
-        merged_df = pd.merge(df_padrao, df_compt,
-                             left_on='id', right_on='main_empresa_id')
+        main_df = pd.merge(df_padrao, df_compt,
+                           left_on='id', right_on='main_empresa_id')
+        # ----- TODO: esta parte abaixo em função
+        _str_col = 'imposto_a_calcular'
+        icms_dfs = main_df.loc[main_df[_str_col] == 'ICMS', :]
+        iss_dfs = main_df.loc[main_df[_str_col] == 'ISS', :]
+
+        others = main_df[~main_df[_str_col].isin(
+            icms_dfs[_str_col]) & ~main_df[_str_col].isin(iss_dfs[_str_col])]
+
+        if not df_as_it_is:
+            merged_df = pd.concat([iss_dfs, icms_dfs,  others])
+            return merged_df
+        else:
+            return main_df
+
+    def _get_specifics(self, specifics_list: List[AutocompleteEntry], merged_df: pd.DataFrame) -> pd.DataFrame:
+        self._specifics = None
+        if specifics_list[0].get() != "":
+            # because gui.py will always have one field in ENTRIS_CLI...
+            self._specifics = [cli.get() for cli in specifics_list]
+            return merged_df[merged_df['razao_social'].isin(self._specifics)]
         return merged_df
 
     # def _yield_rows_getattr(self, df: pd.DataFrame):

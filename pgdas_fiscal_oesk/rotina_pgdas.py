@@ -112,15 +112,10 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
     def declaracao_anexos(self, __valores_de_anexos: list, valor_competencia, cnpj):
         def new_seleciona_anexo(which_one):
+            # Só ativa se ainda não estiver ativado
             self.driver.execute_script(f"""
                 let elnow = document.querySelector("a[data-atividade='{cnpj}-{which_one}']");
                 elnow.parentElement.classList.contains('active') ? null : elnow.click();
-            """)
-            # Só ativa se ainda não estiver ativado
-            self.driver.execute_script("""
-            for (el of document.getElementsByClassName("active atividade item-grupo")){
-                el.click()
-            }
             """)
             # clica nos que tavam marcados anteriormente
 
@@ -132,6 +127,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
         exibe_tutti = self.webdriverwait_el_by(By.ID, 'btn-exibe-todos', 30)
         exibe_tutti.click()
+        self.driver.execute_script(
+            'for (el of document.getElementsByClassName("active atividade item-grupo")) el.click();')
 
         for tres_valores in __valores_de_anexos:
             print(tres_valores)
@@ -169,9 +166,10 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             else:
                 raise ValueError(f'Anexo is invalido {ANEXO}')
 
-            if float(tres_valores.get("valor_n_retido")) != 0:
+             # reseta para settar novamente...
+            if float(tres_valores.get("sem_retencao")) != 0:
                 new_seleciona_anexo(sem_ret)
-            if float(tres_valores.get("valor_retido")) != 0:
+            if float(tres_valores.get("com_retencao")) != 0:
                 new_seleciona_anexo(com_ret)
 
         self.find_submit_form()
@@ -185,15 +183,15 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         _count = 0
         for tres_valores in __valores_de_anexos:
             v_n_ret = self.trata_money_excel(
-                tres_valores.get("valor_n_retido"))
-            v_ret = self.trata_money_excel(tres_valores.get("valor_retido"))
+                tres_valores.get("sem_retencao"))
+            v_ret = self.trata_money_excel(tres_valores.get("com_retencao"))
 
-            if float(tres_valores.get("valor_n_retido")) != 0:
+            if float(tres_valores.get("sem_retencao")) != 0:
                 inputs_text[_count].clear()
                 inputs_text[_count].send_keys(v_n_ret)
                 _count += 1
                 # new_seleciona_anexo(sem_ret)
-            if float(tres_valores.get("valor_retido")) != 0:
+            if float(tres_valores.get("com_retencao")) != 0:
                 inputs_text[_count].clear()
                 inputs_text[_count].send_keys(v_ret)
                 _count += 1

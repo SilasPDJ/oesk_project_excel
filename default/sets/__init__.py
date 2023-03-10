@@ -266,7 +266,9 @@ class InitialSetting(Initial, Dirs, Now):
                 yield compt_appended
 
     def trata_money_excel(self, faturado):
-
+        if faturado is None:
+            faturado = 0
+        faturado = float(faturado)
         faturado = str(faturado).lower().strip()
         if faturado == 'das_pend':
             return 'ATENÇÃO, HÁ BOLETO(S) DO PGDAS PENDENTE(S)'

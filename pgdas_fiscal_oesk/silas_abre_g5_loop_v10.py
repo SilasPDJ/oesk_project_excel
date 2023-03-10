@@ -281,6 +281,7 @@ class G5(Contimatic):
         pygui.click()
 
     def __xml_send2cloud_icms(self):
+        # TODO: refazer
         volta = os.getcwd()
 
         def __canb_pathdir(pd: str):
@@ -365,7 +366,8 @@ class G5(Contimatic):
                 return returned
                 # sempre vai existir, pq criará se não...
         SILASNFS_WINDOW = self.__gotowincenter(
-            'Importacao')
+            'LIVROENTRADA'
+        )
         libre_or_normal = foxitpath_creation_exists()
         if libre_or_normal is not False:
             # TODO: fazer listdir dentro... e procurar outros documentos, etc
