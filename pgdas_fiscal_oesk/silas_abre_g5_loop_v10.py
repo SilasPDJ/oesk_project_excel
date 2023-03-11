@@ -46,7 +46,6 @@ class G5(Contimatic):
             print(__client)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
-
             if self.registronta() and "ok" != nf_out.lower() not in ['s', 'ok', 'ok0']:
                 self.abre_ativa_programa('G5 ')  # vscode's cause
                 self.activating_client(self.formatar_cnpj(__cnpj))
@@ -533,17 +532,19 @@ class G5(Contimatic):
 
     def foxit_save__icms(self, add2file=None):
         all_keys('ctrl', 'shift', 's')
+        pygui.hotkey("enter")
         sleep(.5)
-        pygui.hotkey('home')
+        # pygui.hotkey('home')
         sleep(.25)
         self.__foxit_explorer_write(self.client_path)
         pygui.hotkey('f4', 'enter', 'enter', interval=.5)
         winexplorer = pygui.getActiveWindow()
         winexplorer.moveRel(0, 100)
         pygui.click(clicks=0)
-        pygui.hotkey('enter', 'enter', 'enter', 'enter', 'enter')
+        pygui.hotkey('enter', 'enter', 'enter', 'enter',
+                     'enter', duration=0.5, interval=1)
         sleep(2)
-        pygui.hotkey('return', 'return', duration=1, interval=1)
+        # pygui.hotkey('return', 'return', duration=1, interval=1)
         sleep(5)
 
     def foxit_save__iss(self, add2file):
@@ -551,10 +552,12 @@ class G5(Contimatic):
         filename = f"Registro_ISS-{add2file}"
         all_keys('ctrl', 'shift', 's')
         sleep(.5)
-        pygui.write(filename)
-        sleep(.25)
-        pygui.hotkey('f4')
+        pygui.hotkey("enter")  # ...
         sleep(.5)
+        pygui.write(filename)
+        sleep(2)
+        pygui.hotkey('f4')
+        sleep(2)
         pygui.hotkey('ctrl', 'a')
         pygui.hotkey('delete')
         pygui.write(self.client_path)
