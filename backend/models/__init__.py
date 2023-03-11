@@ -43,7 +43,7 @@ class SqlAchemyOrms(Connection):
         com_retencao = Column(Numeric(precision=10, scale=2))
         valor_total = Column(Numeric(precision=10, scale=2))
         anexo = Column(String(3))
-        envio = Column(String(10))
+        envio = Column(Boolean())
         imposto_a_calcular = Column(String(7))
         possui_das_pendentes = Column(Boolean())
         compt = Column(Date())

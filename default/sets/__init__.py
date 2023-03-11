@@ -116,8 +116,8 @@ def get_all_valores(sem_ret, com_ret, anexo, valor_tot) -> list:
 
 
 class Initial:
-    main_path = os.path.dirname(os.path.realpath(__file__))
-    main_path = os.path.join(main_path, 'with_titlePATH.txt')
+    __main_path = os.path.dirname(os.path.realpath(__file__))
+    __main_path = os.path.join(__main_path, 'with_titlePATH.txt')
 
     @classmethod
     def getset_folderspath(cls, folder_path_only=True):
@@ -131,7 +131,7 @@ class Initial:
         mainpath = False
         try:
 
-            with open(cls.main_path) as f:
+            with open(cls.__main_path) as f:
                 mainpath = f.read()
         # except FileNotFoundError:
         except (OSError, FileNotFoundError) as e:
@@ -143,7 +143,7 @@ class Initial:
         else:
             return os.path.join(mainpath, "__EXCEL POR COMPETENCIAS__", "NOVA_FORMA_DE_DADOS.xlsm")
 
-    def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL", savit=main_path):
+    def __select_path_if_not_exists(self, some_message="SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL", savit=__main_path):
         """[summary]
         Args:
             some_message (str, optional): []. Defaults to "SELECIONE ONDE ESTÁ SUA PASTA PRINCIPAL".

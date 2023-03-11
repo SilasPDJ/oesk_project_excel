@@ -3,8 +3,10 @@
 # from pgdas_fiscal_oesk.rotina_dividas_v3 import dividas_ativas_complete as rotina_dividas
 # from pgdas_fiscal_oesk.send_dividas import SendDividas
 # from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
+import os
 from typing import List
 from default.interact.autocomplete_entry import AutocompleteEntry
+from pgdas_fiscal_oesk.contimatic import Contimatic
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 # from pgdas_fiscal_oesk.gias import GIA
@@ -23,10 +25,12 @@ from default.sets import calc_date_compt_offset, get_compt, compt_to_date_obj
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 # from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
 # from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
+from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 # from selenium.common.exceptions import UnexpectedAlertPresentException
 # from pgdas_fiscal_oesk.silas_jr import JR
 
+# TODO: gui is not updating with database
 
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
@@ -83,6 +87,7 @@ class ComptGuiManager(DBInterface):
         merged_df = self.main_generate_dados()
         if specifics_list:
             merged_df = self._get_specifics(specifics_list, merged_df)
+        merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == False, :]
         # if specifics_list[0] != "" , selfl.spefics != None
         # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
 
@@ -108,12 +113,9 @@ class ComptGuiManager(DBInterface):
                 valores
             ]
             # ---
-            prossegue = False
-            if self._specifics:
-                prossegue = True
-            elif not row['declarado']:
-                prossegue = True
-            if prossegue:
+            prossegue = False if row['declarado'] else True
+
+            if prossegue or self._specifics:
                 PgdasDeclaracao(*client_row[:SEP_INDX],
                                 compt=self.compt, all_valores=all_valores)
                 row['declarado'] = True
@@ -123,7 +125,8 @@ class ComptGuiManager(DBInterface):
 
     def call_ginfess(self, specifics_list: List[AutocompleteEntry] = None):
         merged_df = self.main_generate_dados()
-        merged_df = self._get_specifics(specifics_list, merged_df)
+        if specifics_list:
+            merged_df = self._get_specifics(specifics_list, merged_df)
 
         attributes_required = ['razao_social',
                                'cnpj', 'ginfess_cod', 'ginfess_link']
@@ -137,7 +140,7 @@ class ComptGuiManager(DBInterface):
             if row['ginfess_link'] != '':
                 try:
                     dgg = DownloadGinfessGui(*row_required[:],
-                                             compt=self.compt)
+                                             compt=self.compt, show_driver=True)
                 except Exception as e:
                     pass
                     print(f'\033[1;31mErro com {row["razao_social"]}\033[m')
@@ -171,16 +174,50 @@ class ComptGuiManager(DBInterface):
             client_row = [row[var] for var in required_df.columns.to_list()]
             print(client_row)
 
-            # pois o argumento é uma lista... Próxima implementação, criar tabela específica?
-            # se sim, vai ter que ..mergir.. os dataframes corretamente...
-            # por enquanto só tem umvalor na lista
-            if row['nf_saidas'] != 'não há' and row['nf_entradas'] != 'não há':
+            if 'OK' not in row['nf_saidas'] or 'OK' not in row['nf_entradas'] != 'não há':
                 G5(*client_row,
                    compt=self.compt)
-                row['declarado'] = True
+                row['nf_saidas'] = "OK"
+                # TODO: OK? OK0?
+                # row['nf_entradas']
 
                 COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
+
+    def call_send_email(self, specifics_list: List[AutocompleteEntry] = None):
+        # simples_nacional procuradeclaracao_version
+        # só vai chamar compts já criadas...
+        # Como todas foram criadas 09-03-2023, tomar cuidado......
+
+        merged_df = self.main_generate_dados()
+        if specifics_list:
+            merged_df = self._get_specifics(specifics_list, merged_df)
+
+        _emailsenviados_df = merged_df.loc[merged_df['envio'] == True, :]
+        _emailsenviados_df.to_excel(os.path.join(InitialSetting.getset_folderspath(
+        ), "_EMAILS_ENVIADOS", f"{self.compt}_envio.xlsx"))
+
+        # Envia e-mails baseado na condição do envio ser False
+        # TODO: mudar coluna no BD e dar update
+        allowed_df = merged_df.loc[(
+            merged_df['envio'] == False) & merged_df['declarado'] == True, :]
+
+        attributes_required = ['razao_social', 'cnpj', 'cpf',
+                               'declarado', 'valor_total', 'imposto_a_calcular', 'envio']
+        # anexo_valores_keys = ['sem_retencao', 'com_retencao',  'anexo']
+
+        required_df = allowed_df.loc[:, attributes_required]
+
+        # for client_row in self._yield_rows(required_df):
+        allowed_column_names = ['envio']
+
+        for row in allowed_df.to_dict(orient='records'):
+            client_row = [row[var] for var in required_df.columns.to_list()]
+            print(client_row)
+
+            PgDasmailSender(*client_row, email=row['email'], compt=self.compt)
+            COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                row['cnpj'], row, allowed=allowed_column_names)
 
     def main_generate_dados(self, df_as_it_is: bool = False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT

@@ -25,7 +25,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         # now_email = 'silsilinhas@gmail.com'
         if now_email == '':
             print('wtf')
-        elif __envio not in ['S', 'OK'] and imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
+        elif imposto_a_calcular.upper() not in ["LP", "SEM_MOV"]:
             print(now_email)
             print(f'VALOR: {_valor}')
             print(f'CLIENTE: {__r_social}')
@@ -61,8 +61,6 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
 
             print(f'Enviado... p/ {now_email}')
             # input('teste')
-        elif __envio not in ['S', 'OK']:
-            print(__r_social, '\033[1;32m', 'EMAIL JÁ ENVIADO', '\033[m')
 
         else:
             print('\033[1;31m', f'ainda não declarado, {__r_social}', '\033[m')
