@@ -150,14 +150,18 @@ class G5(Contimatic):
             pygui.click()
 
     @ staticmethod
-    def __gotowincenter(win):
-        if isinstance(win, str):
-            win = pygui.getWindowsWithTitle(win)[0]
-        elif not isinstance(win, pygui.Window):
-            raise ValueError('must be', str, 'or', pygui.Window)
-        win.activate()
-        pygui.click(*win.center, clicks=0)
-        return win
+    def __gotowinscenter(*wins):
+        for win in wins:
+            if isinstance(win, str):
+                try:
+                    win = pygui.getWindowsWithTitle(win)[0]
+                except IndexError:
+                    continue
+            elif not isinstance(win, pygui.Window):
+                raise ValueError('must be', str, 'or', pygui.Window)
+            win.activate()
+            pygui.click(*win.center, clicks=0)
+            return win
 
     def __saida_entrada(self, key):
         self.abre_ativa_programa('G5 ')
@@ -169,10 +173,10 @@ class G5(Contimatic):
     def importa_nf_icms_saidas(self):
 
         def ativa_foxit_openexplorer():
-            self.__gotowincenter('Foxit PDF Reader')
+            self.__gotowinscenter('Foxit PDF Reader')
             pygui.getActiveWindow().maximize()
             pygui.move(-850, -360)
-            sleep(10)
+            sleep(1)
             pygui.rightClick()
             sleep(.5)
             foritab(5, 'up')
@@ -229,7 +233,7 @@ class G5(Contimatic):
             self.__saida_entrada('s')
             ativa_foxit_openexplorer()
             sleep(2)
-            self.__gotowincenter('Foxit PDF Reader')
+            self.__gotowinscenter('Foxit PDF Reader')
             pygui.hotkey('alt', 'f4')
             sleep(2)
             self.__foxit_explorer_write('F:\\Importacao')
@@ -364,9 +368,9 @@ class G5(Contimatic):
                             return 'LIBRE'
                 return returned
                 # sempre vai existir, pq criará se não...
-        SILASNFS_WINDOW = self.__gotowincenter(
-            'LIVROENTRADA'
-        )
+
+        SILASNFS_WINDOW = self.__gotowinscenter(
+            'LIVROENTRADA', 'Importacao')
         libre_or_normal = foxitpath_creation_exists()
         if libre_or_normal is not False:
             # TODO: fazer listdir dentro... e procurar outros documentos, etc

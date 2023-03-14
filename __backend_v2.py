@@ -85,9 +85,8 @@ class ComptGuiManager(DBInterface):
         # Como todas foram criadas 09-03-2023, tomar cuidado......
 
         merged_df = self.main_generate_dados()
-        if specifics_list:
-            merged_df = self._get_specifics(specifics_list, merged_df)
-        merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == False, :]
+        merged_df = self._get_specifics(specifics_list, merged_df)
+        # merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
         # if specifics_list[0] != "" , selfl.spefics != None
         # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
 
@@ -125,8 +124,7 @@ class ComptGuiManager(DBInterface):
 
     def call_ginfess(self, specifics_list: List[AutocompleteEntry] = None):
         merged_df = self.main_generate_dados()
-        if specifics_list:
-            merged_df = self._get_specifics(specifics_list, merged_df)
+        merged_df = self._get_specifics(specifics_list, merged_df)
 
         attributes_required = ['razao_social',
                                'cnpj', 'ginfess_cod', 'ginfess_link']
@@ -190,8 +188,7 @@ class ComptGuiManager(DBInterface):
         # Como todas foram criadas 09-03-2023, tomar cuidado......
 
         merged_df = self.main_generate_dados()
-        if specifics_list:
-            merged_df = self._get_specifics(specifics_list, merged_df)
+        merged_df = self._get_specifics(specifics_list, merged_df)
 
         _emailsenviados_df = merged_df.loc[merged_df['envio'] == True, :]
         _emailsenviados_df.to_excel(os.path.join(InitialSetting.getset_folderspath(
