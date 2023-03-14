@@ -30,7 +30,7 @@ from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 # from selenium.common.exceptions import UnexpectedAlertPresentException
 # from pgdas_fiscal_oesk.silas_jr import JR
 
-# TODO: gui is not updating with database
+# TODO: gui is not updating with database **
 
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
@@ -182,7 +182,7 @@ class ComptGuiManager(DBInterface):
                 COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
-    def call_send_email(self, specifics_list: List[AutocompleteEntry] = None):
+    def call_send_pgdas_email(self, specifics_list: List[AutocompleteEntry] = None):
         # simples_nacional procuradeclaracao_version
         # só vai chamar compts já criadas...
         # Como todas foram criadas 09-03-2023, tomar cuidado......
@@ -211,10 +211,12 @@ class ComptGuiManager(DBInterface):
         for row in allowed_df.to_dict(orient='records'):
             client_row = [row[var] for var in required_df.columns.to_list()]
             print(client_row)
-
-            PgDasmailSender(*client_row, email=row['email'], compt=self.compt)
-            COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
-                row['cnpj'], row, allowed=allowed_column_names)
+            if row['envio'] != True:
+                row['envio'] = True
+                PgDasmailSender(
+                    *client_row, email=row['email'], compt=self.compt)
+                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                    row['cnpj'], row, allowed=allowed_column_names)
 
     def main_generate_dados(self, df_as_it_is: bool = False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT

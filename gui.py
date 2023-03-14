@@ -86,8 +86,8 @@ class MainApplication(tk.Frame, ComptGuiManager):
             self.ENTRIES_CLI), bg="#F0AA03")
         bt_jr = self.button('Fazer JR', lambda: self.call_func_v3(
             'jr', self.ENTRIES_CLI), bg="#556353")
-        bt_sendpgdas = self.button('Enviar PGDAS', lambda: self.call_func_v3(
-            'pgdasmail', self.ENTRIES_CLI), bg='red')
+        bt_sendpgdas = self.button(
+            'Enviar PGDAS', lambda: self.call_send_pgdas_email(self.ENTRIES_CLI), bg='red')
         bt_dividas_rotina = self.button(
             'Rotina Dívidas - DSTV', lambda: print("DESATIVADO POR ENQT"), bg='darkgray')
         bt_dividasmail = self.button('Enviar Dívidas', lambda: self.call_func_v3(
@@ -142,7 +142,7 @@ class MainApplication(tk.Frame, ComptGuiManager):
     def get_dataclipboard(self, campo: str):
         if campo == '':
             campo = "cnpj"
-        found_object = self.EMPRESAS_ORM_OPERATIONS.find_by_razao_social(
+        found_object = self.EMPRESAS_ORM_OPERATIONS.filter_by_razao_social(
             self.selected_client.get())
         # Por enquanto somente atributos gerais
         # razao_social é unique, settei no BD

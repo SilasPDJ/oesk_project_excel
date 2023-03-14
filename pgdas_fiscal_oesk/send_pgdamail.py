@@ -9,7 +9,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
     def __init__(self, *args, email, compt, all_valores=None):
         a = __r_social, __cnpj, __cpf, __declarado, __valor_competencia, imposto_a_calcular, __envio = args
 
-        self.__venc_das = "22-02-2023"
+        self.__venc_das = "20-03-2023"
         self.compt = compt
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
 
