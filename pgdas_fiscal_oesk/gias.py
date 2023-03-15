@@ -23,7 +23,7 @@ class GIA(InitialSetting, WDShorcuts):
 
     def __init__(self, *args, compt, first_compt=None):
 
-        __r_social, __cnpj, login, senha = args
+        __r_social, __ecac, login, senha = args
 
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
@@ -58,7 +58,7 @@ class GIA(InitialSetting, WDShorcuts):
                     self.abre_programa(self.get_env_for_path(
                         '\\Desktop\\GIA.exe'), path=True)
 
-                IE = __cnpj
+                IE = __ecac
                 my_print = login
                 print(my_print)
                 # pygui.hotkey('alt', 'tab')

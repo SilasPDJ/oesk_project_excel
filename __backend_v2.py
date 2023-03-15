@@ -7,6 +7,7 @@ import os
 from typing import List
 from default.interact.autocomplete_entry import AutocompleteEntry
 from pgdas_fiscal_oesk.contimatic import Contimatic
+from pgdas_fiscal_oesk.gias import GIA
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 # from pgdas_fiscal_oesk.gias import GIA
@@ -218,6 +219,31 @@ class ComptGuiManager(DBInterface):
                 COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
+    def call_gias(self, specifics_list: List[AutocompleteEntry] = None):
+        merged_df = self.main_generate_dados()
+        merged_df = self._get_specifics(specifics_list, merged_df)
+
+        # Envia e-mails baseado na condição do envio ser False
+        allowed_column_names = ['declarado']
+        allowed_df = merged_df.loc[merged_df['ha_procuracao_ecac'].str.contains(
+            ".", regex=False)]
+        allowed_df = allowed_df.loc[allowed_df['declarado'] != True]
+        attributes_required = ['razao_social',
+                               'ha_procuracao_ecac', "ginfess_cod"]
+
+        required_df = allowed_df.loc[:, attributes_required]
+        allowed_df[['login', 'senha']] = required_df[['login', 'senha']] = required_df['ginfess_cod'].str.split(
+            "//", expand=True)
+        required_df = required_df.drop('ginfess_cod', axis=1)
+        # ie
+        for row in allowed_df.to_dict(orient='records'):
+            client_row = [row[var] for var in required_df.columns.to_list()]
+            client_row[1] = client_row[1].replace(".", "")
+            row['declarado'] = True
+            GIA(*client_row, compt=self.compt, first_compt=self.compt)
+            COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                row['cnpj'], row, allowed=allowed_column_names)
+
     def main_generate_dados(self, df_as_it_is: bool = False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT
         df_padrao = self.EMPRESAS_DADOS
@@ -233,7 +259,7 @@ class ComptGuiManager(DBInterface):
             icms_dfs[_str_col]) & ~main_df[_str_col].isin(iss_dfs[_str_col])]
 
         if not df_as_it_is:
-            merged_df = pd.concat([iss_dfs, icms_dfs,  others])
+            merged_df = pd.concat([others, iss_dfs, icms_dfs, ])
             return merged_df
         else:
             return main_df

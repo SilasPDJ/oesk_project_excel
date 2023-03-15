@@ -239,7 +239,7 @@ class InitialSetting(Initial, Dirs, Now):
     def ate_atual_compt(compt_atual, first_compt=None):
         from datetime import date
         from dateutil import relativedelta
-        if first_compt is None:
+        if first_compt is None or first_compt == compt_atual:
             yield compt_atual
         else:
             first_compt = first_compt.split('-')
@@ -266,6 +266,7 @@ class InitialSetting(Initial, Dirs, Now):
                 yield compt_appended
 
     def trata_money_excel(self, faturado):
+        # TODO: refaturar em _backend com foco em já definir os valores e pegar do bd se tem DAS pendentes ou não
         if faturado is None:
             faturado = 0
         faturado = float(faturado)

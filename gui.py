@@ -76,8 +76,8 @@ class MainApplication(tk.Frame, ComptGuiManager):
         bt_das = self.button('PGDAS - Procura PGDASD-DELARACAO.pdf FULL',
                              lambda: self.call_simples_nacional(self.ENTRIES_CLI))
 
-        bt_gias = self.button('Fazer GIAS', lambda: self.call_func_v3(
-            'gias', self.ENTRIES_CLI))
+        bt_gias = self.button(
+            'Fazer GIAS', lambda: self.call_gias(self.ENTRIES_CLI))
         bt_ginfess = self.button(
             'Fazer Ginfess', lambda: self.call_ginfess(self.ENTRIES_CLI))
         bt_giss = self.button('Fazer Giss', lambda: self.call_func_v3(
@@ -177,7 +177,7 @@ class MainApplication(tk.Frame, ComptGuiManager):
 
         global entry_row
         if not add_only:
-            ent = AutocompleteEntry(self.optmenu_data, None, frame,
+            ent = AutocompleteEntry(self.EMPRESAS_DADOS.iloc[:, 1].to_list(), None, frame,
                                     listboxLength=0, width=100)
             ent.grid(row=entry_row, column=0)
             list_entries.append(ent)
