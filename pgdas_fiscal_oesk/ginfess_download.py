@@ -532,7 +532,6 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         self.ginfess_valores = valor_nao_retido, valor_retido, valor_total
 
         df.to_excel(excel_file, index=False)
-        # TODO send the sum of this values to database, without creating sheet anymore
 
     def excel_from_html_above__old(self, excel_file, html):
         from bs4 import BeautifulSoup

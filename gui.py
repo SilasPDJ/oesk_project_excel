@@ -22,11 +22,11 @@ import clipboard
 
 entry_row = 1
 
-COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
+COMPT = get_compt(int(sys.argv[1])) if len(
+    sys.argv) > 1 else get_compt(-1)
 
 
 class MainApplication(tk.Frame, ComptGuiManager):
-    # TODO: enviar clientes específicos nos self.call
     def __init__(self, parent, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Backend.__init__(COMPT)
@@ -57,7 +57,6 @@ class MainApplication(tk.Frame, ComptGuiManager):
         self.__getfieldnames_compt = self.COMPT_ORM_OPERATIONS.select_columns_keys()
         # TODO: Alterar COMPT no backend para poder ter uma GUI e selecionar várias COMPTs?
         # self.EMPRESAS
-        # TODO: Conferir problemas
         excel_col = ttkac.AutocompleteEntry(
             self.root, list(self.__getfieldnames_main[:]))
         _div_small_tip = int(len(self.__getfieldnames_main[1:])/2)+2

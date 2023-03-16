@@ -21,13 +21,13 @@ st.set_page_config(page_title="My Streamlit App",
 # st.sidebar.markdown("# Main page 🎈")
 
 
-HOME = "Home"
-UPDATE_EMPRESAS = "Update Empresas"
-UPDATE_COMPT = "Update COMPT"
-
+PAGE_HOME = "Home"
+PAGE_UPDT_EMPRESAS = "Update Empresas"
+PAGE_UPDT_COMPT = "Update COMPT"
+PAGE_ENVIADOS = "Clientes Enviados"
 
 page = st.sidebar.selectbox(
-    'Select a Page', [HOME, UPDATE_EMPRESAS, UPDATE_COMPT], 2)  # in this file
+    'Select a Page', [PAGE_HOME, PAGE_UPDT_COMPT, PAGE_ENVIADOS, PAGE_UPDT_EMPRESAS], 2)  # in this file
 
 st.sidebar.title(f"{page} :flag-br:")
 _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
@@ -37,7 +37,7 @@ _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
 filtrar_quais_anexos = display_anexos_selector()
 
 
-MAIN_PATH = handle_uploaded_files()
+# MAIN_PATH = handle_uploaded_files()
 
 conn_obj = MySqlInitConnection()
 engine = conn_obj.engine
@@ -55,13 +55,13 @@ def sum_values(v1, v2):
     return v1+v2
 
 
-if page == HOME:
+if page == PAGE_HOME:
     st.header(page)
     # st.header("Welcome to the CRUD App!")
     st.write("Use the sidebar to navigate to other pages.")
 
 # Update Empresas page
-elif page == UPDATE_EMPRESAS:
+elif page == PAGE_UPDT_EMPRESAS:
     st.header(page)
     st.code("hi")
 
@@ -69,7 +69,7 @@ elif page == UPDATE_EMPRESAS:
                         EMPRESAS_ORM_OPERATIONS.generate_df_v2(2, 3))
     # cnpj = st.selectbox("Select a cnpj", conn_obj.pd_sql_query_select_fields(
     #     SqlAchemyOrms.MainEmpresas.cnpj,))
-    empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
+    empresa = EMPRESAS_ORM_OPERATIONS.filter_by_cnpj(cnpj)
     razao_social = st.text_input("Razão Social", value=empresa.razao_social)
 
     df = EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 3)
@@ -87,15 +87,16 @@ elif page == UPDATE_EMPRESAS:
             else:
                 st.error("Failed to update Empresas.")
 
-elif page == UPDATE_COMPT:
-    title_columns = st.columns(2)
+elif page == PAGE_UPDT_COMPT:
+    # corrigir LAYOUT coluna dos valores nret, sret para o TAB
+    title_columns = st.columns((1, 2, 1))
     with title_columns[0]:
         st.header(page)
     with title_columns[1]:
         _status_message = st.empty()
         container_status_message = _status_message.container()
 
-    num_cols = 4
+    num_cols = 3
     columns = st.columns(num_cols)
     # empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
     # razao_social = st.text_input("Razão Social", value=empresa.razao_social)
@@ -105,14 +106,20 @@ elif page == UPDATE_COMPT:
     # ------------------------------------- VS --------------------------
     # EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 2)
     # -------------------------------------------------------------------
-    # ------------------------ Realiza as condições para exibir
-    cnpjs = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
+    ENTRADAS_SAIDAS_OPTIONS = [
+        "", "NÃO HÁ", "OK", "OK0", "PENDENTE", "NAOPRCISA"]
+    # filtro_opts_entradas, filtro_opts_saidas = display_entradas_saidas_selector(
+    #     ENTRADAS_SAIDAS_OPTIONS)
 
+    # ------------------------ Realiza as condições para exibir
+    CNPJS = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
     clientes_obj = conn_obj.pd_sql_query_select_fields(
         SqlAchemyOrms.MainEmpresas.razao_social)
-    # filtrar_quais_clientes = display_clientes_sidebar_selector()
+
+    envio_multiselect = st.sidebar.multiselect(
+        "Enviados: ", ['', True, False])
     filtered_cnpjs = []
-    for i, cnpj, in enumerate(cnpjs[1:]):
+    for i, cnpj, in enumerate(CNPJS[1:]):
         form_key = f"form_{i:04d}"
 
         # dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
@@ -122,29 +129,63 @@ elif page == UPDATE_COMPT:
         if other_values:
             #  if EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
             #                         id=other_values.main_empresa_id).razao_social in filtrar_quais_clientes:
+
+            other_values.nf_saidas = other_values.nf_saidas.upper()
+            other_values.nf_entradas = other_values.nf_entradas.upper()
+
+            can_append = False
+            can_append_envios = False
             if other_values.anexo in filtrar_quais_anexos:
+                can_append = True
+            elif filtrar_quais_anexos == '':
+                can_append = True
+            if envio_multiselect != []:
+                _envio = True if other_values.envio == 1 else False
+                if _envio in envio_multiselect:
+                    can_append_envios = True
+            else:
+                can_append_envios = True
+            # list_compare = [filtro_opts_entradas, filtro_opts_saidas,
+            #                 other_values.nf_entradas, other_values.nf_saidas]
+            # if len(set(list_compare)) == 1:
+            # can_append_nfs = True
+            if can_append and can_append_envios:
                 filtered_cnpjs.append(cnpj)
+    with title_columns[2]:
+        st.write(f"Mostrando {len(filtered_cnpjs):02d} resultados")
 
     # --- Realiza a exibição baseado nas condições acima
     for i, cnpj in enumerate(filtered_cnpjs):
 
         form_key = f"form_{i:04d}"
-        dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
+        dados = EMPRESAS_ORM_OPERATIONS.filter_by_cnpj(cnpj)
         other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
             cnpj, _COMPT_AS_DATE)
         # if other_values:
         razao_social = dados.razao_social
         with columns[i % num_cols]:
             with st.form(key=form_key):
-                if st.form_submit_button("Alterar Status"):
-                    other_values.declarado = not other_values.declarado
-                    updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
-                        cnpj, other_values, ['declarado'])
-                    if updated:
-                        display_success_msg(
-                            container_status_message, "Status de declaração alterado!")
-                    else:
-                        _status_message.error("Falha em conexão")
+                submit_bts_cols = st.columns(2)
+                with submit_bts_cols[0]:
+                    if st.form_submit_button("Status"):
+                        other_values.declarado = not other_values.declarado
+                        updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
+                            cnpj, other_values, ['declarado'])
+                        if updated:
+                            display_success_msg(
+                                container_status_message, "Status de declaração alterado!")
+                        else:
+                            _status_message.error("Falha em conexão")
+                with submit_bts_cols[1]:
+                    if st.form_submit_button("Envio"):
+                        other_values.envio = not other_values.envio
+                        updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
+                            cnpj, other_values, ['envio'])
+                        if updated:
+                            display_success_msg(
+                                container_status_message, "Status de envio alterado!")
+                        else:
+                            _status_message.error("Falha em conexão")
                 # with div_container:
                 # display_status_buttons()
                 # with div_esta_declarado:
@@ -190,20 +231,13 @@ elif page == UPDATE_COMPT:
                         "Anexo: ", other_values.anexo)
                 other_values.imposto_a_calcular = "SEM_MOV" if _anexo == "" else "ICMS" if _anexo in [
                     'I', 'II'] else "ISS"
-                status_entradas_saidas_options = [
-                    "NÃO HÁ", "OK", "OK0", "PENDENTE", '', "NAOPRCISA"]
-                inner_cols_nfs = st.columns(2)
-                with inner_cols_nfs[0]:
-                    other_values.nf_saidas = st.selectbox(
-                        "NF Saídas", status_entradas_saidas_options, status_entradas_saidas_options.index(other_values.nf_saidas.upper()))
-                with inner_cols_nfs[1]:
-                    other_values.nf_entradas = st.selectbox(
-                        "NF Entradas:", status_entradas_saidas_options, status_entradas_saidas_options.index(other_values.nf_entradas.upper()))
-
-                # other_values.envio = st.text_input(
-                #     "Envio: ", other_values.envio)
-                # other_values.imposto_a_calcular = st.text_input("Inposto a calcular",
-                #                                                 other_values.imposto_a_calcular, disabled=True)
+                # inner_cols_nfs = st.columns(2)
+                # with inner_cols_nfs[0]:
+                #     other_values.nf_saidas = st.selectbox(
+                #         "NF Saídas", ENTRADAS_SAIDAS_OPTIONS, ENTRADAS_SAIDAS_OPTIONS.index(other_values.nf_saidas.upper()))
+                # with inner_cols_nfs[1]:
+                #     other_values.nf_entradas = st.selectbox(
+                #         "NF Entradas:", ENTRADAS_SAIDAS_OPTIONS, ENTRADAS_SAIDAS_OPTIONS.index(other_values.nf_entradas.upper()))
                 confirm_changes = True
                 if confirm_changes:
                     if st.form_submit_button():
@@ -226,6 +260,40 @@ elif page == UPDATE_COMPT:
     # empresa.cnpj
     # COMPT_ORM_OPERATIONS.filter_by_kwargs()
 
+elif page == PAGE_ENVIADOS:
+    CNPJS = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
+    clientes_obj = conn_obj.pd_sql_query_select_fields(
+        SqlAchemyOrms.MainEmpresas.razao_social)
+    CNPJS = EMPRESAS_ORM_OPERATIONS.query_all()
+    other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt(
+        _COMPT_AS_DATE)
+
+    other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt_order_by(
+        _COMPT_AS_DATE, ['envio asc'])
+
+    other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt_order_by(
+        _COMPT_AS_DATE, ['envio asc'])
+
+    for other in other_values:
+        dados = EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
+            id=other.main_empresa_id)
+        cnpj = dados.cnpj
+
+        cols = st.columns([1, 1, 1, 2])
+        with cols[3]:
+            st.write(dados.razao_social)
+        with cols[1]:
+            if other.declarado:
+                st.write("DECLARADO: ✅")
+            else:
+                st.write("DECLARADO: ❌")
+        with cols[2]:
+            if other.envio:
+                st.write("ENVIO: ✅")
+            else:
+                st.write("ENVIO: ❌")
+        with cols[0]:
+            st.code(other.valor_total)
 # print(item.cnpj)
 
 

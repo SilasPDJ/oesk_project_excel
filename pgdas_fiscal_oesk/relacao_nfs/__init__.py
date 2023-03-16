@@ -19,7 +19,6 @@ class NfCanceled:
         # print('RGB =', tuple(int(color_in_hex[i:i + 2],
 
     def __faz_tudo_por_todos(self) -> int:
-        # TODO: refactor this with pandas # JÁ QUE É POSSÍVEL FILTRAR COM ILOC
         openpyxl = self.openpyxl
         pygui = self.pygui
         path_cliente_plan = self.path_cliente_plan

@@ -101,7 +101,7 @@ class TablesCreationInDBFromPandas(MySqlInitConnection):
                 imposto_a_calcular=row['Imposto a calcular'],
                 possui_das_pendentes=possui_das_pend,
                 compt=compt_as_date
-                # TODO: check todos
+                # pode_declarar??
             )
             existing_row = session.query(SqlAchemyOrms.ClientsCompts)\
                 .filter_by(compt=compt_to_date_obj(self.str_compt))\

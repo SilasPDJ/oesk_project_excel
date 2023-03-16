@@ -272,12 +272,14 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         initial.click()
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(randsleep2(3, 7))
-        driver.get("https://cav.receita.fazenda.gov.br/ecac/")
+        driver.get("https://cav.receita.fazenda.gov.br/autenticacao/login")
         sleep(10)
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
         sleep(10)
         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        # TODO descobrir pq zerar ICMS por certificado não funciona direito
+        #
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""

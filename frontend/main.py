@@ -1,3 +1,4 @@
+from typing import List
 import streamlit as st
 
 
@@ -9,8 +10,14 @@ def display_anexos_selector():
         "Filtrar quais anexos?", _anexos, _anexos, format_func=lambda opt: __anexos[opt])
 
 
-def display_clientes_sidebar_selector(arg):
-    return st.sidebar.multiselect("Filtrar quais clientes? ", arg)
+def display_entradas_saidas_selector(opts: List):
+    cols = st.columns(2)
+
+    with cols[0]:
+        nf_s = st.sidebar.selectbox("NF SAÍDAS", opts)
+    with cols[1]:
+        nf_e = st.sidebar.selectbox("NF ENTRADAS", opts)
+    return nf_s, nf_e
 
 
 def display_status_buttons(text: str, can_display: bool, container: st.container):

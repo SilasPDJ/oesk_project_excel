@@ -164,8 +164,6 @@ class ComptGuiManager(DBInterface):
         merged_df = main_df
         required_df = merged_df.loc[:, attributes_required]
         # order setup
-        # TODO: shall this be a function????
-
         # for client_row in self._yield_rows(required_df):
         allowed_column_names = ['nf_saidas', 'nf_entradas']
 
@@ -196,7 +194,6 @@ class ComptGuiManager(DBInterface):
         ), "_EMAILS_ENVIADOS", f"{self.compt}_envio.xlsx"))
 
         # Envia e-mails baseado na condição do envio ser False
-        # TODO: mudar coluna no BD e dar update
         allowed_df = merged_df.loc[(
             merged_df['envio'] == False) & merged_df['declarado'] == True, :]
 

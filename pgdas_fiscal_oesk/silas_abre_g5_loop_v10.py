@@ -259,7 +259,6 @@ class G5(Contimatic):
     def _while_importing(self):
         cont = 0
         c = 10
-        # TODO: Necessário fechar o foxit depois de abrir o server explorer
         while "Foxit PDF Reader" not in pygui.getActiveWindowTitle().upper() or "LIVRO_SAIDA" not in pygui.getActiveWindowTitle().upper():
             print('sleeping', pygui.getActiveWindowTitle().upper())
             sleep(c)
@@ -373,7 +372,6 @@ class G5(Contimatic):
             'LIVROENTRADA', 'Importacao')
         libre_or_normal = foxitpath_creation_exists()
         if libre_or_normal is not False:
-            # TODO: fazer listdir dentro... e procurar outros documentos, etc
             # os.chdir(self.client_path)
 
             for _, dirnames, __ in os.walk(self.client_path):
@@ -506,7 +504,6 @@ class G5(Contimatic):
                 pygui.click(x=981, y=356)
 
             exe_bt_executar()
-            # TODO: reformular exe_executar p/ pegar a parte verde do print
             if len(ARQSPATH) > 1:
                 sleep(30)
 

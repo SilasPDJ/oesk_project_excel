@@ -142,7 +142,6 @@ class Legato:
 
     @staticmethod
     def trata_sendvals(val):
-        # TODO: só incrementa 00 nos dois se nao tem cents no final
         # ex: 1400,03 = 140003
         try:
             int(val)

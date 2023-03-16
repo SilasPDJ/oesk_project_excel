@@ -20,7 +20,6 @@ def calc_date_compt_offset(m_cont=-1, y_cont=0, past_only=True, sep='-') -> date
     Returns:
         date: datetime.date making the counters with relativedelta
     """
-    # TODO: Fazer inverso do get_compt
     from datetime import timedelta, datetime
     from dateutil.relativedelta import relativedelta
     month = datetime.now().month
@@ -39,7 +38,6 @@ def calc_date_compt_offset(m_cont=-1, y_cont=0, past_only=True, sep='-') -> date
 
 
 def get_compt(m_cont=-1, y_cont=0, past_only=True, format_str='-') -> str:
-    # TODO: refactor to get_compt_str
     """ - returns `str` based on the two first arguments with the format option,
     calls compt_as_date first, 
     Args:

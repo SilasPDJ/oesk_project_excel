@@ -22,7 +22,8 @@ import sys
 
 from pgdas_fiscal_oesk.silas_jr import JR
 
-COMPT = get_compt(int(sys.argv[1])) if len(sys.argv) > 1 else get_compt(-1)
+COMPT = get_compt(int(sys.argv[1])) if len(
+    sys.argv) > 1 else get_compt(-1)
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 
@@ -35,13 +36,11 @@ main_folder = CONS.MAIN_FOLDER
 main_file = CONS.MAIN_FILE
 TOTAL_CLIENTES = len(list(consultar_compt()))
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
-# TODO: GUI para impostos possiveis
 # IMPOSTOS_POSSIVEIS.clear()
 # addentry vai virar um objeto p/ funcionar corretamente c/ outras entry_row
 
 
 class Backend:
-    # TODO: lista de clientes a segu9ir
     def __init__(self):
         pass
 
