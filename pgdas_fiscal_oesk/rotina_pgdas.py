@@ -105,6 +105,8 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
             self.find_submit_form()
         except TimeoutException:
             pass
+        except NoSuchElementException as e:
+            pass
 
         self.simples_and_ecac_utilities(2, compt)
         # driver.save_screenshot(self.certif_feito(

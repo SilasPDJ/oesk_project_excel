@@ -9,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
+from selenium.webdriver import Remote
 
 from time import sleep
 # from default.sets.pathmanager import HasJson
@@ -19,7 +20,7 @@ from time import sleep
 
 class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
-    def __init__(self, driver, compt, client_path):
+    def __init__(self, driver: Remote, compt, client_path):
         # super().__init__(driver)
 
         WDShorcuts.__init__(self, driver)
@@ -276,10 +277,16 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
         sleep(10)
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
         sleep(10)
+
         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
-        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        while self.driver.current_url == "https://cav.receita.fazenda.gov.br/autenticacao/login":
+            try:
+                self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+            except NoSuchElementException as e:
+                pass
+                sleep(1)
+                print("sleeping...")
         # TODO descobrir pq zerar ICMS por certificado não funciona direito
-        #
 
     def change_ecac_client(self, CNPJ):
         """:return: vai até ao site de declaração do ECAC."""
