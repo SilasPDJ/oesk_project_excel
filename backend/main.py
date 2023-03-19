@@ -1,6 +1,23 @@
 import pandas as pd
 import streamlit as st
 import os
+from decimal import Decimal
+from default.sets import Initial, get_compt, compt_to_date_obj
+from backend.database.db_interface import DBInterface
+import pandas as pd
+import sqlalchemy as db
+import streamlit as st
+from backend.models import SqlAchemyOrms
+from backend.database import MySqlInitConnection
+
+
+conn_obj = MySqlInitConnection()
+engine = conn_obj.engine
+db_interface = DBInterface(conn_obj)
+EMPRESAS_ORM_OPERATIONS = db_interface.EmpresasOrmOperations(
+    db_interface.conn_obj)
+COMPT_ORM_OPERATIONS = db_interface.ComptOrmOperations(db_interface.conn_obj)
+
 
 # Set the path to the uploads directory
 main_path = os.path.dirname(os.path.realpath(__file__))
@@ -34,5 +51,3 @@ def handle_uploaded_files():
         with open(file) as f:
             file_details = {"CAMINHO_PRINCIPAL": f.read()}
             st.sidebar.write(file_details)
-
-

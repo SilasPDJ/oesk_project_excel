@@ -160,17 +160,12 @@ class DBInterface:
                     .filter(SqlAchemyOrms.MainEmpresas.cnpj == cnpj).one_or_none()
 
                 if empresa:
-                    update_dict = {
-                        'declarado': values_obj.declarado,
-                        'nf_saidas': values_obj.nf_saidas,
-                        'entradas': values_obj.nf_entradas,
-                        'sem_retencao': values_obj.sem_retencao,
-                        'com_retencao': values_obj.com_retencao,
-                        'valor_total': values_obj.sem_retencao + values_obj.com_retencao,
-                        'anexo': values_obj.anexo,
-                        'envio': values_obj.envio,
-                        'imposto_a_calcular': values_obj.imposto_a_calcular
-                    }
+                    update_dict = {}
+
+                    for key, value in vars(values_obj).items():
+                        if not key.startswith("__"):
+                            update_dict[key] = value
+
                     for key, value in update_dict.items():
                         if allowed != []:
                             if key in allowed:

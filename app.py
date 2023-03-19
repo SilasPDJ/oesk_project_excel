@@ -1,25 +1,16 @@
+from unicodedata import decimal
 from backend.main import *
 from frontend.main import *
 
-from decimal import Decimal
-from default.sets import Initial, get_compt, compt_to_date_obj
-from backend.database.db_interface import DBInterface
-import pandas as pd
-import sqlalchemy as db
-import streamlit as st
-from backend.models import SqlAchemyOrms
-from backend.database import MySqlInitConnection
 from streamlit_tags import st_tags, st_tags_sidebar
 
 
 # st.set_page_config(page_title='OESK Contábil')
-st.set_page_config(page_title="My Streamlit App",
-                   page_icon=":guardsman:", layout="wide")
-
+if not st.session_state.get('has_set_page_config'):
+    st.set_page_config(page_title="OESK Contábil",
+                       page_icon=":guardsman:", layout="wide")
+    st.session_state['has_set_page_config'] = True
 # st.markdown("# OESK Contábil :flag-br:")
-
-# st.sidebar.markdown("# Main page 🎈")
-
 
 PAGE_HOME = "Home"
 PAGE_UPDT_EMPRESAS = "Update Empresas"
@@ -35,19 +26,6 @@ _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
 
 
 filtrar_quais_anexos = display_anexos_selector()
-
-
-# MAIN_PATH = handle_uploaded_files()
-
-conn_obj = MySqlInitConnection()
-engine = conn_obj.engine
-# Session = conn_obj.Session
-
-
-db_interface = DBInterface(conn_obj)
-EMPRESAS_ORM_OPERATIONS = db_interface.EmpresasOrmOperations(
-    db_interface.conn_obj)
-COMPT_ORM_OPERATIONS = db_interface.ComptOrmOperations(db_interface.conn_obj)
 
 
 @st.cache_data
@@ -89,6 +67,8 @@ elif page == PAGE_UPDT_EMPRESAS:
 
 elif page == PAGE_UPDT_COMPT:
     # corrigir LAYOUT coluna dos valores nret, sret para o TAB
+    show_only_status = st.sidebar.checkbox("Mostrar somente status")
+
     title_columns = st.columns((1, 2, 1))
     with title_columns[0]:
         st.header(page)
@@ -96,7 +76,7 @@ elif page == PAGE_UPDT_COMPT:
         _status_message = st.empty()
         container_status_message = _status_message.container()
 
-    num_cols = 3
+    num_cols = 3 if not show_only_status else 5
     columns = st.columns(num_cols)
     # empresa = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
     # razao_social = st.text_input("Razão Social", value=empresa.razao_social)
@@ -115,6 +95,8 @@ elif page == PAGE_UPDT_COMPT:
     CNPJS = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
     clientes_obj = conn_obj.pd_sql_query_select_fields(
         SqlAchemyOrms.MainEmpresas.razao_social)
+
+    # TODO: botão de permitir toda a seleção...
 
     envio_multiselect = st.sidebar.multiselect(
         "Enviados: ", ['', True, False])
@@ -151,9 +133,26 @@ elif page == PAGE_UPDT_COMPT:
             # can_append_nfs = True
             if can_append and can_append_envios:
                 filtered_cnpjs.append(cnpj)
+
+    if show_only_status or len(filtrar_quais_anexos) <= 2:
+        def _allow_declarar(_=False):
+            for cnpj in filtered_cnpjs:
+                _compt_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
+                    cnpj, _COMPT_AS_DATE)
+                _compt_values.pode_declarar = _
+                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
+                    cnpj, _compt_values, ['pode_declarar'])
+        with title_columns[1]:
+            st.markdown("### Altera todos os selecionados")
+            allow_cols = st.columns(5, gap='small')
+            with allow_cols[0]:
+                if st.button("COM Permissão"):
+                    _allow_declarar(True)
+            with allow_cols[1]:
+                if st.button("SEM Permissão", type='primary'):
+                    _allow_declarar()
     with title_columns[2]:
         st.write(f"Mostrando {len(filtered_cnpjs):02d} resultados")
-
     # --- Realiza a exibição baseado nas condições acima
     for i, cnpj in enumerate(filtered_cnpjs):
 
@@ -163,9 +162,12 @@ elif page == PAGE_UPDT_COMPT:
             cnpj, _COMPT_AS_DATE)
         # if other_values:
         razao_social = dados.razao_social
+
+        submit_bts_cols = st.columns(3)
         with columns[i % num_cols]:
             with st.form(key=form_key):
-                submit_bts_cols = st.columns(2)
+
+                submit_bts_cols = st.columns(3, gap='small')
                 with submit_bts_cols[0]:
                     if st.form_submit_button("Status"):
                         other_values.declarado = not other_values.declarado
@@ -186,15 +188,25 @@ elif page == PAGE_UPDT_COMPT:
                                 container_status_message, "Status de envio alterado!")
                         else:
                             _status_message.error("Falha em conexão")
-                # with div_container:
-                # display_status_buttons()
-                # with div_esta_declarado:
+                with submit_bts_cols[2]:
+                    if st.form_submit_button("Permit"):
+                        other_values.pode_declarar = not other_values.pode_declarar
+                        updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
+                            cnpj, other_values, ['pode_declarar'])
+                        if updated:
+                            display_success_msg(
+                                container_status_message, "Autorização alterada!")
+                        else:
+                            _status_message.error("Falha em conexão")
+
                 status_cols = st.columns(2)
                 with status_cols[0]:
                     display_status_buttons(
                         "Declarado", other_values.declarado, st.container())
                     display_status_buttons(
                         "Envio", other_values.envio, st.container())
+                    display_status_buttons(
+                        "Autorizado", other_values.pode_declarar, st.container())
                 with status_cols[1]:
                     add_label_to_stcode("CNPJ: ", align="center")
                     st.code(cnpj)
@@ -202,55 +214,57 @@ elif page == PAGE_UPDT_COMPT:
                 st.code(razao_social)
                 # other_values.main_empresa_id
                 # formatted_number = "${:,.2f}".format(my_number)
-                other_values.sem_retencao = float(
-                    other_values.sem_retencao)
-                other_values.com_retencao = float(
-                    other_values.com_retencao)
-                other_values.valor_total = float(
-                    other_values.valor_total)
-                inner_cols_values = st.columns(2)
-                with inner_cols_values[0]:
-                    other_values.sem_retencao = st.number_input(
-                        "Sem retenção: ", 0., 9999999., other_values.sem_retencao, 100.00)
-                with inner_cols_values[1]:
-                    other_values.com_retencao = st.number_input(
-                        "Com retenção: ", 0., 9999999., other_values.com_retencao, 100.00)
+                if not show_only_status:
+                    other_values.sem_retencao = float(
+                        other_values.sem_retencao)
+                    other_values.com_retencao = float(
+                        other_values.com_retencao)
+                    other_values.valor_total = float(
+                        other_values.valor_total)
+                    inner_cols_values = st.columns(2)
+                    with inner_cols_values[0]:
+                        other_values.sem_retencao = st.number_input(
+                            "Sem retenção: ", 0., 9999999., other_values.sem_retencao, 100.00)
+                    with inner_cols_values[1]:
+                        other_values.com_retencao = st.number_input(
+                            "Com retenção: ", 0., 9999999., other_values.com_retencao, 100.00)
 
-                valor_total = sum_values(
-                    other_values.sem_retencao, other_values.com_retencao) or other_values.valor_total
-                # other_values.valor_total = st.number_input(
-                #     "Valor Total: ", 0., 9999999., valor_total, 100.00, disabled=True)
-                other_values.valor_total = valor_total
-                with inner_cols_values[1]:
-                    add_label_to_stcode("Valor Total")
-                    st.code("R${:,.2f}".format(valor_total).replace(
-                        ",", "X").replace(".", ",").replace("X", "."))
-                with inner_cols_values[0]:
-                    _anexo = other_values.anexo
-                    other_values.anexo = st.text_input(
-                        "Anexo: ", other_values.anexo)
-                other_values.imposto_a_calcular = "SEM_MOV" if _anexo == "" else "ICMS" if _anexo in [
-                    'I', 'II'] else "ISS"
-                # inner_cols_nfs = st.columns(2)
-                # with inner_cols_nfs[0]:
-                #     other_values.nf_saidas = st.selectbox(
-                #         "NF Saídas", ENTRADAS_SAIDAS_OPTIONS, ENTRADAS_SAIDAS_OPTIONS.index(other_values.nf_saidas.upper()))
-                # with inner_cols_nfs[1]:
-                #     other_values.nf_entradas = st.selectbox(
-                #         "NF Entradas:", ENTRADAS_SAIDAS_OPTIONS, ENTRADAS_SAIDAS_OPTIONS.index(other_values.nf_entradas.upper()))
-                confirm_changes = True
-                if confirm_changes:
-                    if st.form_submit_button():
-                        updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(cnpj,
-                                                                                  other_values)
-                        if updated:
-                            display_success_msg(
-                                container_status_message, "Status de declaração alterado!")
-                        else:
-                            _status_message.error(
-                                "Failed to update Competencias.")
-                # cnpj = st.text_input(
-                #     "Exibindo CNPJ", EMPRESAS_ORM_OPERATIONS.find_by_razao_social(razao_social).cnpj, disabled=True)
+                    valor_total = sum_values(
+                        other_values.sem_retencao, other_values.com_retencao) or other_values.valor_total
+                    # other_values.valor_total = st.number_input(
+                    #     "Valor Total: ", 0., 9999999., valor_total, 100.00, disabled=True)
+                    other_values.valor_total = valor_total
+                    with inner_cols_values[1]:
+                        add_label_to_stcode("Valor Total")
+                        st.code("R${:,.2f}".format(valor_total).replace(
+                            ",", "X").replace(".", ",").replace("X", "."))
+                    with inner_cols_values[0]:
+                        _anexo = other_values.anexo
+                        other_values.anexo = st.text_input(
+                            "Anexo: ", other_values.anexo)
+                    other_values.imposto_a_calcular = "SEM_MOV" if _anexo == "" else "ICMS" if _anexo in [
+                        'I', 'II'] else "ISS"
+                    # inner_cols_nfs = st.columns(2)
+                    # with inner_cols_nfs[0]:
+                    #     other_values.nf_saidas = st.selectbox(
+                    #         "NF Saídas", ENTRADAS_SAIDAS_OPTIONS, ENTRADAS_SAIDAS_OPTIONS.index(other_values.nf_saidas.upper()))
+                    # with inner_cols_nfs[1]:
+                    #     other_values.nf_entradas = st.selectbox(
+                    #         "NF Entradas:", ENTRADAS_SAIDAS_OPTIONS, ENTRADAS_SAIDAS_OPTIONS.index(other_values.nf_entradas.upper()))
+                    confirm_changes = True
+                    if confirm_changes:
+                        if st.form_submit_button():
+                            updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(cnpj,
+                                                                                      other_values)
+                            if updated:
+                                display_success_msg(
+                                    container_status_message, "Status de declaração alterado!")
+                            else:
+                                _status_message.error(
+                                    "Failed to update Competencias.")
+                        st.write(other_values.pode_declarar)
+                    # cnpj = st.text_input(
+                    #     "Exibindo CNPJ", EMPRESAS_ORM_OPERATIONS.find_by_razao_social(razao_social).cnpj, disabled=True)
 
         # date = st.date_input("date", other_values.compt)
 

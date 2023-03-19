@@ -3,11 +3,23 @@ import streamlit as st
 
 
 def display_anexos_selector():
-    __anexos = {anx: anx for anx in ['I', 'II', 'III', 'IV', 'V']}
-    __anexos.update({'': "SEM_MOV"})
-    _anexos = list(__anexos.keys())
+    anexos = ['I', 'II', 'III', 'IV', 'V']
+    if not st.session_state.get('anexos_input'):
+        __anexos = {anx: anx for anx in anexos}
+        __anexos[''] = "SEM_MOV"
+        st.session_state['anexos_input'] = __anexos
+
+    cols = st.sidebar.columns(3)
+    if cols[0].button("Somente ICMS"):
+        st.session_state['anexos_input'] = {anx: anx for anx in anexos[:2]}
+    if cols[1].button("Somente ISS"):
+        st.session_state['anexos_input'] = {anx: anx for anx in anexos[2:]}
+    if cols[2].button("Sem Mov"):
+        st.session_state['anexos_input'] = {'': "SEM_MOV"}
+
+    _anexos = list(st.session_state.get('anexos_input').keys())
     return st.sidebar.multiselect(
-        "Filtrar quais anexos?", _anexos, _anexos, format_func=lambda opt: __anexos[opt])
+        "Filtrar quais anexos?", _anexos, _anexos, format_func=lambda opt: st.session_state['anexos_input'][opt])
 
 
 def display_entradas_saidas_selector(opts: List):

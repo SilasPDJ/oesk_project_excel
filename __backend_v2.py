@@ -85,7 +85,7 @@ class ComptGuiManager(DBInterface):
         # só vai chamar compts já criadas...
         # Como todas foram criadas 09-03-2023, tomar cuidado......
 
-        merged_df = self.main_generate_dados()
+        merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
         # merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
         # if specifics_list[0] != "" , selfl.spefics != None
@@ -186,7 +186,7 @@ class ComptGuiManager(DBInterface):
         # só vai chamar compts já criadas...
         # Como todas foram criadas 09-03-2023, tomar cuidado......
 
-        merged_df = self.main_generate_dados()
+        merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
 
         _emailsenviados_df = merged_df.loc[merged_df['envio'] == True, :]
@@ -241,7 +241,7 @@ class ComptGuiManager(DBInterface):
             COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                 row['cnpj'], row, allowed=allowed_column_names)
 
-    def main_generate_dados(self, df_as_it_is: bool = False) -> pd.DataFrame:
+    def main_generate_dados(self, df_as_it_is: bool = False, allow_only_authorized=False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT
         df_padrao = self.EMPRESAS_DADOS
 
@@ -249,6 +249,8 @@ class ComptGuiManager(DBInterface):
                            left_on='id', right_on='main_empresa_id')
         # ----- TODO: esta parte abaixo em função
         _str_col = 'imposto_a_calcular'
+        if allow_only_authorized:
+            main_df = main_df.loc[main_df['pode_declarar'] == True, :]
         icms_dfs = main_df.loc[main_df[_str_col] == 'ICMS', :]
         iss_dfs = main_df.loc[main_df[_str_col] == 'ISS', :]
 
