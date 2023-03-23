@@ -41,6 +41,7 @@ class _StandardOrmMethods:
 
 class DBInterface:
     def __init__(self, conn_obj: MySqlInitConnection) -> None:
+        # TODO: criar compts
         self.conn_obj = conn_obj
         self.engine = conn_obj.engine
 
@@ -159,6 +160,7 @@ class DBInterface:
                     self.orm.main_empresas)\
                     .filter(SqlAchemyOrms.MainEmpresas.cnpj == cnpj).one_or_none()
 
+            with self.conn_obj.Session() as session:
                 if empresa:
                     update_dict = {}
 

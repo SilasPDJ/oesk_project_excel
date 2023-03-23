@@ -3,6 +3,7 @@
 # from pgdas_fiscal_oesk.rotina_dividas_v3 import dividas_ativas_complete as rotina_dividas
 # from pgdas_fiscal_oesk.send_dividas import SendDividas
 # from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
+import functools
 import os
 from typing import List
 from default.interact.autocomplete_entry import AutocompleteEntry
@@ -31,8 +32,6 @@ from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 # from selenium.common.exceptions import UnexpectedAlertPresentException
 # from pgdas_fiscal_oesk.silas_jr import JR
 
-# TODO: gui is not updating with database **
-
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
@@ -48,36 +47,43 @@ class Rotinas:
     def consultar_para_main_application():
         pass
 
+
 # Rotinas()._create_all_datas_using_sheets()
 
 
 class ComptGuiManager(DBInterface):
-    # ----  class attributes
+    # ---- class attributes
     # Consulta junta... DBInterface
-    conn_obj = MySqlInitConnection()
     # Session = conn_obj.Session
+    def __setup__(self):
+        conn_obj = MySqlInitConnection()
+        db_interface = DBInterface(conn_obj)
+        self.EMPRESAS_ORM_OPERATIONS = db_interface.EmpresasOrmOperations(
+            db_interface.conn_obj)
+        self.COMPT_ORM_OPERATIONS = db_interface.ComptOrmOperations(
+            db_interface.conn_obj)
+        __full_query_compts = self.COMPT_ORM_OPERATIONS.filter_all_by_compt(
+            compt_to_date_obj(self.compt))
+        self.DADOS_COMPT = self.COMPT_ORM_OPERATIONS.generate_df_query_results_all(
+            __full_query_compts)
+        # self.engine = conn_obj.engine
+        # self.session = conn_obj.Session
 
-    db_interface = DBInterface(conn_obj)
-    EMPRESAS_ORM_OPERATIONS = db_interface.EmpresasOrmOperations(
-        db_interface.conn_obj)
-    COMPT_ORM_OPERATIONS = db_interface.ComptOrmOperations(
-        db_interface.conn_obj)
-
-    EMPRESAS_DADOS = EMPRESAS_ORM_OPERATIONS.generate_df_v2(None, None)
+    def setup_required(func):
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            self.__setup__()
+            print(func, 'Is being called')
+            return func(self, *args, **kwargs)
+        return wrapper
 
     def __init__(self, compt: str):
         # ---- instance attributes...
         self.compt = compt
-        self.compt_as_date = compt_to_date_obj(compt)
-
-        super().__init__(self.conn_obj)
-        self.engine = self.conn_obj.engine
-        self.session = self.conn_obj.Session
-
-        __full_query_compts = self.COMPT_ORM_OPERATIONS.filter_all_by_compt(
-            self.compt_as_date)
-        self.DADOS_COMPT = self.COMPT_ORM_OPERATIONS.generate_df_query_results_all(
-            __full_query_compts)
+        self.__setup__()
+        self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(
+            None, None)
+        # EMPRESA_DADOS is an actual constant
         self._specifics = None
 
     def call_simples_nacional(self, specifics_list: List[AutocompleteEntry] = None):
@@ -241,6 +247,7 @@ class ComptGuiManager(DBInterface):
             COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                 row['cnpj'], row, allowed=allowed_column_names)
 
+    @setup_required
     def main_generate_dados(self, df_as_it_is: bool = False, allow_only_authorized=False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT
         df_padrao = self.EMPRESAS_DADOS
@@ -276,6 +283,7 @@ class ComptGuiManager(DBInterface):
     #     for row in df.itertuples(False):
     #         yield [getattr(row, var) for var in variables]
 
+    @setup_required
     def generate_compts_to_gui(self):
         InitialSetting.ate_atual_compt()
         pass
