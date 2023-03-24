@@ -1,15 +1,12 @@
-from unicodedata import decimal
-from backend.main import *
 from frontend.main import *
+from backend.main import *
+from unicodedata import decimal
 
 from streamlit_tags import st_tags, st_tags_sidebar
 
 
 # st.set_page_config(page_title='OESK Contábil')
-if not st.session_state.get('has_set_page_config'):
-    st.set_page_config(page_title="OESK Contábil",
-                       page_icon=":guardsman:", layout="wide")
-    st.session_state['has_set_page_config'] = True
+
 # st.markdown("# OESK Contábil :flag-br:")
 
 PAGE_HOME = "Home"
@@ -34,9 +31,12 @@ def sum_values(v1, v2):
 
 
 if page == PAGE_HOME:
-    st.header(page)
-    # st.header("Welcome to the CRUD App!")
-    st.write("Use the sidebar to navigate to other pages.")
+    # st.header(page)
+    st.header('Welcome to Home Page')
+    # TODO^: adicionar competencia
+    div_cols = st.columns(2)
+    with div_cols[1]:
+        year_input, month_input = get_year_month_inputs()
 
 # Update Empresas page
 elif page == PAGE_UPDT_EMPRESAS:
@@ -262,7 +262,6 @@ elif page == PAGE_UPDT_COMPT:
                             else:
                                 _status_message.error(
                                     "Failed to update Competencias.")
-                        st.write(other_values.pode_declarar)
                     # cnpj = st.text_input(
                     #     "Exibindo CNPJ", EMPRESAS_ORM_OPERATIONS.find_by_razao_social(razao_social).cnpj, disabled=True)
 

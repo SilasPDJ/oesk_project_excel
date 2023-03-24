@@ -1,5 +1,20 @@
-from typing import List
+from . import st_page_config
+from typing import List, Tuple
 import streamlit as st
+from backend.main import get_years_range, get_months_range_dict
+
+
+def get_year_month_inputs() -> Tuple[st.selectbox, st.selectbox]:
+    year_range, _date_now = get_years_range()
+    months_dict = get_months_range_dict()
+    cols = st.columns(2)
+    with cols[1]:
+        year = st.selectbox('ANO', year_range, list(
+            year_range).index(_date_now.year))
+    with cols[0]:
+        month = st.selectbox('MES', months_dict,
+                             format_func=lambda x: months_dict[x], index=_date_now.month-1)
+    return year, month
 
 
 def display_anexos_selector():
@@ -9,17 +24,20 @@ def display_anexos_selector():
         __anexos[''] = "SEM_MOV"
         st.session_state['anexos_input'] = __anexos
 
+    st.sidebar.write("Anexos de somente:")
     cols = st.sidebar.columns(3)
-    if cols[0].button("Somente ICMS"):
+    if cols[0].button("ICMS"):
         st.session_state['anexos_input'] = {anx: anx for anx in anexos[:2]}
-    if cols[1].button("Somente ISS"):
+    if cols[1].button("ISS"):
         st.session_state['anexos_input'] = {anx: anx for anx in anexos[2:]}
     if cols[2].button("Sem Mov"):
         st.session_state['anexos_input'] = {'': "SEM_MOV"}
-
-    _anexos = list(st.session_state.get('anexos_input').keys())
-    return st.sidebar.multiselect(
-        "Filtrar quais anexos?", _anexos, _anexos, format_func=lambda opt: st.session_state['anexos_input'][opt])
+    if st.session_state.get('anexos_input'):
+        _anexos = list(st.session_state.get('anexos_input').keys())
+        return st.sidebar.multiselect(
+            "Filtrar quais anexos?", _anexos, _anexos, format_func=lambda opt: st.session_state['anexos_input'][opt])
+    else:
+        return ['']+anexos
 
 
 def display_entradas_saidas_selector(opts: List):

@@ -1,3 +1,4 @@
+from typing import Tuple
 import pandas as pd
 import streamlit as st
 import os
@@ -9,7 +10,7 @@ import sqlalchemy as db
 import streamlit as st
 from backend.models import SqlAchemyOrms
 from backend.database import MySqlInitConnection
-
+from datetime import datetime
 
 conn_obj = MySqlInitConnection()
 engine = conn_obj.engine
@@ -26,6 +27,21 @@ UPLOADS_PATH = os.path.join(main_path, 'backend', 'uploads')
 # Create the uploads directory if it doesn't exist
 if not os.path.exists(UPLOADS_PATH):
     os.makedirs(UPLOADS_PATH)
+
+
+def get_years_range() -> Tuple[range, datetime.now]:
+    now_year = datetime.now().year
+    return range(now_year-5, now_year+3), datetime.now()
+
+
+def get_months_range_dict() -> dict:
+    import locale
+    import calendar
+    locale.setlocale(locale.LC_TIME, '')
+    months_dict = {'': ''}
+    months_dict.update(
+        {i: calendar.month_name[i].upper() for i in range(1, 13)})
+    return months_dict
 
 
 def handle_uploaded_files():
