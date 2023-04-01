@@ -7,6 +7,8 @@ from typing import List, Type
 import sqlalchemy as db
 import pandas as pd
 
+from default.sets import compt_to_date_obj
+
 
 class _StandardOrmMethods:
     # my porpoise is not to get any orm specific attributes  in here
@@ -51,7 +53,7 @@ class DBInterface:
             super().__init__(self.orm, conn_obj)
 
         @staticmethod
-        def get_orm():
+        def get_orm() -> SqlAchemyOrms.MainEmpresas:
             return SqlAchemyOrms.MainEmpresas
 
         def filter_by_any(self, **any) -> SqlAchemyOrms.MainEmpresas:
@@ -101,7 +103,7 @@ class DBInterface:
             super().__init__(self.orm, conn_obj)
 
         @staticmethod
-        def get_orm():
+        def get_orm() -> SqlAchemyOrms.ClientsCompts:
             return SqlAchemyOrms.ClientsCompts
 
         # need to duplicate, otherwhise it won't highlight
@@ -215,3 +217,65 @@ class DBInterface:
                     return True
 
                 return False
+
+
+class InitNewCompt:
+    def __init__(self, compt) -> None:
+        """Initialize a new compt if it not exists
+
+        Args:
+            compt_str (str): "%mm-yyyy"
+        """
+        # TODO: criar compts
+        self.conn_obj = MySqlInitConnection()
+        self.engine = self.conn_obj.engine
+        self.orm = SqlAchemyOrms.ClientsCompts
+        self.compt = compt
+
+        self.setup()
+
+    def setup(self) -> None:
+        from sqlalchemy import and_, desc
+        from datetime import datetime, timedelta
+
+        with self.conn_obj.Session() as session:
+            # get the most recent row in the table
+            most_recent_row = session.query(self.orm).order_by(
+                desc(self.orm.compt)).first()
+            # get the row(s) you want to duplicate
+            rows_to_duplicate = session.query(self.orm).filter(
+                self.orm.compt == most_recent_row.compt,
+                # assuming pode_declarar is a boolean
+            )
+
+            # create the new compt datetime object
+            compt_datetime = datetime.strptime(self.compt, '%m-%Y')
+
+        print("Init new compt: ", self.compt, '-------')
+
+        with self.conn_obj.Session() as session:
+            # check if the row already exists
+            row_exists = session.query(self.orm).filter(
+                self.orm.compt == compt_datetime).first()
+            if not row_exists:
+                # create new rows with incremented date
+                for row in rows_to_duplicate:
+                    new_row = self.orm(
+                        main_empresa_id=row.main_empresa_id,
+                        declarado=row.declarado,
+                        nf_saidas=row.nf_saidas,
+                        nf_entradas=row.nf_entradas,
+                        sem_retencao=0.00,
+                        com_retencao=0.00,
+                        valor_total=0.00,
+                        anexo=row.anexo,
+                        imposto_a_calcular=row.imposto_a_calcular,
+                        possui_das_pendentes=False,
+                        compt=compt_datetime,
+                        envio=row.envio,
+                        pode_declarar=False  # set to False
+                    )
+                    print(new_row)
+                    print('----')
+                    session.add(new_row)
+                session.commit()

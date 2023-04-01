@@ -6,7 +6,7 @@ import os
 # @ staticmethod
 
 
-def compt_to_date_obj(compt):
+def compt_to_date_obj(compt) -> date:
     return Now.str_to_date(compt, "%m-%Y")
 
 

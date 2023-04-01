@@ -20,7 +20,7 @@ from default.sets import InitialSetting
 import pandas as pd
 import sys
 from backend.database.db_create import TablesCreationInDBFromPandas
-from backend.database.db_interface import DBInterface
+from backend.database.db_interface import DBInterface, InitNewCompt
 from default.sets import calc_date_compt_offset, get_compt, compt_to_date_obj
 # from default.sets import get_all_valores
 
@@ -80,11 +80,17 @@ class ComptGuiManager(DBInterface):
     def __init__(self, compt: str):
         # ---- instance attributes...
         self.compt = compt
+        InitNewCompt(compt)
+        
         self.__setup__()
         self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(
             None, None)
         # EMPRESA_DADOS is an actual constant
+
         self._specifics = None
+
+    def create_month_if_not_exists(self):
+        self.compt
 
     def call_simples_nacional(self, specifics_list: List[AutocompleteEntry] = None):
         # simples_nacional procuradeclaracao_version
