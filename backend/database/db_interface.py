@@ -1,3 +1,4 @@
+import datetime
 from typing_extensions import override
 import MySQLdb
 from backend.models import SqlAchemyOrms
@@ -55,6 +56,12 @@ class DBInterface:
         def get_orm() -> SqlAchemyOrms.MainEmpresas:
             return SqlAchemyOrms.MainEmpresas
 
+        def get_ids_dictonary(self) -> dict:
+            with self.conn_obj.Session() as session:
+                empresas = session.query(
+                    self.orm.id, self.orm.razao_social).all()
+                return {e[0]: e[1] for e in empresas}
+
         def filter_by_any(self, **any) -> SqlAchemyOrms.MainEmpresas:
             with self.conn_obj.Session() as session:
                 empresa = session.query(
@@ -86,6 +93,17 @@ class DBInterface:
                 empresa = session.query(
                     self.orm).all()
                 return empresa
+
+        def get_from_id(self, id: int):
+            with self.conn_obj.Session() as session:
+                return session.query(self.orm).get(id)
+
+        def update_from_id(self, id: int, form_values: dict):
+            with self.conn_obj.Session() as session:
+                record = session.query(self.orm).get(id)
+                for key, value in form_values.items():
+                    setattr(record, key, value)
+                session.commit()
 
         def update_from_cnpj(self, cnpj: str, razao_social: str):
             with self.conn_obj.Session() as session:
@@ -141,6 +159,18 @@ class DBInterface:
                     order_by_args = [db.text(arg) for arg in order_by_args]
                     query = query.order_by(*order_by_args)
                 return query.all()
+
+        def update_field_from_cnpj_compt_only(self, compt: datetime.date, cnpj: str, field_value: dict):
+            from sqlalchemy import update
+            with self.conn_obj.Session() as session:
+                empresa = session.query(self.orm).filter_by(compt=compt).join(
+                    self.orm.main_empresas).filter(SqlAchemyOrms.MainEmpresas.cnpj == cnpj).one_or_none()
+                if empresa:
+                    session.execute(update(self.orm).
+                                    where(self.orm.main_empresa_id == empresa.main_empresa_id).
+                                    where(self.orm.compt == compt).
+                                    values(field_value))
+                session.commit()
 
         def update_from_cnpj_and_compt(self, cnpj: str, values_obj: SqlAchemyOrms.ClientsCompts, allowed=[]):
             """This abstraction updates the COMPTs table using cnpj, getting the other_values as parameter
