@@ -43,7 +43,6 @@ class _StandardOrmMethods:
 
 class DBInterface:
     def __init__(self, conn_obj: MySqlInitConnection) -> None:
-        # TODO: criar compts
         self.conn_obj = conn_obj
         self.engine = conn_obj.engine
 
@@ -226,7 +225,6 @@ class InitNewCompt:
         Args:
             compt_str (str): "%mm-yyyy"
         """
-        # TODO: criar compts
         self.conn_obj = MySqlInitConnection()
         self.engine = self.conn_obj.engine
         self.orm = SqlAchemyOrms.ClientsCompts
@@ -259,10 +257,15 @@ class InitNewCompt:
                 self.orm.compt == compt_datetime).first()
             if not row_exists:
                 # create new rows with incremented date
+
                 for row in rows_to_duplicate:
+                    _envio = True if str(
+                        row.imposto_a_calcular) == 'LP' else False
+                    _declarado = True if str(
+                        row.imposto_a_calcular) == 'LP' else False
                     new_row = self.orm(
                         main_empresa_id=row.main_empresa_id,
-                        declarado=row.declarado,
+                        declarado=_declarado,
                         nf_saidas=row.nf_saidas,
                         nf_entradas=row.nf_entradas,
                         sem_retencao=0.00,
@@ -272,10 +275,8 @@ class InitNewCompt:
                         imposto_a_calcular=row.imposto_a_calcular,
                         possui_das_pendentes=False,
                         compt=compt_datetime,
-                        envio=row.envio,
+                        envio=_envio,
                         pode_declarar=False  # set to False
                     )
-                    print(new_row)
-                    print('----')
                     session.add(new_row)
                 session.commit()
