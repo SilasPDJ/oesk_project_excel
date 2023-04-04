@@ -44,6 +44,27 @@ def get_months_range_dict() -> dict:
     return months_dict
 
 
+def permitir_cnpjs(filtered_cnpjs, compt: datetime.date):
+    """Permite a realização de rotinas para os clientes, permissão fica como True
+
+    Args:
+        filtered_cnpjs (_type_): _description_
+        compt (datetime.date): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # _COMPT_AS_DATE
+    permitir_ok = False
+    for cnpj in filtered_cnpjs:
+        permitir_ok = COMPT_ORM_OPERATIONS.update_fieldict_from_cnpj_compt(
+            cnpj, compt, {'pode_declarar': True})
+    if permitir_ok:
+        return True
+    else:
+        return False
+
+
 def handle_uploaded_files():
     if len(os.listdir(UPLOADS_PATH)) < 1:
         data_files = st.sidebar.file_uploader(

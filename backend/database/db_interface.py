@@ -160,17 +160,18 @@ class DBInterface:
                     query = query.order_by(*order_by_args)
                 return query.all()
 
-        def update_field_from_cnpj_compt_only(self, compt: datetime.date, cnpj: str, field_value: dict):
+        def update_fieldict_from_cnpj_compt(self, cnpj: str, compt: datetime.date, field_value: dict) -> bool:
             from sqlalchemy import update
             with self.conn_obj.Session() as session:
-                empresa = session.query(self.orm).filter_by(compt=compt).join(
-                    self.orm.main_empresas).filter(SqlAchemyOrms.MainEmpresas.cnpj == cnpj).one_or_none()
+                empresa = self.filter_by_cnpj_and_compt(cnpj, compt)
                 if empresa:
                     session.execute(update(self.orm).
                                     where(self.orm.main_empresa_id == empresa.main_empresa_id).
                                     where(self.orm.compt == compt).
                                     values(field_value))
-                session.commit()
+                    session.commit()
+                    return True
+            return False
 
         def update_from_cnpj_and_compt(self, cnpj: str, values_obj: SqlAchemyOrms.ClientsCompts, allowed=[]):
             """This abstraction updates the COMPTs table using cnpj, getting the other_values as parameter
@@ -279,13 +280,12 @@ class InitNewCompt:
             # create the new compt datetime object
             compt_datetime = datetime.strptime(self.compt, '%m-%Y')
 
-        print("Init new compt: ", self.compt, '-------')
-
         with self.conn_obj.Session() as session:
             # check if the row already exists
             row_exists = session.query(self.orm).filter(
                 self.orm.compt == compt_datetime).first()
             if not row_exists:
+                print("Init new compt: ", self.compt, '-------')
                 # create new rows with incremented date
 
                 for row in rows_to_duplicate:
