@@ -37,6 +37,8 @@ GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
 # TODO: GUI para impostos possiveis
 
+# TODO: transformar self.compt das rotinas para objeto date com strformatado
+
 
 class Rotinas:
     def _create_all_datas_using_sheets(self, compt_inicial='07-2021'):
@@ -81,7 +83,7 @@ class ComptGuiManager(DBInterface):
         # ---- instance attributes...
         self.compt = compt
         InitNewCompt(compt)
-        
+
         self.__setup__()
         self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(
             None, None)

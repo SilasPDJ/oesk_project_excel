@@ -1,6 +1,6 @@
 # dale
 import openpyxl
-from default.sets import InitialSetting
+from default.sets import InitialSetting, compt_to_date_obj
 from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
 from selenium.webdriver import Chrome
@@ -108,6 +108,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 driver.implicitly_wait(5)
 
                 zero_um = _ginfess_cod.split('//')
+
                 # ginfess login//senha
                 self.tags_wait('html')
                 self.tags_wait('body')
@@ -230,8 +231,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 press_keys_b4('f9')
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add=f"{__r_social}-ginfessDone"))
-            elif self.driver.current_url == 'https://bragancapaulista.giap.com.br/apex/pmbp/f?p=994:101':
+            elif 'bragancapaulista.giap.com.br' in self.driver.current_url:
                 a = __login, __senha = _ginfess_cod.split('//')
+
                 self.driver.find_element(By.ID,
                                          'P101_USERNAME').send_keys(__login)
                 self.driver.find_element(By.CSS_SELECTOR,
@@ -262,6 +264,70 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                     press_key_b4('f9')
                     self.driver.save_screenshot(self.certif_feito(
                         self.client_path, add=f"{__r_social}-ginfessDone"))
+            elif 'nfe.prefeitura.sp.gov' in self.driver.current_url:
+                driver.execute_script("javascript:location.reload();")
+                # while 'login.aspx' in self.driver.current_url:
+                # TODO acima... para fazser login
+
+                self.send_keys_anywhere(__cnpj)
+                self.send_keys_anywhere(Keys.TAB)
+                self.send_keys_anywhere(_ginfess_cod)
+                self.send_keys_anywhere(Keys.TAB)
+
+                print('Pressione Enter após login - GINFESS')
+                press_keys_b4('Enter')
+                # driver.find_element(By.NAME, 'ctl00$body$btEntrar').click()
+                sleep(2)
+                desired_path = "/consultas.aspx"
+                new_url = driver.current_url.rsplit("/", 1)[0] + desired_path
+                driver.get(new_url)
+
+                _findelementwait = self.webdriverwait_el_by(
+                    By.NAME, 'ctl00$body$ddlExercicio')
+                # setta o exercício para consulta
+                select_ano = Select(_findelementwait)
+                select_mes = Select(driver.find_element(
+                    By.NAME, 'ctl00$body$ddlMes'))
+
+                date_compt = compt_to_date_obj(self.compt)
+                _mes, _ano = date_compt.month, date_compt.year
+                select_ano.select_by_value(str(_ano))
+                select_mes.select_by_value(str(_mes))
+
+                def download(value, rename=False) -> str:
+                    """Faz download das NFs especificadas filtrando pelo value do input
+
+                    Args:
+                        value (str): _description_
+                        rename (bool, optional): Se True, renomeia o arquivo baixado. Defaults to False.
+                    Returns:
+                        Caminho do Arquivo csv que acabou de ser baixado
+                    """
+                    self.webdriverwait_el_by(
+                        By.XPATH, f'//input[@value="{value}"]').click()
+                    driver.switch_to.window(driver.window_handles[1])
+                    driver.find_element(
+                        By.XPATH, '//input[@value="Exportar"]').click()
+                    sleep(3)
+                    most_recent_file = self.sort_files_by_most_recent(self.client_path)[
+                        0]
+                    if rename:
+                        os.rename(most_recent_file, os.path.join(
+                            self.client_path, rename))
+
+                    driver.close()
+                    driver.switch_to.window(driver.window_handles[0])
+                    return most_recent_file
+
+                # sem filtrar nfs canceladas
+                driver.find_element(By.ID, 'ctl00_body_ckNFCancelada').click()
+
+                download('NFS-e RECEBIDAS', rename='TOMADOR-NFSe.csv')
+                csv_file_emitidas = download('NFS-e EMITIDAS')
+                self.read_notadomilhao_layout(csv_file_emitidas)
+
+                # ler TODO do backend...
+
             else:
                 print(__r_social)
                 driver.execute_script("javascript:location.reload();")
@@ -480,6 +546,38 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             print('~~~~~~~~')
         return html_cod
         # de.send_keys(Keys.TAB)
+
+    def read_notadomilhao_layout(self, plan) -> None:
+        """Implementação, gerar nota do milhão automaticamente
+
+        Args:
+            plan (os.PathLike): Caminho do csv os.PathLike
+
+        Raises:
+            ValueError: Se o valor total não for igual às somas dos outros 2 valores...
+        """
+        df = pd.read_csv(plan, sep=";", encoding="latin1")
+        newdf = df[['Valor dos Serviços', 'ISS Retido']]
+        newdf.loc[:, 'Valor dos Serviços'] = newdf['Valor dos Serviços'].str.replace(
+            '.', '').str.replace(',', '.').astype(float)
+
+        valor_total = newdf.iloc[:-1, 0].sum()
+
+        # Verifica se é igual ao proposto pelo csv...
+        valor_total == newdf.iloc[-1, 0]
+        assert valor_total == newdf.iloc[-1, 0]
+
+        # Checa se ISS Retido é único, ou seja se ISS == 'N'
+        if newdf.iloc[:-1, 1].nunique() == 1:
+            valor_n_retido = valor_total
+            valor_retido = 0.00
+        else:
+            raise ValueError(
+                "Necessária Implementação de valor retido na prefeitura de sp")
+
+        assert valor_n_retido + valor_retido == valor_total
+
+        self.ginfess_valores = valor_n_retido, valor_retido, valor_total
 
     def excel_from_html_above(self, excel_file, html):
         import numpy as np
