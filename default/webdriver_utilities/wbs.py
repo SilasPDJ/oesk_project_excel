@@ -2,10 +2,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException, JavascriptException
+from selenium.webdriver.remote.webelement import WebElement
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
+
 
 class WDShorcuts:
     def __init__(self, driver: webdriver.Remote):
@@ -86,18 +88,18 @@ class WDShorcuts:
                 driver.implicitly_wait(2.5)
         action.perform()
 
-    def tag_with_text(self, tag, searched):
+    def tag_with_text(self, tag, searched) -> WebElement:
         driver = self.__arg_driver
         td_tag = driver.find_element(By.XPATH,
                                      f"//{tag}[contains(text(),'{searched.rstrip()}')]")
         return td_tag
 
-    def contains_text(self, item):
+    def contains_text(self, item) -> WebElement:
         driver = self.__arg_driver
         el = driver.find_element(By.XPATH, f'//*[contains(text(),"{item}")]')
         return el
 
-    def contains_title(self, item, ta='title'):
+    def contains_title(self, item, ta='title') -> WebElement:
         driver = self.__arg_driver
         el = driver.find_element(By.CSS_SELECTOR, f"[{ta}*='{item}']")
         return el
@@ -151,7 +153,7 @@ class WDShorcuts:
         else:
             print('certo')
 
-    def webdriverwait_el_by(self, by: By, el: str, time=10):
+    def webdriverwait_el_by(self, by: By, el: str, time=10) -> WebElement:
         # will be that instead of by_id
         driver = self.__arg_driver
         return WebDriverWait(driver, time).until(
