@@ -54,7 +54,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 self.__driver__name = driver.__name__
                 driver = self.driver = ginfess_driver(self.client_path)
 
-            driver.maximize_window()
+            # driver.maximize_window()
+            driver.minimize_window()
             self.driver.get(link)
             if self.driver.title != 'NFS-e':  # and 'tremembe' not in self.driver.current_url:
                 # self.driver.quit()
@@ -325,8 +326,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 download('NFS-e RECEBIDAS', rename='TOMADOR-NFSe.csv')
                 csv_file_emitidas = download('NFS-e EMITIDAS')
                 self.read_notadomilhao_layout(csv_file_emitidas)
-
                 # ler TODO do backend...
+                driver.save_screenshot(self.certif_feito(
+                    self.client_path, add=f"{__r_social}-ginfessDone"))
 
             else:
                 print(__r_social)
