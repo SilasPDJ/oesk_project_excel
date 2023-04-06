@@ -44,7 +44,7 @@ def get_months_range_dict() -> dict:
     return months_dict
 
 
-def permitir_cnpjs(filtered_cnpjs, compt: datetime.date):
+def permitir_ser_declarado(filtered_cnpjs, compt: datetime.date, is_permited):
     """Permite a realização de rotinas para os clientes, permissão fica como True
 
     Args:
@@ -58,7 +58,7 @@ def permitir_cnpjs(filtered_cnpjs, compt: datetime.date):
     permitir_ok = False
     for cnpj in filtered_cnpjs:
         permitir_ok = COMPT_ORM_OPERATIONS.update_fieldict_from_cnpj_compt(
-            cnpj, compt, {'pode_declarar': True})
+            cnpj, compt, {'pode_declarar': is_permited})
     if permitir_ok:
         return True
     else:

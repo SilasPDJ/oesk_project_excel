@@ -38,3 +38,5 @@ def generate_form():
         # Return the form field values as a dictionary when the form is submitted
         if submit_button:
             EMPRESAS_ORM_OPERATIONS.update_from_id(id_mapper)
+
+    # TODO: adicionar empresa

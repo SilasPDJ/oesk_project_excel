@@ -15,7 +15,7 @@ PAGE_UPDT_COMPT = "Update COMPT"
 PAGE_ENVIADOS = "Clientes Enviados"
 
 page = st.sidebar.selectbox(
-    'Select a Page', [PAGE_HOME, PAGE_UPDT_COMPT, PAGE_ENVIADOS, PAGE_UPDT_EMPRESAS], 2)  # in this file
+    'Select a Page', [PAGE_HOME, PAGE_UPDT_EMPRESAS, PAGE_UPDT_COMPT, PAGE_ENVIADOS], 2)  # in this file
 
 st.sidebar.title(f"{page} :flag-br:")
 _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
@@ -33,37 +33,15 @@ def sum_values(v1, v2):
 if page == PAGE_HOME:
     # st.header(page)
     st.header('Welcome to Home Page')
-    # TODO^: adicionar competencia
+    # TODO^: adicionar e criar competencia
     div_cols = st.columns(2)
     with div_cols[1]:
         year_input, month_input = get_year_month_inputs()
 
 # Update Empresas page
 elif page == PAGE_UPDT_EMPRESAS:
-    st.header(page)
-    st.code("hi")
-
-    cnpj = st.selectbox("Select a cnpj",
-                        EMPRESAS_ORM_OPERATIONS.generate_df_v2(2, 3))
-    # cnpj = st.selectbox("Select a cnpj", conn_obj.pd_sql_query_select_fields(
-    #     SqlAchemyOrms.MainEmpresas.cnpj,))
-    empresa = EMPRESAS_ORM_OPERATIONS.filter_by_cnpj(cnpj)
-    razao_social = st.text_input("Razão Social", value=empresa.razao_social)
-
-    df = EMPRESAS_ORM_OPERATIONS.generate_df_v2(1, 3)
-    # for e, col in enumerate(df.columns):
-    #     st.selectbox(f'select-{e}', df[col])
-
-    if st.button("Update Empresas"):
-        if not cnpj or not razao_social:
-            st.warning("Please enter CNPJ and Razão Social.")
-        else:
-            updated = EMPRESAS_ORM_OPERATIONS.update_from_cnpj(
-                cnpj, razao_social)
-            if updated:
-                st.success("Empresas updated successfully.")
-            else:
-                st.error("Failed to update Empresas.")
+    from frontend.update_empresa_form import generate_form
+    generate_form()
 
 elif page == PAGE_UPDT_COMPT:
     # corrigir LAYOUT coluna dos valores nret, sret para o TAB
@@ -72,9 +50,6 @@ elif page == PAGE_UPDT_COMPT:
     title_columns = st.columns((1, 2, 1))
     with title_columns[0]:
         st.header(page)
-    with title_columns[1]:
-        _status_message = st.empty()
-        container_status_message = _status_message.container()
 
     num_cols = 3 if not show_only_status else 5
     columns = st.columns(num_cols)
@@ -101,6 +76,7 @@ elif page == PAGE_UPDT_COMPT:
     envio_multiselect = st.sidebar.multiselect(
         "Enviados: ", ['', True, False])
     filtered_cnpjs = []
+
     for i, cnpj, in enumerate(CNPJS[1:]):
         form_key = f"form_{i:04d}"
 
@@ -134,25 +110,30 @@ elif page == PAGE_UPDT_COMPT:
             if can_append and can_append_envios:
                 filtered_cnpjs.append(cnpj)
 
-    if show_only_status or len(filtrar_quais_anexos) <= 2:
-        def _allow_declarar(_=False):
-            for cnpj in filtered_cnpjs:
-                _compt_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
-                    cnpj, _COMPT_AS_DATE)
-                _compt_values.pode_declarar = _
-                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
-                    cnpj, _compt_values, ['pode_declarar'])
+    with title_columns[2]:
+        st.write(f"Mostrando {len(filtered_cnpjs):02d} resultados")
+        _status_message = st.empty()
+        container_status_message = _status_message.container()
+
+    if show_only_status or len(filtrar_quais_anexos) <= 3:
+        # continuar
+
         with title_columns[1]:
-            st.markdown("### Altera todos os selecionados")
+            st.markdown("### Altera permissão de todos os selecionados")
             allow_cols = st.columns(5, gap='small')
             with allow_cols[0]:
                 if st.button("COM Permissão"):
-                    _allow_declarar(True)
+                    if permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
+                        display_success_msg(container_status_message,
+                                            'PERMISSÕES CONCEDIDAS')
             with allow_cols[1]:
                 if st.button("SEM Permissão", type='primary'):
-                    _allow_declarar()
-    with title_columns[2]:
-        st.write(f"Mostrando {len(filtered_cnpjs):02d} resultados")
+                    if permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
+                        display_success_msg(container_status_message,
+                                            'PERMISSÕES REMOVIDAS')
+                    permitir_ser_declarado(
+                        filtered_cnpjs, _COMPT_AS_DATE, False)
+
     # --- Realiza a exibição baseado nas condições acima
     for i, cnpj in enumerate(filtered_cnpjs):
 
@@ -189,6 +170,7 @@ elif page == PAGE_UPDT_COMPT:
                         else:
                             _status_message.error("Falha em conexão")
                 with submit_bts_cols[2]:
+                    # TODO pertmir todos... da seleção
                     if st.form_submit_button("Permit"):
                         other_values.pode_declarar = not other_values.pode_declarar
                         updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(
