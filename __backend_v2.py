@@ -161,6 +161,8 @@ class ComptGuiManager(DBInterface):
                     if dgg.ginfess_valores is not None:
                         for e, k in enumerate(allowed_column_names):
                             row[k] = dgg.ginfess_valores[e]
+
+                        row['nf_saidas'] = ''
                         COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                             row['cnpj'], row, allowed=allowed_column_names)
                 print(row)
@@ -185,7 +187,7 @@ class ComptGuiManager(DBInterface):
             client_row = [row[var] for var in required_df.columns.to_list()]
             print(client_row)
 
-            if 'OK' not in row['nf_saidas'] or 'OK' not in row['nf_entradas'] != 'não há':
+            if 'OK' not in row['nf_saidas'].upper() or 'OK' not in row['nf_entradas'] != 'não há':
                 G5(*client_row,
                    compt=self.compt)
                 row['nf_saidas'] = "OK"

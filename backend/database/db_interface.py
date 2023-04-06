@@ -293,11 +293,15 @@ class InitNewCompt:
                         row.imposto_a_calcular) == 'LP' else False
                     _declarado = True if str(
                         row.imposto_a_calcular) == 'LP' else False
+
+                    def status_imports_g5(
+                        campo): return campo if campo.upper() != 'OK' else ''
+
                     new_row = self.orm(
                         main_empresa_id=row.main_empresa_id,
                         declarado=_declarado,
-                        nf_saidas=row.nf_saidas,
-                        nf_entradas=row.nf_entradas,
+                        nf_saidas=status_imports_g5(row.nf_saidas),
+                        nf_entradas=status_imports_g5(row.nf_entradas),
                         sem_retencao=0.00,
                         com_retencao=0.00,
                         valor_total=0.00,
