@@ -22,7 +22,7 @@ COMPT_ORM_OPERATIONS = db_interface.ComptOrmOperations(db_interface.conn_obj)
 
 # Set the path to the uploads directory
 main_path = os.path.dirname(os.path.realpath(__file__))
-UPLOADS_PATH = os.path.join(main_path, 'backend', 'uploads')
+UPLOADS_PATH = os.path.join(main_path, 'uploads')
 
 # Create the uploads directory if it doesn't exist
 if not os.path.exists(UPLOADS_PATH):
@@ -63,6 +63,31 @@ def permitir_ser_declarado(filtered_cnpjs, compt: datetime.date, is_permited):
         return True
     else:
         return False
+
+
+def execute_query():
+    import json
+    DATA_FILENAME = f"{UPLOADS_PATH}\\queries.json"
+    if not os.path.exists(DATA_FILENAME):
+        with open(DATA_FILENAME, mode='w', encoding='utf-8') as f:
+            json.dump([], f)
+    else:
+
+        queries = json.load(open(DATA_FILENAME))
+        for q in queries:
+            if st.button(q):
+                del st.session_state['query']
+                st.session_state['query'] = st.text_input('write query', q)
+    if not st.session_state.get('query'):
+        st.session_state['query'] = st.text_input('write query')
+
+    if st.button("Clique"):
+        a = db_interface.search(st.session_state['query'])
+        st.write(a)
+    if st.button('Salvar'):
+        with open(DATA_FILENAME, mode='a', encoding='utf-8') as f:
+            json.dump([st.session_state['query']], f)
+        del st.session_state['query']
 
 
 def handle_uploaded_files():

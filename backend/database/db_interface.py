@@ -47,6 +47,12 @@ class DBInterface:
         self.conn_obj = conn_obj
         self.engine = conn_obj.engine
 
+    def search(self, query):
+        from sqlalchemy import text
+        with self.conn_obj.Session() as session:
+            query = session.execute(text(query))
+            return query.all()
+
     class EmpresasOrmOperations(_StandardOrmMethods):
         def __init__(self, conn_obj):
             self.orm = self.get_orm()
