@@ -5,7 +5,7 @@
 
 # from __backend_v2 import Consulta_DB
 from __backend_v2 import ComptGuiManager
-from __backend_v2 import GIAS_GISS_COMPT, IMPOSTOS_POSSIVEIS
+from __backend_v2 import GIAS_GISS_COMPT, IMPOSTOS_POSSIVEIS, VENC_DAS
 # usar class Rotinas
 # from __backend import *
 
@@ -102,6 +102,8 @@ class MainApplication(tk.Frame, ComptGuiManager):
         self.__pack(bt_abre_pasta, bt_copia,  bt_das, bt_gias, bt_ginfess,
                     bt_giss, bt_g5, bt_jr, bt_sendpgdas, bt_dividas_rotina, bt_dividasmail)
         self.selected_client.focus_force()
+        self.increment_header_tip(
+            LABEL_TIPS, f'Vencimento DAS: {VENC_DAS}', fg="#ff0000")
         self.increment_header_tip(
             LABEL_TIPS, "Terminal: arg1 = compt, arg2 = loop_compt")
         self.increment_header_tip(

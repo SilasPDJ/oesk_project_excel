@@ -127,4 +127,4 @@ class EmailExecutor:
             # return 'Boa noite'
             return 'Por gentileza'
         else:
-            return 'Meia noite'
+            return 'Boa noite'
