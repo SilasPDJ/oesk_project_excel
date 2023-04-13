@@ -35,6 +35,7 @@ from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
+VENC_DAS = '20-04-2023'
 # TODO: GUI para impostos possiveis
 
 # TODO: transformar self.compt das rotinas para objeto date com strformatado
@@ -164,11 +165,12 @@ class ComptGuiManager(DBInterface):
 
                         row['nf_saidas'] = ''
                         COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
-                            row['cnpj'], row, allowed=allowed_column_names)
+                            row['cnpj'], row, allowed=allowed_column_names+['nf_saidas'])
                 print(row)
                 # row['declarado'] = True
 
     def call_g5(self, specifics_list: List[AutocompleteEntry] = None):
+        # TODO: digitar caminho já completo no explorer, quando for salvar foxit
         main_df = self.main_generate_dados()
         main_df = self._get_specifics(specifics_list, main_df)
 
@@ -228,7 +230,7 @@ class ComptGuiManager(DBInterface):
             if row['envio'] != True:
                 row['envio'] = True
                 PgDasmailSender(
-                    *client_row, email=row['email'], compt=self.compt)
+                    *client_row, email=row['email'], compt=self.compt, venc_das=VENC_DAS)
                 COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
