@@ -48,7 +48,7 @@ def generate_form(key):
                         st.success('Atualizado com sucesso')
                         from backend.database.db_interface import InitNewCompt
                         init = InitNewCompt('03-2023')
-                        if init.create_separeted_client_compt(getattr(_empresa, 'id'), imposto_a_calcular):
+                        if init.add_compt_tonew_client(getattr(_empresa, 'id'), imposto_a_calcular):
                             st.success(
                                 f"Competência para {form_values['razao_social']} criada")
                         else:

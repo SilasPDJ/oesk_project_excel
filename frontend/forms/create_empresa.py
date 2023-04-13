@@ -48,9 +48,11 @@ def generate_form(key, compt: str):
             if client_id:
                 st.success('Inserido com sucesso')
                 init = InitNewCompt(compt)
-                if init.create_separeted_client_compt(client_id, imposto_a_calcular):
+                if init.add_compt_tonew_client(client_id, imposto_a_calcular):
                     st.success(
                         f"Competência {compt} para {form_values['razao_social']} criada")
+                    st.warning(
+                        'Anexos padrões ou sugeridos são: I p/ ICMS e III p/ ISS')
                 else:
                     # st.error(
                     #     f"Competência para {form_values['razao_social']} já existente")

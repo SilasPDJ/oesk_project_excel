@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing_extensions import override
 import MySQLdb
 from backend.models import SqlAchemyOrms
@@ -110,6 +110,7 @@ class DBInterface:
                 for key, value in form_values.items():
                     setattr(record, key, value)
                 session.commit()
+                return True
 
         def update_from_cnpj(self, cnpj: str, razao_social: str):
             with self.conn_obj.Session() as session:
@@ -119,6 +120,23 @@ class DBInterface:
                     empresa.razao_social = razao_social
                     session.commit()
                     return True
+
+        def insert(self, form_values: dict) -> int:
+            with self.conn_obj.Session() as session:
+                new_record = self.orm(**form_values)
+                session.add(new_record)
+                session.commit()
+                return new_record.id
+
+        def delete_from_id(self, id: int):
+            with self.conn_obj.Session() as session:
+                record = session.query(self.orm).get(id)
+                if record is not None:
+                    session.delete(record)
+                    session.commit()
+                    return True
+                else:
+                    return False
 
     class ComptOrmOperations(_StandardOrmMethods):
         def __init__(self, conn_obj: MySqlInitConnection):
@@ -253,6 +271,15 @@ class DBInterface:
                     return True
 
                 return False
+        # def delete_from_id(self, id: int):
+        #     with self.conn_obj.Session() as session:
+        #         record = session.query(self.orm).get(id)
+        #         if record is not None:
+        #             session.delete(record)
+        #             session.commit()
+        #             return True
+        #         else:
+        #             return False
 
 
 class InitNewCompt:
@@ -271,7 +298,7 @@ class InitNewCompt:
 
     def setup(self) -> None:
         from sqlalchemy import and_, desc
-        from datetime import datetime, timedelta
+        from datetime import timedelta
 
         with self.conn_obj.Session() as session:
             # get the most recent row in the table
@@ -320,3 +347,42 @@ class InitNewCompt:
                     )
                     session.add(new_row)
                 session.commit()
+
+    def add_new_client(self, empresa_id, imposto_a_calcular):
+        # Vou utilizar anexo sugerido...
+        if imposto_a_calcular == 'ICMS':
+            anexo_sugerido = 'I'
+        elif imposto_a_calcular == 'ISS':
+            anexo_sugerido = 'III'
+        else:
+            anexo_sugerido = ''
+
+        compt_datetime = datetime.strptime(self.compt, '%m-%Y')
+        with self.conn_obj.Session() as session:
+            exists = session.query(self.orm).filter_by(
+                compt=compt_datetime, main_empresa_id=empresa_id).first()
+
+            if not exists:
+                _envio = True if str(
+                    imposto_a_calcular) == 'LP' else False
+                _declarado = True if str(
+                    imposto_a_calcular) == 'LP' else False
+                new_row = self.orm(
+                    main_empresa_id=empresa_id,
+                    declarado=_declarado,
+                    nf_saidas='',
+                    nf_entradas='',
+                    sem_retencao=0.00,
+                    com_retencao=0.00,
+                    valor_total=0.00,
+                    anexo=anexo_sugerido,
+                    imposto_a_calcular=imposto_a_calcular,
+                    possui_das_pendentes=False,
+                    compt=compt_datetime,
+                    envio=_envio,
+                    pode_declarar=False  # set to False
+                )
+                session.add(new_row)
+                session.commit()
+                return True
+            return False
