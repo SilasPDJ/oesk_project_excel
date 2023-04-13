@@ -10,12 +10,12 @@ from streamlit_tags import st_tags, st_tags_sidebar
 # st.markdown("# OESK Contábil :flag-br:")
 
 PAGE_HOME = "Home"
-PAGE_UPDT_EMPRESAS = "Update Empresas"
+PAGE_FORM_EMPRESAS = "Create/Update Empresas"
 PAGE_UPDT_COMPT = "Update COMPT"
 PAGE_ENVIADOS = "Clientes Enviados"
 
 page = st.sidebar.selectbox(
-    'Select a Page', [PAGE_HOME, PAGE_UPDT_EMPRESAS, PAGE_UPDT_COMPT, PAGE_ENVIADOS], 2)  # in this file
+    'Select a Page', [PAGE_HOME, PAGE_FORM_EMPRESAS, PAGE_UPDT_COMPT, PAGE_ENVIADOS], 1)  # in this file
 
 st.sidebar.title(f"{page} :flag-br:")
 _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
@@ -23,6 +23,7 @@ _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
 
 
 filtrar_quais_anexos = display_anexos_selector()
+# TODO: em vez de por anexos... por imposto_a_Calcular??????
 
 
 @st.cache_data
@@ -38,10 +39,8 @@ if page == PAGE_HOME:
     with div_cols[1]:
         year_input, month_input = get_year_month_inputs()
 
-# Update Empresas page
-elif page == PAGE_UPDT_EMPRESAS:
-    from frontend.update_empresa_form import generate_form
-    generate_form()
+elif page == PAGE_FORM_EMPRESAS:
+    page_empresa_forms(_COMPT_AS_DATE)
 
 elif page == PAGE_UPDT_COMPT:
     # corrigir LAYOUT coluna dos valores nret, sret para o TAB
@@ -95,7 +94,7 @@ elif page == PAGE_UPDT_COMPT:
             can_append_envios = False
             if other_values.anexo in filtrar_quais_anexos:
                 can_append = True
-            elif filtrar_quais_anexos == '':
+            elif filtrar_quais_anexos == [] and other_values.anexo == '':
                 can_append = True
             if envio_multiselect != []:
                 _envio = True if other_values.envio == 1 else False
