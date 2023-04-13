@@ -1,3 +1,4 @@
+from datetime import date
 from . import st_page_config
 from typing import List, Tuple
 import streamlit as st
@@ -91,3 +92,18 @@ def display_success_msg(main_container: st, msg: str):
         main_container.empty()
     main_container.success(
         msg)
+
+
+def page_empresa_forms(compt_as_date: date):
+    # TODO: refatorar p/ classe
+    from .forms.create_empresa import generate_form as create_form
+    from .forms.update_empresa import generate_form as update_form
+
+    cols = st.columns(2)
+    with cols[0]:
+        st.header('Selecione cliente para atualizar')
+        update_form('update_form')
+
+    with cols[1]:
+        st.header('Crie um cliente novo')
+        create_form('create_form', compt_as_date.strftime("%m-%Y"))
