@@ -102,7 +102,7 @@ class ComptGuiManager(DBInterface):
 
         merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
-        # merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
+        merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
         # if specifics_list[0] != "" , selfl.spefics != None
         # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
 
@@ -235,7 +235,7 @@ class ComptGuiManager(DBInterface):
                     row['cnpj'], row, allowed=allowed_column_names)
 
     def call_gias(self, specifics_list: List[AutocompleteEntry] = None):
-        merged_df = self.main_generate_dados()
+        merged_df = self.main_generate_dados(allow_lucro_presumido=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
 
         # Envia e-mails baseado na condição do envio ser False
@@ -260,7 +260,7 @@ class ComptGuiManager(DBInterface):
                 row['cnpj'], row, allowed=allowed_column_names)
 
     @setup_required
-    def main_generate_dados(self, df_as_it_is: bool = False, allow_only_authorized=False) -> pd.DataFrame:
+    def main_generate_dados(self, df_as_it_is: bool = False, allow_only_authorized=False, allow_lucro_presumido=False) -> pd.DataFrame:
         df_compt = self.DADOS_COMPT
         df_padrao = self.EMPRESAS_DADOS
 
@@ -272,12 +272,20 @@ class ComptGuiManager(DBInterface):
             main_df = main_df.loc[main_df['pode_declarar'] == True, :]
         icms_dfs = main_df.loc[main_df[_str_col] == 'ICMS', :]
         iss_dfs = main_df.loc[main_df[_str_col] == 'ISS', :]
+        lp_dfs = main_df.loc[main_df[_str_col] == 'SEM_MOV', :]
 
-        others = main_df[~main_df[_str_col].isin(
-            icms_dfs[_str_col]) & ~main_df[_str_col].isin(iss_dfs[_str_col])]
+        sem_mov_dfs = main_df.loc[main_df[_str_col] == 'LP', :]
 
+        others = main_df[~main_df[_str_col].isin(icms_dfs[_str_col])
+                         & ~main_df[_str_col].isin(iss_dfs[_str_col])
+                         & ~main_df[_str_col].isin(lp_dfs[_str_col])
+                         & ~main_df[_str_col].isin(sem_mov_dfs[_str_col])]
+
+        list_with_all_dfs = [others, iss_dfs, icms_dfs, sem_mov_dfs]
+        if allow_lucro_presumido:
+            list_with_all_dfs.append(lp_dfs)
         if not df_as_it_is:
-            merged_df = pd.concat([others, iss_dfs, icms_dfs, ])
+            merged_df = pd.concat(list_with_all_dfs)
             return merged_df
         else:
             return main_df
