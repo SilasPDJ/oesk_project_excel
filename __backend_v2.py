@@ -170,7 +170,7 @@ class ComptGuiManager(DBInterface):
                 # row['declarado'] = True
 
     def call_g5(self, specifics_list: List[AutocompleteEntry] = None):
-        # TODO: digitar caminho já completo no explorer, quando for salvar foxit
+        # TODO: verificar pq ta pegando Jessica...
         main_df = self.main_generate_dados()
         main_df = self._get_specifics(specifics_list, main_df)
 
@@ -242,7 +242,8 @@ class ComptGuiManager(DBInterface):
         allowed_column_names = ['declarado']
         allowed_df = merged_df.loc[merged_df['ha_procuracao_ecac'].str.contains(
             ".", regex=False)]
-        allowed_df = allowed_df.loc[allowed_df['declarado'] != True]
+        # No caso das gias é irrelevante
+        # allowed_df = allowed_df.loc[allowed_df['declarado'] != True]
         attributes_required = ['razao_social',
                                'ha_procuracao_ecac', "ginfess_cod"]
 
@@ -292,6 +293,7 @@ class ComptGuiManager(DBInterface):
 
     def _get_specifics(self, specifics_list: List[AutocompleteEntry], merged_df: pd.DataFrame) -> pd.DataFrame:
         self._specifics = None
+        print(specifics_list[0].get())
         if specifics_list[0].get() != "":
             # because gui.py will always have one field in ENTRIS_CLI...
             self._specifics = [cli.get() for cli in specifics_list]

@@ -179,8 +179,9 @@ class G5(Contimatic):
             sleep(1)
             pygui.rightClick()
             sleep(.5)
-            foritab(5, 'up')
+            foritab(3, 'up')
             pygui.hotkey('enter')
+            sleep(3)
 
         def go2_g5_import_params():
             pygui.hotkey('alt')
@@ -532,45 +533,28 @@ class G5(Contimatic):
         sleep(1)
 
     def foxit_save__icms(self, add2file=None):
+
+        # filename = f"Registro_ISS-{add2file}"
+        filename = f'{self.client_path}'
+        pygui.hotkey('left')
         all_keys('ctrl', 'shift', 's')
-        pygui.hotkey("enter")
-        sleep(.5)
-        # pygui.hotkey('home')
-        sleep(.25)
-        self.__foxit_explorer_write(self.client_path)
-        pygui.hotkey('f4', 'enter', 'enter', interval=.5)
-        winexplorer = pygui.getActiveWindow()
-        winexplorer.moveRel(0, 100)
-        pygui.click(clicks=0)
-        pygui.hotkey('enter', 'enter', 'enter', 'enter',
-                     'enter', duration=0.5, interval=1)
+        sleep(1)
+        # pygui.hotkey("enter")  # ...
+        pygui.write(filename)
         sleep(2)
-        # pygui.hotkey('return', 'return', duration=1, interval=1)
-        sleep(5)
+        pygui.hotkey('return', 'return', duration=1, interval=1)
+        # pygui.hotkey('alt', 'f4')
 
     def foxit_save__iss(self, add2file):
 
-        filename = f"Registro_ISS-{add2file}"
+        # filename = f"Registro_ISS-{add2file}"
+        filename = f'{self.client_path}Registro_ISS-{add2file}'
         all_keys('ctrl', 'shift', 's')
-        sleep(.5)
-        pygui.hotkey("enter")  # ...
-        sleep(.5)
+        sleep(1)
+        # pygui.hotkey("enter")  # ...
         pygui.write(filename)
         sleep(2)
-        pygui.hotkey('f4')
-        sleep(2)
-        pygui.hotkey('ctrl', 'a')
-        pygui.hotkey('delete')
-        pygui.write(self.client_path)
-        pygui.hotkey('enter')
-        sleep(1)
-        pygui.hotkey('f4', 'enter', 'enter', interval=.5)
-        winexplorer = pygui.getActiveWindow()
-        winexplorer.moveRel(0, 100)
-        pygui.click(clicks=0)
-        pygui.hotkey('enter', 'enter', 'enter', 'enter', 'enter')
-        sleep(2)
-        pygui.hotkey('return', 'return', duration=1, interval=1)
+        pygui.hotkey('return', duration=1, interval=1)
         # pygui.hotkey('alt', 'f4')
 
     def mk_nf_canceladas(self) -> int:

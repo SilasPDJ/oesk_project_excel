@@ -43,7 +43,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             # removi o ja_imported
             print(
                 f'\033[1;31m o cliente {__r_social} não possui notas\n...(muito bom) O certificado anula o _ja_imported...\033[m')
-        elif self.check_done(self.client_path, '.png', startswith=__r_social):
+        elif self.check_done(self.client_path, '.png', startswith=__r_social) and self.check_done(self.client_path, '.csv', 'NFSe'):
             # Checka o certificado ginfess, somente
             if show_driver:
                 driver = pgdas_driver

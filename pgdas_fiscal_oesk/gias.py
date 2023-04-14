@@ -45,7 +45,7 @@ class GIA(InitialSetting, WDShorcuts):
         # self.GIA()
 
         # if certificado...
-        if not self.certifs_exist('ReciboGIA', 1):
+        if len(self.files_get_anexos_v4(self.client_path, 'sfz')) < 1:
             for loop_compt in self.ate_atual_compt(first_compt, compt):
                 janelas_gias = pygui.getWindowsWithTitle('GIA')
                 for win in janelas_gias:
@@ -84,6 +84,8 @@ class GIA(InitialSetting, WDShorcuts):
                 pygui.hotkey('enter')
                 self.save_novagia()
 
+        if not self.certifs_exist('ReciboGIA', 1):
+            for loop_compt in self.ate_atual_compt(first_compt, compt):
                 self.driver = driver = pgdas_driver(self.client_path)
                 super().__init__(self.driver)
                 driver.get(
@@ -104,10 +106,12 @@ class GIA(InitialSetting, WDShorcuts):
                 press_key_b4('f8')
                 # self.find_submit_form()
                 # enter entrar
-                sleep(5)
-                driver.find_element(By.LINK_TEXT, 'Nova GIA').click()
-                self.webdriverwait_el_by(By.PARTIAL_LINK_TEXT,
-                                         'Documentos Fiscais (Normal, Substit.e Coligida)').click()
+                sleep(3)
+                self.webdriverwait_el_by(
+                    By.LINK_TEXT, 'Guia de Informação (Arts. 253-254 RICMS/00)').click()
+                self.webdriverwait_el_by(By.LINK_TEXT, 'Envio de GIA').click()
+                # self.webdriverwait_el_by(By.PARTIAL_LINK_TEXT,
+                #                          'Documentos Fiscais (Normal, Substit.e Coligida)').click()
                 sleep(3)
                 driver_clicks = driver.find_elements(By.XPATH,
                                                      "//input[@type='file']")
@@ -121,11 +125,11 @@ class GIA(InitialSetting, WDShorcuts):
                     print('Sem alerta')
                 sleep(5)
                 """
-                bt_imprime = driver.find_element(By.CSS_SELECTOR, '[alt="Imprimir"]')
-                self.exec_list(click=bt_imprime, enter=pygui)
-                print('Glória a Deus f7 p continuar')
-                press_key_b4('f7')
-                """
+                    bt_imprime = driver.find_element(By.CSS_SELECTOR, '[alt="Imprimir"]')
+                    self.exec_list(click=bt_imprime, enter=pygui)
+                    print('Glória a Deus f7 p continuar')
+                    press_key_b4('f7')
+                    """
                 png_name = 'GiaScreenShoot.png'
                 self.driver.save_screenshot(
                     os.path.join(self.client_path, png_name))
