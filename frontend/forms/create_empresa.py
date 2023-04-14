@@ -47,8 +47,8 @@ def generate_form(key, compt: str):
             client_id = EMPRESAS_ORM_OPERATIONS.insert(form_values)
             if client_id:
                 st.success('Inserido com sucesso')
-                init = InitNewCompt(compt)
-                if init.add_compt_tonew_client(client_id, imposto_a_calcular):
+                init_compt = InitNewCompt(compt)
+                if init_compt.add_new_client(client_id, imposto_a_calcular):
                     st.success(
                         f"Competência {compt} para {form_values['razao_social']} criada")
                     st.warning(

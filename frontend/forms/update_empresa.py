@@ -47,8 +47,8 @@ def generate_form(key):
                     if EMPRESAS_ORM_OPERATIONS.update_from_id(id_mapper, form_values):
                         st.success('Atualizado com sucesso')
                         from backend.database.db_interface import InitNewCompt
-                        init = InitNewCompt('03-2023')
-                        if init.add_compt_tonew_client(getattr(_empresa, 'id'), imposto_a_calcular):
+                        init_compt = InitNewCompt('03-2023')
+                        if init_compt.add_new_client(getattr(_empresa, 'id'), imposto_a_calcular):
                             st.success(
                                 f"Competência para {form_values['razao_social']} criada")
                         else:
@@ -57,5 +57,7 @@ def generate_form(key):
 
             with cols[1]:
                 if st.form_submit_button('EXCLUIR', type='primary'):
-                    if EMPRESAS_ORM_OPERATIONS.delete_from_id(id_mapper):
-                        st.warning(f'{form_values} foi EXCLUÍDO com sucesso')
+                    if st.form_submit_button('CONFIRMAR'):
+                        if EMPRESAS_ORM_OPERATIONS.delete_from_id(id_mapper):
+                            st.warning(
+                                f'{form_values} foi EXCLUÍDO com sucesso')
