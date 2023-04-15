@@ -96,6 +96,8 @@ class ComptGuiManager(DBInterface):
         self.compt
 
     def call_simples_nacional(self, specifics_list: List[AutocompleteEntry] = None):
+        # separar simples nacional de certificado???
+
         # simples_nacional procuradeclaracao_version
         # só vai chamar compts já criadas...
         # Como todas foram criadas 09-03-2023, tomar cuidado......
@@ -170,7 +172,6 @@ class ComptGuiManager(DBInterface):
                 # row['declarado'] = True
 
     def call_g5(self, specifics_list: List[AutocompleteEntry] = None):
-        # TODO: verificar pq ta pegando Jessica...
         main_df = self.main_generate_dados()
         main_df = self._get_specifics(specifics_list, main_df)
 
@@ -187,9 +188,11 @@ class ComptGuiManager(DBInterface):
 
         for row in merged_df.to_dict(orient='records'):
             client_row = [row[var] for var in required_df.columns.to_list()]
+            row['nf_saidas'] = row['nf_saidas'].upper()
+            if row['nf_entradas'] == 'NÃO HÁ' == row['nf_saidas']:
+                continue
             print(client_row)
-
-            if 'OK' not in row['nf_saidas'].upper() or 'OK' not in row['nf_entradas'] != 'não há':
+            if 'OK' not in row['nf_saidas'].upper() and 'OK' not in row['nf_entradas'] != 'não há':
                 G5(*client_row,
                    compt=self.compt)
                 row['nf_saidas'] = "OK"

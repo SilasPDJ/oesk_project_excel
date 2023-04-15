@@ -6,7 +6,6 @@ from typing_extensions import override
 from default.interact import press_keys_b4, press_key_b4
 from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
 from .rotina_pgdas_simplesnacional_utils import SimplesNacionalUtilities
-
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -194,6 +193,9 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
                 _count += 1
                 # new_seleciona_anexo(sem_ret)
             if float(tres_valores.get("com_retencao")) != 0:
+                if tres_valores["anexo"] == 'I':
+                    print('Ainda não sei... Pressione F8 para prosseguir')
+                    press_key_b4('F8')
                 inputs_text[_count].clear()
                 inputs_text[_count].send_keys(v_ret)
                 _count += 1
