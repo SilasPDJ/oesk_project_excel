@@ -16,7 +16,7 @@ PAGE_ENVIADOS = "Clientes Enviados"
 
 page = st.sidebar.selectbox(
     'Select a Page', [PAGE_HOME, PAGE_FORM_EMPRESAS, PAGE_UPDT_COMPT, PAGE_ENVIADOS], 1)  # in this file
-
+st.sidebar.markdown('**Anexos padrões: ICMS: I | ISS: III**')
 st.sidebar.title(f"{page} :flag-br:")
 _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
                                        compt_to_date_obj(get_compt(-1)))
@@ -25,10 +25,15 @@ _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
 filtrar_quais_anexos = display_anexos_selector()
 # TODO: em vez de por anexos... por imposto_a_Calcular??????
 
+if not st.session_state.get('CNPJS_ARE_SET'):
+    st.session_state['CNPJS_ARE_SET'] = True
+    st.session_state['CNPJS'] = EMPRESAS_ORM_OPERATIONS.generate_df_v2(
+    ).iloc[:, 2]
+CNPJS = st.session_state['CNPJS']
+
 
 @st.cache_data
-def sum_values(v1, v2):
-    return v1+v2
+def sum_values(v1, v2): return v1+v2
 
 
 if page == PAGE_HOME:
@@ -66,7 +71,6 @@ elif page == PAGE_UPDT_COMPT:
     #     ENTRADAS_SAIDAS_OPTIONS)
 
     # ------------------------ Realiza as condições para exibir
-    CNPJS = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
     clientes_obj = conn_obj.pd_sql_query_select_fields(
         SqlAchemyOrms.MainEmpresas.razao_social)
 
@@ -134,14 +138,15 @@ elif page == PAGE_UPDT_COMPT:
                         filtered_cnpjs, _COMPT_AS_DATE, False)
 
     # --- Realiza a exibição baseado nas condições acima
-    for i, cnpj in enumerate(filtered_cnpjs):
-
+    lista_para_atualizar = []
+    for i, dado in obtem_dados_empresa():
+        cnpj = dado.cnpj
         form_key = f"form_{i:04d}"
-        dados = EMPRESAS_ORM_OPERATIONS.filter_by_cnpj(cnpj)
+
         other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
             cnpj, _COMPT_AS_DATE)
         # if other_values:
-        razao_social = dados.razao_social
+        razao_social = dado.razao_social
 
         submit_bts_cols = st.columns(3)
         with columns[i % num_cols]:
@@ -255,10 +260,7 @@ elif page == PAGE_UPDT_COMPT:
     # COMPT_ORM_OPERATIONS.filter_by_kwargs()
 
 elif page == PAGE_ENVIADOS:
-    CNPJS = EMPRESAS_ORM_OPERATIONS.generate_df_v2().iloc[:, 2]
-    clientes_obj = conn_obj.pd_sql_query_select_fields(
-        SqlAchemyOrms.MainEmpresas.razao_social)
-    CNPJS = EMPRESAS_ORM_OPERATIONS.query_all()
+    # CNPJS = EMPRESAS_ORM_OPERATIONS.query_all()
     other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt(
         _COMPT_AS_DATE)
 

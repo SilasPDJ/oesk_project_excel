@@ -161,7 +161,7 @@ class DBInterface:
                     query = query.filter(getattr(self.orm, key) == value)
                 return query.first()
 
-        def filter_by_cnpj_and_compt(self, cnpj, compt):
+        def filter_by_cnpj_and_compt(self, cnpj, compt) -> SqlAchemyOrms.ClientsCompts:
             with self.conn_obj.Session() as session:
                 query = session.query(self.orm).filter_by(compt=compt).join(
                     self.orm.main_empresas)\

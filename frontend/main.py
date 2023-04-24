@@ -18,15 +18,20 @@ def get_year_month_inputs() -> Tuple[st.selectbox, st.selectbox]:
     return year, month
 
 
-def display_anexos_selector():
+def display_anexos_selector() -> list:
     anexos = ['I', 'II', 'III', 'IV', 'V']
+    __anexos = {anx: anx for anx in anexos}
+    __anexos[''] = "SEM_MOV"
+    # todo: remover session state?
     if not st.session_state.get('anexos_input'):
-        __anexos = {anx: anx for anx in anexos}
-        __anexos[''] = "SEM_MOV"
         st.session_state['anexos_input'] = __anexos
 
     st.sidebar.write("Anexos de somente:")
     cols = st.sidebar.columns(3)
+    if cols[0].button("TODOS"):
+        st.session_state['anexos_input'] = __anexos
+        print(__anexos)
+
     if cols[0].button("ICMS"):
         st.session_state['anexos_input'] = {anx: anx for anx in anexos[:2]}
     if cols[1].button("ISS"):
@@ -35,8 +40,7 @@ def display_anexos_selector():
         st.session_state['anexos_input'] = {'': "SEM_MOV"}
     if st.session_state.get('anexos_input'):
         _anexos = list(st.session_state.get('anexos_input').keys())
-        return st.sidebar.multiselect(
-            "Filtrar quais anexos?", _anexos, _anexos, format_func=lambda opt: st.session_state['anexos_input'][opt])
+        return _anexos
     else:
         return ['']+anexos
 

@@ -1,3 +1,4 @@
+from ast import List
 from typing import Tuple
 import pandas as pd
 import streamlit as st
@@ -63,6 +64,14 @@ def permitir_ser_declarado(filtered_cnpjs, compt: datetime.date, is_permited):
         return True
     else:
         return False
+
+
+#  List[SqlAchemyOrms.MainEmpresas]
+
+def obtem_dados_empresa() -> list:
+    if not st.session_state.get('EMPRESAS_DADOS'):
+        st.session_state['EMPRESAS_DADOS'] = EMPRESAS_ORM_OPERATIONS.query_all()
+    return st.session_state['EMPRESA_DADOS']
 
 
 def execute_query():

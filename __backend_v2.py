@@ -105,6 +105,7 @@ class ComptGuiManager(DBInterface):
         merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
         merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
+        # TODO: deixar os certificados pro final?
         # if specifics_list[0] != "" , selfl.spefics != None
         # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
 
