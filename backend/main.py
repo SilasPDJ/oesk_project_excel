@@ -71,7 +71,7 @@ def permitir_ser_declarado(filtered_cnpjs, compt: datetime.date, is_permited):
 def obtem_dados_empresa() -> list:
     if not st.session_state.get('EMPRESAS_DADOS'):
         st.session_state['EMPRESAS_DADOS'] = EMPRESAS_ORM_OPERATIONS.query_all()
-    return st.session_state['EMPRESA_DADOS']
+    return st.session_state['EMPRESAS_DADOS']
 
 
 def execute_query():
