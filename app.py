@@ -31,7 +31,10 @@ if not st.session_state.get('CNPJS_ARE_SET'):
     st.session_state['CNPJS_ARE_SET'] = True
     st.session_state['CNPJS'] = EMPRESAS_ORM_OPERATIONS.generate_df_v2(
     ).iloc[:, 2]
-CNPJS = st.session_state['CNPJS']
+try:
+    CNPJS = st.session_state['CNPJS']
+except KeyError:
+    CNPJS = []
 
 
 @st.cache_data

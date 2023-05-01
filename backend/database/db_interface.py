@@ -7,7 +7,6 @@ from backend.database import MySqlInitConnection
 from typing import List, Type
 import sqlalchemy as db
 import pandas as pd
-
 from default.sets import compt_to_date_obj
 
 
@@ -47,7 +46,7 @@ class DBInterface:
         self.conn_obj = conn_obj
         self.engine = conn_obj.engine
 
-    def search(self, query):
+    def execute(self, query):
         from sqlalchemy import text
         with self.conn_obj.Session() as session:
             query = session.execute(text(query))
