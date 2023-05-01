@@ -91,7 +91,7 @@ def execute_query():
         st.session_state['query'] = st.text_input('write query')
 
     if st.button("Clique"):
-        a = db_interface.search(st.session_state['query'])
+        a = db_interface.execute(st.session_state['query'])
         st.write(a)
     if st.button('Salvar'):
         with open(DATA_FILENAME, mode='a', encoding='utf-8') as f:
