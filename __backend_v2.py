@@ -9,11 +9,11 @@ from typing import List
 from default.interact.autocomplete_entry import AutocompleteEntry
 from pgdas_fiscal_oesk.contimatic import Contimatic
 from pgdas_fiscal_oesk.gias import GIA
+from pgdas_fiscal_oesk.giss_online_pt11 import GissGui
 from pgdas_fiscal_oesk.silas_abre_g5_loop_v10 import G5
 # # from pgdas_fiscal_oesk.silas_abre_g5_loop_v9_iss import G5
 # from pgdas_fiscal_oesk.gias import GIA
 
-from app import COMPT_ORM_OPERATIONS
 from backend.database import MySqlInitConnection
 from backend.models import SqlAchemyOrms
 from default.sets import InitialSetting
@@ -104,7 +104,7 @@ class ComptGuiManager(DBInterface):
 
         merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
-        merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
+        # merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
         # TODO: deixar os certificados pro final?
         # if specifics_list[0] != "" , selfl.spefics != None
         # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
@@ -138,7 +138,7 @@ class ComptGuiManager(DBInterface):
                                 compt=self.compt, all_valores=all_valores)
                 row['declarado'] = True
 
-                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
     def call_ginfess(self, specifics_list: List[AutocompleteEntry] = None):
@@ -167,10 +167,39 @@ class ComptGuiManager(DBInterface):
                             row[k] = dgg.ginfess_valores[e]
 
                         row['nf_saidas'] = ''
-                        COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                        self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                             row['cnpj'], row, allowed=allowed_column_names+['nf_saidas'])
                 print(row)
                 # row['declarado'] = True
+
+    def call_giss(self, specifics_list: List[AutocompleteEntry] = None):
+        merged_df = self.main_generate_dados()
+        merged_df = self._get_specifics(specifics_list, merged_df)
+        merged_df = merged_df = merged_df.loc[merged_df['giss_login'].str.lower().isin(
+            ['', 'ginfess cód', 'não há']) == False]
+
+        attributes_required = ['razao_social',
+                               'cnpj', 'giss_login']
+
+        required_df = merged_df.loc[:, attributes_required]
+
+        allowed_column_names = []
+
+        for row in merged_df.to_dict(orient='records'):
+            row_required = [row[var] for var in required_df.columns.to_list()]
+            # all_valores = [float(v) for v in client_row[SEP_INDX:]]
+            try:
+                GissGui(row_required,
+                        compt=self.compt, first_compt=get_compt(-2))
+            except Exception:
+                print('\033[1;31m] GISS ONLINE - Não foi possível:\033[m')
+                print(row)
+                print('-----------')
+
+            # COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+            #     row['cnpj'], row, allowed=allowed_column_names)
+            print(row)
+            # row['declarado'] = True
 
     def call_g5(self, specifics_list: List[AutocompleteEntry] = None):
         main_df = self.main_generate_dados()
@@ -200,7 +229,7 @@ class ComptGuiManager(DBInterface):
                 # TODO: OK? OK0?
                 # row['nf_entradas']
 
-                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
     def call_send_pgdas_email(self, specifics_list: List[AutocompleteEntry] = None):
@@ -235,7 +264,7 @@ class ComptGuiManager(DBInterface):
                 row['envio'] = True
                 PgDasmailSender(
                     *client_row, email=row['email'], compt=self.compt, venc_das=VENC_DAS)
-                COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)
 
     def call_gias(self, specifics_list: List[AutocompleteEntry] = None):
@@ -261,7 +290,7 @@ class ComptGuiManager(DBInterface):
             client_row[1] = client_row[1].replace(".", "")
             row['declarado'] = True
             GIA(*client_row, compt=self.compt, first_compt=self.compt)
-            COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+            self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                 row['cnpj'], row, allowed=allowed_column_names)
 
     @setup_required

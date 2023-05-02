@@ -79,8 +79,8 @@ class MainApplication(tk.Frame, ComptGuiManager):
             'Fazer GIAS', lambda: self.call_gias(self.ENTRIES_CLI))
         bt_ginfess = self.button(
             'Fazer Ginfess', lambda: self.call_ginfess(self.ENTRIES_CLI))
-        bt_giss = self.button('Fazer Giss', lambda: self.call_func_v3(
-            'giss', self.ENTRIES_CLI))
+        bt_giss = self.button('Fazer Giss', lambda: self.call_giss(
+            self.ENTRIES_CLI))
         bt_g5 = self.button('Fazer G5', lambda: self.call_g5(
             self.ENTRIES_CLI), bg="#F0AA03")
         bt_jr = self.button('Fazer JR', lambda: self.call_func_v3(
