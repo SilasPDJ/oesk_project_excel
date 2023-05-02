@@ -34,12 +34,6 @@ class _StandardOrmMethods:
         df = df.drop(columns=["_sa_instance_state"])
         return df
 
-    def filter_by_any(self, **any) -> SqlAchemyOrms:
-        with self.conn_obj.Session() as session:
-            empresa = session.query(
-                self.orm).filter(**any).first()
-            return empresa
-
 
 class DBInterface:
     def __init__(self, conn_obj: MySqlInitConnection) -> None:
@@ -47,9 +41,8 @@ class DBInterface:
         self.engine = conn_obj.engine
 
     def execute(self, query):
-        from sqlalchemy import text
         with self.conn_obj.Session() as session:
-            query = session.execute(text(query))
+            query = session.execute(db.text(query))
             return query.all()
 
     class EmpresasOrmOperations(_StandardOrmMethods):
@@ -66,12 +59,6 @@ class DBInterface:
                 empresas = session.query(
                     self.orm.id, self.orm.razao_social).all()
                 return {e[0]: e[1] for e in empresas}
-
-        def filter_by_any(self, **any) -> SqlAchemyOrms.MainEmpresas:
-            with self.conn_obj.Session() as session:
-                empresa = session.query(
-                    self.orm).filter(**any).first()
-                return empresa
 
         def filter_by_kwargs(self, **kwargs):
 
@@ -146,12 +133,13 @@ class DBInterface:
         def get_orm() -> SqlAchemyOrms.ClientsCompts:
             return SqlAchemyOrms.ClientsCompts
 
-        # need to duplicate, otherwhise it won't highlight
-        def filter_by_any(self, **any) -> SqlAchemyOrms.MainEmpresas:
+        def df_join_empresas(self, compt) -> pd.DataFrame:
             with self.conn_obj.Session() as session:
-                empresa = session.query(
-                    self.orm).filter(**any).first()
-                return empresa
+                query = session.query(SqlAchemyOrms.MainEmpresas, self.orm)\
+                    .join(SqlAchemyOrms.MainEmpresas, self.orm.main_empresa_id == SqlAchemyOrms.MainEmpresas.id)
+                query = query.filter(self.orm.compt == compt)
+                df = pd.read_sql(query.statement, session.connection())
+                return df
 
         def filter_by_kwargs(self, **kwargs):
             with self.conn_obj.Session() as session:

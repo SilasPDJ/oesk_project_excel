@@ -20,29 +20,24 @@ def get_year_month_inputs() -> Tuple[st.selectbox, st.selectbox]:
 
 def display_anexos_selector() -> list:
     anexos = ['I', 'II', 'III', 'IV', 'V']
-    __anexos = {anx: anx for anx in anexos}
-    __anexos[''] = "SEM_MOV"
-    # todo: remover session state?
-    if not st.session_state.get('anexos_input'):
-        st.session_state['anexos_input'] = __anexos
+    # __anexos = {anx: anx for anx in anexos}
+    # __anexos[''] = "SEM_MOV"
+
+    anexos_input = anexos + ['']
 
     st.sidebar.write("Anexos de somente:")
     cols = st.sidebar.columns(3)
     if cols[0].button("TODOS"):
-        st.session_state['anexos_input'] = __anexos
-        print(__anexos)
+        anexos_input = anexos
 
     if cols[0].button("ICMS"):
-        st.session_state['anexos_input'] = {anx: anx for anx in anexos[:2]}
+        anexos_input = anexos[:2]
     if cols[1].button("ISS"):
-        st.session_state['anexos_input'] = {anx: anx for anx in anexos[2:]}
+        anexos_input = anexos[2:]
     if cols[2].button("Sem Mov"):
-        st.session_state['anexos_input'] = {'': "SEM_MOV"}
-    if st.session_state.get('anexos_input'):
-        _anexos = list(st.session_state.get('anexos_input').keys())
-        return _anexos
-    else:
-        return ['']+anexos
+        anexos_input = ['']
+
+    return anexos_input
 
 
 def display_entradas_saidas_selector(opts: List):

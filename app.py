@@ -1,5 +1,6 @@
 from frontend.main import *
 from backend.main import *
+from backend.main import BackUtils
 from unicodedata import decimal
 
 from streamlit_tags import st_tags, st_tags_sidebar
@@ -22,22 +23,26 @@ st.sidebar.markdown('**Anexos padrões: ICMS: I | ISS: III**')
 st.sidebar.title(f"{page} :flag-br:")
 _COMPT_AS_DATE = st.sidebar.date_input("Qual competencia?",
                                        compt_to_date_obj(get_compt(-1)))
-
+back_utils = BackUtils(_COMPT_AS_DATE)
 
 filtrar_quais_anexos = display_anexos_selector()
-# TODO: em vez de por anexos... por imposto_a_Calcular??????
+envio_multiselect = st.sidebar.multiselect(
+    "Enviados: ", [True, False], [True, False])
 
-if not st.session_state.get('CNPJS_ARE_SET'):
-    st.session_state['CNPJS_ARE_SET'] = True
-    st.session_state['CNPJS'] = EMPRESAS_ORM_OPERATIONS.generate_df_v2(
-    ).iloc[:, 2]
-try:
-    CNPJS = st.session_state['CNPJS']
-except KeyError:
-    CNPJS = []
+GERAL = back_utils.return_dados_gerais()
+# CNPJS = GERAL['cnpj'].to_list()
+
+GERAL_FILTER = GERAL.loc[GERAL['anexo'].isin(
+    filtrar_quais_anexos)]
+if envio_multiselect:
+    GERAL['envio'].isin(envio_multiselect)
+
+filtered_cnpjs = GERAL_FILTER['cnpj'].to_list()
+# filtrar_quais_anexos
+# envio_multiselect
 
 
-@st.cache_data
+@ st.cache_data
 def sum_values(v1, v2): return v1+v2
 
 
@@ -48,6 +53,7 @@ if page == PAGE_HOME:
     div_cols = st.columns(2)
     with div_cols[1]:
         year_input, month_input = get_year_month_inputs()
+    GERAL
 
 elif page == PAGE_FORM_EMPRESAS:
     page_empresa_forms(_COMPT_AS_DATE)
@@ -79,45 +85,6 @@ elif page == PAGE_UPDT_COMPT:
     clientes_obj = conn_obj.pd_sql_query_select_fields(
         SqlAchemyOrms.MainEmpresas.razao_social)
 
-    # TODO: botão de permitir toda a seleção...
-
-    envio_multiselect = st.sidebar.multiselect(
-        "Enviados: ", ['', True, False])
-    filtered_cnpjs = []
-
-    for i, cnpj, in enumerate(CNPJS[1:]):
-        form_key = f"form_{i:04d}"
-
-        # dados = EMPRESAS_ORM_OPERATIONS.find_by_cnpj(cnpj)
-
-        other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
-            cnpj, _COMPT_AS_DATE)
-        if other_values:
-            #  if EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
-            #                         id=other_values.main_empresa_id).razao_social in filtrar_quais_clientes:
-
-            other_values.nf_saidas = other_values.nf_saidas.upper()
-            other_values.nf_entradas = other_values.nf_entradas.upper()
-
-            can_append = False
-            can_append_envios = False
-            if other_values.anexo in filtrar_quais_anexos:
-                can_append = True
-            elif filtrar_quais_anexos == [] and other_values.anexo == '':
-                can_append = True
-            if envio_multiselect != []:
-                _envio = True if other_values.envio == 1 else False
-                if _envio in envio_multiselect:
-                    can_append_envios = True
-            else:
-                can_append_envios = True
-            # list_compare = [filtro_opts_entradas, filtro_opts_saidas,
-            #                 other_values.nf_entradas, other_values.nf_saidas]
-            # if len(set(list_compare)) == 1:
-            # can_append_nfs = True
-            if can_append and can_append_envios:
-                filtered_cnpjs.append(cnpj)
-
     with title_columns[2]:
         st.write(f"Mostrando {len(filtered_cnpjs):02d} resultados")
         _status_message = st.empty()
@@ -131,20 +98,20 @@ elif page == PAGE_UPDT_COMPT:
             allow_cols = st.columns(5, gap='small')
             with allow_cols[0]:
                 if st.button("COM Permissão"):
-                    if permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
+                    if back_utils.permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
                         display_success_msg(container_status_message,
                                             'PERMISSÕES CONCEDIDAS')
             with allow_cols[1]:
                 if st.button("SEM Permissão", type='primary'):
-                    if permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
+                    if back_utils.permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
                         display_success_msg(container_status_message,
                                             'PERMISSÕES REMOVIDAS')
-                    permitir_ser_declarado(
+                    back_utils.permitir_ser_declarado(
                         filtered_cnpjs, _COMPT_AS_DATE, False)
 
     # --- Realiza a exibição baseado nas condições acima
     lista_para_atualizar = []
-    for i, dado in enumerate(obtem_dados_empresa()):
+    for i, dado in enumerate(back_utils.obtem_dados_empresa()):
         cnpj = dado.cnpj
         form_key = f"form_{i:04d}"
 
