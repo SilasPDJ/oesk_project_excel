@@ -28,16 +28,16 @@ back_utils = BackUtils(_COMPT_AS_DATE)
 filtrar_quais_anexos = display_anexos_selector()
 envio_multiselect = st.sidebar.multiselect(
     "Enviados: ", [True, False], [True, False])
+if not envio_multiselect:
+    envio_multiselect = [True, False]
 
-GERAL = back_utils.return_dados_gerais()
+_GERAL = back_utils.return_dados_gerais()
 # CNPJS = GERAL['cnpj'].to_list()
 
-GERAL_FILTER = GERAL.loc[GERAL['anexo'].isin(
-    filtrar_quais_anexos)]
-if envio_multiselect:
-    GERAL['envio'].isin(envio_multiselect)
-
+GERAL_FILTER = _GERAL.loc[(_GERAL['anexo'].isin(
+    filtrar_quais_anexos)) & _GERAL['envio'].isin(envio_multiselect)]
 filtered_cnpjs = GERAL_FILTER['cnpj'].to_list()
+GERAL = GERAL_FILTER
 # filtrar_quais_anexos
 # envio_multiselect
 
@@ -98,12 +98,12 @@ elif page == PAGE_UPDT_COMPT:
             allow_cols = st.columns(5, gap='small')
             with allow_cols[0]:
                 if st.button("COM Permissão"):
-                    if back_utils.permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
+                    if back_utils.permitir_ser_declarado(filtered_cnpjs, True):
                         display_success_msg(container_status_message,
                                             'PERMISSÕES CONCEDIDAS')
             with allow_cols[1]:
                 if st.button("SEM Permissão", type='primary'):
-                    if back_utils.permitir_ser_declarado(filtered_cnpjs, _COMPT_AS_DATE, True):
+                    if back_utils.permitir_ser_declarado(filtered_cnpjs, True):
                         display_success_msg(container_status_message,
                                             'PERMISSÕES REMOVIDAS')
                     back_utils.permitir_ser_declarado(
@@ -111,10 +111,10 @@ elif page == PAGE_UPDT_COMPT:
 
     # --- Realiza a exibição baseado nas condições acima
     lista_para_atualizar = []
-    for i, dado in enumerate(back_utils.obtem_dados_empresa()):
+    # itterrows não serve no meu caso
+    for i, dado in enumerate(GERAL.itertuples()):
         cnpj = dado.cnpj
         form_key = f"form_{i:04d}"
-
         other_values = COMPT_ORM_OPERATIONS.filter_by_cnpj_and_compt(
             cnpj, _COMPT_AS_DATE)
         # if other_values:
@@ -166,8 +166,9 @@ elif page == PAGE_UPDT_COMPT:
                     display_status_buttons(
                         "Autorizado", other_values.pode_declarar, st.container())
                 with status_cols[1]:
-                    add_label_to_stcode("CNPJ: ", align="center")
-                    st.code(cnpj)
+                    # add_label_to_stcode("CNPJ: ", align="center")
+                    # st.code(cnpj)
+                    st.text_input("CNPJ", cnpj)
                 # with div_is_sent:
                 st.code(razao_social)
                 # other_values.main_empresa_id

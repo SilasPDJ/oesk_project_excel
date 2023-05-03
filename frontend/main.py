@@ -22,22 +22,22 @@ def display_anexos_selector() -> list:
     anexos = ['I', 'II', 'III', 'IV', 'V']
     # __anexos = {anx: anx for anx in anexos}
     # __anexos[''] = "SEM_MOV"
-
-    anexos_input = anexos + ['']
+    if not st.session_state.get('anexos_input'):
+        st.session_state['anexos_input'] = anexos + ['']
 
     st.sidebar.write("Anexos de somente:")
     cols = st.sidebar.columns(3)
     if cols[0].button("TODOS"):
-        anexos_input = anexos
+        pass
 
     if cols[0].button("ICMS"):
-        anexos_input = anexos[:2]
+        st.session_state['anexos_input'] = anexos[:2]
     if cols[1].button("ISS"):
-        anexos_input = anexos[2:]
+        st.session_state['anexos_input'] = anexos[2:]
     if cols[2].button("Sem Mov"):
-        anexos_input = ['']
+        st.session_state['anexos_input'] = ['']
 
-    return anexos_input
+    return st.session_state['anexos_input']
 
 
 def display_entradas_saidas_selector(opts: List):
