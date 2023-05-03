@@ -149,9 +149,9 @@ class ComptGuiManager(DBInterface):
                                'cnpj', 'ginfess_cod', 'ginfess_link']
         required_df = merged_df.loc[:, attributes_required]
 
-        allowed_column_names = ['sem_retencao', 'com_retencao',  'valor_total']
-
         for row in merged_df.to_dict(orient='records'):
+            allowed_column_names = ['sem_retencao',
+                                    'com_retencao', 'valor_total']
             row_required = [row[var] for var in required_df.columns.to_list()]
             # all_valores = [float(v) for v in client_row[SEP_INDX:]]
             if row['ginfess_link'] != '':
@@ -166,9 +166,13 @@ class ComptGuiManager(DBInterface):
                         for e, k in enumerate(allowed_column_names):
                             row[k] = dgg.ginfess_valores[e]
 
+                        allowed_column_names.append('pode_declarar')
+                        allowed_column_names.append('nf_saidas')
                         row['nf_saidas'] = ''
+                        row['pode_declarar'] = True
+
                         self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
-                            row['cnpj'], row, allowed=allowed_column_names+['nf_saidas'])
+                            row['cnpj'], row, allowed=allowed_column_names)
                 print(row)
                 # row['declarado'] = True
 
@@ -286,6 +290,10 @@ class ComptGuiManager(DBInterface):
         required_df = required_df.drop('ginfess_cod', axis=1)
         # ie
         for row in allowed_df.to_dict(orient='records'):
+            if row['declarado']:
+                print('PASSANDO GIA: ', row['razao_social'])
+                continue
+
             client_row = [row[var] for var in required_df.columns.to_list()]
             client_row[1] = client_row[1].replace(".", "")
             row['declarado'] = True
@@ -306,18 +314,18 @@ class ComptGuiManager(DBInterface):
             main_df = main_df.loc[main_df['pode_declarar'] == True, :]
         icms_dfs = main_df.loc[main_df[_str_col] == 'ICMS', :]
         iss_dfs = main_df.loc[main_df[_str_col] == 'ISS', :]
-        lp_dfs = main_df.loc[main_df[_str_col] == 'SEM_MOV', :]
+        sem_mov_dfs = main_df.loc[main_df[_str_col] == 'SEM_MOV', :]
 
-        sem_mov_dfs = main_df.loc[main_df[_str_col] == 'LP', :]
+        lp_dfs = main_df.loc[main_df[_str_col] == 'LP', :]
 
         others = main_df[~main_df[_str_col].isin(icms_dfs[_str_col])
                          & ~main_df[_str_col].isin(iss_dfs[_str_col])
-                         & ~main_df[_str_col].isin(lp_dfs[_str_col])
-                         & ~main_df[_str_col].isin(sem_mov_dfs[_str_col])]
+                         & ~main_df[_str_col].isin(sem_mov_dfs[_str_col])
+                         & ~main_df[_str_col].isin(lp_dfs[_str_col])]
 
-        list_with_all_dfs = [others, iss_dfs, icms_dfs, sem_mov_dfs]
+        list_with_all_dfs = [others, iss_dfs, icms_dfs, sem_mov_dfs, lp_dfs]
         if allow_lucro_presumido:
-            list_with_all_dfs.append(lp_dfs)
+            list_with_all_dfs.append(sem_mov_dfs)
         if not df_as_it_is:
             merged_df = pd.concat(list_with_all_dfs)
             return merged_df

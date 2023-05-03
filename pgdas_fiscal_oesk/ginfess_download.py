@@ -577,9 +577,8 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
             raise ValueError(
                 "Necessária Implementação de valor retido na prefeitura de sp")
 
-        assert valor_n_retido + valor_retido == valor_total
-
         self.ginfess_valores = valor_n_retido, valor_retido, valor_total
+        assert valor_n_retido + valor_retido == valor_total
 
     def excel_from_html_above(self, excel_file, html):
         import numpy as np
