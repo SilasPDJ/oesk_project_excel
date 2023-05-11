@@ -34,7 +34,7 @@ pygui.PAUSE = 0.02
 
 class G5(Contimatic):
 
-    def __init__(self, *args, compt):
+    def __init__(self, *args: str, compt):
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, imposto_a_calcular, nf_out, nf_in = args
         __client = __r_social
         self.compt_used = compt
@@ -46,7 +46,7 @@ class G5(Contimatic):
             print(__client)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
-            if self.registronta() and "ok" != nf_out.lower() not in ['s', 'ok', 'ok0']:
+            if self.registronta() and nf_out.lower() not in ['ok0']:
                 self.abre_ativa_programa('G5 ')  # vscode's cause
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # - IMPORTA NF
@@ -111,17 +111,14 @@ class G5(Contimatic):
             if not _already_exist:
                 self.abre_ativa_programa('G5 ')
                 self.activating_client(self.formatar_cnpj(__cnpj))
-                self.__ativa_robo_once(pygui.getActiveWindow())
-                if nf_out.upper() != "NÃO HÁ":
-                    if "ok" != nf_out.lower() != "s":  # != ent saidas importadas
-                        self.importa_nf_icms_saidas()  # saídas somente
-                    else:
-                        self.__saida_entrada('s')
-                    self.foxit_save__icms()
+                self._ativa_robo_once(pygui.getActiveWindow())
                 self.abre_ativa_programa('G5 ')
-                if '0' not in nf_in:
+                if nf_out.upper() not in ['OK0', ] and nf_out.upper() != "NÃO HÁ":
                     # entradas não zeraram
-                    self.importa_nf_icms_entradas()
+                    self.caminho_autorizadas_destino, self.caminho_canceladas_destino = self._settar_destino_icms()
+                    self.importa_nf_icms_saidas()
+
+                    # self.importa_nf_icms_entradas()
                     # self.__saida_entrada('e')
                     self.foxit_save__icms()
                     all_keys('alt', 'f4')
@@ -138,7 +135,7 @@ class G5(Contimatic):
                 print('fim')
 
     @ staticmethod
-    def __ativa_robo_once(window: pygui.Window):
+    def _ativa_robo_once(window: pygui.Window):
         pygui.FAILSAFE = False
         pygui.click(window.topright, clicks=0)
         pygui.move(-140, 50)
@@ -170,18 +167,62 @@ class G5(Contimatic):
         foritab(7, 'enter')
         sleep(10)
 
-    def importa_nf_icms_saidas(self):
-
-        def ativa_foxit_openexplorer():
-            self.__gotowinscenter('Foxit PDF Reader')
-            pygui.getActiveWindow().maximize()
-            pygui.move(-850, -360)
-            sleep(1)
-            pygui.rightClick()
-            sleep(.5)
+    def _robotimatic_config_path(self, _path2import: str, opt: int = None):
+        """
+        path2import: path2import typed
+        """
+        sleep(4)
+        _win = pygui.getActiveWindow()
+        _import_opcoes = ('SAIDAS', 'nfentrada',
+                          'cte-saida', 'cte-entrada',
+                          'cte-sat', 'sped', 'nfp', 'nfse-tomado',
+                          'nfse-prestado')
+        _import_opcoes = {k: v for k, v in enumerate(_import_opcoes)}
+        if opt is not None:
             foritab(3, 'up')
+            foritab(2, 'tab')
+            foritab(opt, 'right')
+            sleep(.5)
             pygui.hotkey('enter')
-            sleep(3)
+            # seleciona quais são
+            sleep(1)
+        pygui.click(_win.center, clicks=0)
+        pygui.move(0, -170)  # write
+        pygui.click()  # write
+        all_keys('ctrl', 'a')
+        sleep(.5)
+        pygui.hotkey('backspace')
+        sleep(.5)
+        pygui.write(_path2import)
+
+        pygui.click(_win.center, clicks=0)
+        pygui.move(250, 250)  # gravar
+        pygui.click()  # gravar
+        sleep(1)  # gravar
+        pygui.hotkey('enter')
+        sleep(.5)
+        all_keys('alt', 'f4')  # close import config
+        sleep(1)
+        self.abre_ativa_programa('G5')
+        # go2robo options
+
+    def _extract_folder(self) -> bool:
+        import zipfile
+
+        zips_path = self.files_get_anexos_v4(self.client_path, 'zip')
+        if len(zips_path) == 1:
+            with zipfile.ZipFile(zips_path[0], 'r') as zip_ref:
+                # extract the contents of the zip file to a folder
+                zip_ref.extractall(os.path.join(self.client_path, "NFS"))
+                return True
+        elif len(zips_path) >= 1:
+            print('\033[1;31mMais de um zip path\033[m')
+
+        else:
+            print(f'\033[1;33mAinda sem zip para {self.client_path}\033[m')
+        return False
+
+    def importa_nf_icms_saidas(self):
 
         def go2_g5_import_params():
             pygui.hotkey('alt')
@@ -189,92 +230,39 @@ class G5(Contimatic):
             foritab(6, 'down')
             foritab(1, 'right', 'down', 'enter',)
 
-        def robotimatic_config_path(_path2import: str, opt: int = None):
-            """
-            path2import: path2import typed
-            """
-            sleep(4)
-            _win = pygui.getActiveWindow()
-            _import_opcoes = ('SAIDAS', 'nfentrada',
-                              'cte-saida', 'cte-entrada',
-                              'cte-sat', 'sped', 'nfp', 'nfse-tomado',
-                              'nfse-prestado')
-            _import_opcoes = {k: v for k, v in enumerate(_import_opcoes)}
-            if opt is not None:
-                foritab(3, 'up')
-                foritab(2, 'tab')
-                foritab(opt, 'right')
-                sleep(.5)
-                pygui.hotkey('enter')
-                # seleciona quais são
+        if self._extract_folder():
+            self._xml_send2cloud_icms()
+            for path2import in [self.caminho_autorizadas_destino, self.caminho_canceladas_destino]:
+                print(path2import)
+                print('Only Once')
+                self.abre_ativa_programa('G5')
                 sleep(1)
-            pygui.click(_win.center, clicks=0)
-            pygui.move(0, -170)  # write
-            pygui.click()  # write
-            all_keys('ctrl', 'a')
-            sleep(.5)
-            pygui.hotkey('backspace')
-            sleep(.5)
-            pygui.write(_path2import)
+                # pathchecker = path2import.split('\\')[-1].upper()
 
-            pygui.click(_win.center, clicks=0)
-            pygui.move(250, 250)  # gravar
-            pygui.click()  # gravar
-            sleep(1)  # gravar
-            pygui.hotkey('enter')
-            sleep(.5)
-            all_keys('alt', 'f4')  # close import config
-            sleep(1)
-            self.abre_ativa_programa('G5')
-            # go2robo options
-
-        # abre explorer
-        if not self.walget_searpath('dirsInCloud.txt', self.client_path, 2):
-            self.__saida_entrada('e')
-            self.__saida_entrada('s')
-            ativa_foxit_openexplorer()
-            sleep(2)
-            self.__gotowinscenter('Foxit PDF Reader')
-            pygui.hotkey('alt', 'f4')
-            sleep(2)
-            self.__foxit_explorer_write('F:\\Importacao')
-        path2import = self.__xml_send2cloud_icms()
-        print(path2import)
-        print('Only Once')
-        self.abre_ativa_programa('G5')
-        sleep(1)
-        # pathchecker = path2import.split('\\')[-1].upper()
-
-        go2_g5_import_params()
-        robotimatic_config_path(path2import)  # ↑
-        sleep(2)
-        self.go2robo_options()
-        sleep(1)
-        foritab(1, 'up', 'right', 'enter', interval=0.25)
-        # aí tem que sleepar pq ta importando, TODO: calcular o sleep
-        segs = self._while_importing()
-        sleep(5)
-        print(segs)
-        # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
-
-    def _while_importing(self):
-        cont = 0
-        c = 10
-        while "Foxit PDF Reader" not in pygui.getActiveWindowTitle().upper() or "LIVRO_SAIDA" not in pygui.getActiveWindowTitle().upper():
-            print('sleeping', pygui.getActiveWindowTitle().upper())
-            sleep(c)
-            cont += c
-            pygui.click(pygui.getActiveWindow().midtop)
-            self.__saida_entrada('s')
-        return cont
+                go2_g5_import_params()
+                self._robotimatic_config_path(path2import)  # ↑
+                sleep(2)
+                self._go2robo_options()
+                sleep(1)
+                foritab(1, 'up', 'right', 'enter', interval=0.25)
+                # aí tem que sleepar pq ta importando, TODO: calcular o sleep
+                segs = self._while_importing(path2import)
+                print(f'{path2import}. sleeping: ', segs)
+                sleep(segs)
+                # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
 
     def importa_nf_icms_entradas(self):
-        self.go2robo_options()
+        self._go2robo_options()
         foritab(1, 'up', 'right', 'up', 'enter', interval=0.25)
         sleep(60)
 
+    def _while_importing(self, path: os.PathLike):
+        segs = len(os.listdir(path)) * 0.45
+        return segs
+        pass
+
     @ staticmethod
-    def go2robo_options():
+    def _go2robo_options():
         pygui.FAILSAFE = False  # Robo_Options
         pygui.click(pygui.getActiveWindow().topright,
                     clicks=0)
@@ -283,178 +271,57 @@ class G5(Contimatic):
         pygui.FAILSAFE = True
         pygui.click()
 
-    def __xml_send2cloud_icms(self):
-        # TODO: refazer
-        volta = os.getcwd()
+    def _settar_destino_icms(self) -> tuple[os.PathLike, os.PathLike]:
+        main_diretorio = self.client_path
+        path_autorizadas = os.path.join(
+            main_diretorio, 'NFS_AUTORIZADAS')
+        path_canceladas = os.path.join(
+            main_diretorio, 'NFS_CANCELADAS')
 
-        def __canb_pathdir(pd: str):
-            canb_pathdir = os.path.join(pd, 'XML', 'Autorizadas')
-            if os.path.exists(canb_pathdir):
-                return canb_pathdir
+        try:
+            os.makedirs(path_autorizadas)
+            os.makedirs(path_canceladas)
+        except FileExistsError:
+            pass
 
-        def __local_explorer_copy2(pathdir):
-            canbpd = __canb_pathdir(pathdir)
-            pathdir = canbpd if canbpd is not None else pathdir
-            _p = Popen(f'explorer "{pathdir}"')
+        return path_autorizadas, path_canceladas
 
-            sleep(3)
-            all_keys('ctrl', 'a')
-            sleep(1)
-            all_keys('ctrl', 'c')
-            _p.terminate()
-            # return os.listdir(pathdir)
-            # CLEISON/MARCO WAY...
+    def _xml_send2cloud_icms(self):
+        def _move_arquivos(moved_dir_path: os.PathLike, destiny: os.PathLike):
+            from shutil import move
+            while len(os.listdir(moved_dir_path)) > 0:
+                for file in os.listdir(moved_dir_path):
+                    src_fullpath = os.path.join(moved_dir_path, file)
+                    move(src_fullpath, destiny)
 
-        def createfolder(w, enters=2):
-            # createfolder
-            all_keys('ctrl', 'shift', 'n')
-            pygui.write(w)
-            sleep(.5)
+        DIRETORIO = os.path.join(self.client_path, 'NFS')
+        if all(os.path.isdir(os.path.join(DIRETORIO, item)) for item in os.listdir(DIRETORIO)):
+            # Define se é mercado livre ou arqiuvo normal
+            DIRETORIO = os.path.join(DIRETORIO, 'Emitidas_Mercado_Livre')
 
-            foritab(enters, 'enter', interval=.5)
-            sleep(2)
+        list_path_autorizadas = []
+        list_path_canceladas = []
+        # settar destino ()
 
-        def foxitpath_creation_exists():
-            for _, dirnames, __ in os.walk(self.client_path):
-                # unique filespath, is checked
-                unfpath = f'{self.client_path}/{dirnames[0]}'
+        # Passa por devolução e venda e appenda à lista de autorizadas/canceladas
+        for tipo_nf in ['NF-e de devolução', 'NF-e de venda']:
+            _path = os.path.join(DIRETORIO, tipo_nf, 'XML')
+            _autorizadas = os.path.join(_path, 'Autorizadas')
+            _canceladas = os.path.join(_path, 'Canceladas')
+            if os.path.exists(_autorizadas):
+                list_path_autorizadas.append(_autorizadas)
+            if os.path.exists(_canceladas):
+                list_path_canceladas.append(_canceladas)
 
-                # if find xml is in folder... RETURN no es mercadolibre
+        # Passa por CTe e appenda na lista de autorizadas
+        for tipo_nf in ['CT-e', 'Notas de retiro simbólica', 'Notas de transferência']:
+            _path = os.path.join(DIRETORIO, 'Outros documentos', tipo_nf)
+            if os.path.exists(_path):
+                list_path_autorizadas.append(_path)
 
-                if not os.path.exists(f'{unfpath}/.autosky'):  # searpath?
-                    SILASNFS_WINDOW.activate()
-                    # importg5_file_confirmation = '.imes'
-                    if not os.path.exists(f'{self.contimatic_folder}/.imes'):
-                        createfolder(self.compt_used)
-                        open(f'{self.contimatic_folder}/.imes', 'w').close()
-                        # pra nao criar o mes duas vezes
-                    else:
-                        self.__foxit_explorer_write(
-                            f'F:\\Importacao\\{self.compt_used}')
-                        # se o mes ja foi criado então desconsidera
-
-                    createfolder(self.__client)
-                    [createfolder(_clientf__, enters=1)
-                        for _clientf__ in dirnames]
-                    [open(
-                        f'{self.client_path}/{_clientf__}/.autosky', 'w').close()
-                        for _clientf__ in dirnames]
-                    # cria os dois CERTIFICADOS
-
-                returned = True
-                for __dn in dirnames:
-                    mysetpath = os.path.join(
-                        self.client_path, __dn)
-
-                    myset = set(self.files_get_anexos_v4(
-                        mysetpath, 'xml')) or None
-                    if myset is None:
-                        returned = False
-                    else:
-                        return True
-                        # AS ENTRADAS NÃO FICAM AQUI
-                        # pois se achar, é pq n tem mais oq procurar...
-                else:
-                    if len(dirnames) == 0:
-                        print(
-                            f'\033[1;31m Não houve notas ICMS de {self.__client}\033[m')
-                        # Se existir dir, ele já vai procurar...
-                        return False
-                    else:
-                        mercadolibr = os.walk(self.client_path)
-                        mercadolibr = list(mercadolibr)
-                        if len(mercadolibr[1][1]) >= 1:
-                            # se tiver pasta dentro de pasta...
-                            return 'LIBRE'
-                return returned
-                # sempre vai existir, pq criará se não...
-
-        SILASNFS_WINDOW = self.__gotowinscenter(
-            'LIVROENTRADA', 'Importacao')
-        libre_or_normal = foxitpath_creation_exists()
-        if libre_or_normal is not False:
-            # os.chdir(self.client_path)
-
-            for _, dirnames, __ in os.walk(self.client_path):
-                pathimport = False
-                for clientf in dirnames:
-                    __mypath = os.path.join(self.client_path, clientf)
-                    # abspath pega o chdir atual
-                    listfoldersindir = [os.path.join(__mypath, d) for d in os.listdir(
-                        __mypath) if os.path.isdir(os.path.join(__mypath, d)) and d.upper() != 'OUTROS DOCUMENTOS']
-
-                    filesincloud_checkerpath = os.path.join(
-                        self.client_path, clientf, 'dirsInCloud.txt')
-
-                    if libre_or_normal == 'LIBRE':
-                        try:
-                            __lfid = [os.path.join(__mypath, d) for d in os.listdir(
-                                __mypath) if d.upper() == 'OUTROS DOCUMENTOS'][0]
-                            listfoldersindir += [os.path.join(__lfid, dd)
-                                                 for dd in os.listdir(__lfid)]
-                        except IndexError:
-                            pass
-                        for __mainfolder in listfoldersindir:
-                            __dircreation = pathimport = f'F:\\Importacao\\{self.compt_used}\\{self.__client}\\{clientf}'
-                            # yield mainfolder
-                            mainfolder__lastfolder = __mainfolder.split(
-                                '\\')[-1]
-                            if mainfolder__lastfolder.upper() != 'CT-E':  # não é necessário
-                                pathimport += '\\NFsSaidas'
-                                # vai mudar os yields....
-
-                                canbpd = __canb_pathdir(__mainfolder)
-                                _1xpathdir = canbpd if canbpd is not None else __mainfolder
-                                sleeplen = len(os.listdir(
-                                    _1xpathdir)) / 17 + 10
-
-                                if not os.path.exists(filesincloud_checkerpath):
-                                    __local_explorer_copy2(__mainfolder)
-                                    SILASNFS_WINDOW.activate()
-
-                                    # if folder.upper() != 'OUTROS DOCUMENTOS':
-                                    if __mainfolder == listfoldersindir[0]:
-                                        SILASNFS_WINDOW.activate()
-                                        sleep(1)
-                                        self.__foxit_explorer_write(
-                                            __dircreation)
-                                        sleep(.5)
-                                        pygui.click(
-                                            SILASNFS_WINDOW.center, clicks=0)
-                                        sleep(.5)
-                                        createfolder('NFsSaidas')
-                                    # else:
-                                    #     self.__foxit_explorer_write(pathimport)
-
-                                    sleep(1.5)
-                                    all_keys('ctrl', 'v')
-                                    print(sleeplen, 'sleep time')
-                                    sleep(sleeplen)
-                                    pygui.hotkey('esc')
-                                print('next client, atual: ', __mainfolder)
-                    else:
-                        __lfid = [d for d in os.listdir(
-                            __mypath)]
-                        # pathimport = f'F:\\Importacao\\{self.compt_used}\\{self.__client}\\{clientf}'
-                        pathimport = f'F:\\Importacao\\{self.compt_used}\\{self.__client}'
-                        if not os.path.exists(filesincloud_checkerpath):
-                            sleeplen = len(__lfid) / 20 + 10
-                            __local_explorer_copy2(__mypath)
-                            SILASNFS_WINDOW.activate()
-                            self.__foxit_explorer_write(
-                                pathimport)
-                            sleep(1)
-                            all_keys('ctrl', 'v')
-                            print(sleeplen, 'sleep time')
-                            sleep(sleeplen)
-                            open(filesincloud_checkerpath, 'w').close()
-                        # return pathimport
-                    if not os.path.exists(filesincloud_checkerpath):
-                        open(filesincloud_checkerpath, 'w').close()
-                    # self.free_ondrv_dskspace(f'{_mainpath}\*.')
-                    # TODO: importar NFs... path//to//folder/*.xml
-                    return pathimport
-        # yield the import
+        for aut_path in list_path_autorizadas:
+            _move_arquivos(
+                aut_path, self.caminho_autorizadas_destino)
 
     def importa_nfs_iss(self):
         def exe_bt_executar(import_items=True):
