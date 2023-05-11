@@ -4,7 +4,7 @@ from typing_extensions import override
 # from default.sets import InitialSetting
 # from default.webdriver_utilities.wbs import WDShorcuts
 from default.interact import press_keys_b4, press_key_b4
-from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, default_qrcode_driver
 from .rotina_pgdas_simplesnacional_utils import SimplesNacionalUtilities
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.keys import Keys
@@ -33,7 +33,10 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
         if not self.walget_searpath("PGDASD-DECLARACAO", self.client_path, 2):
             # drivers declarados
-            self.driver = pgdas_driver_ua(self.client_path)
+            if proc_ecac == 'sim':
+                self.driver = default_qrcode_driver(self.client_path)
+            else:
+                self.driver = pgdas_driver(self.client_path)
 
             # self.driver.maximize_window;()
 

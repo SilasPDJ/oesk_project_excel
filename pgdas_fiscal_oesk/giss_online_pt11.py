@@ -37,8 +37,8 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist(f'{compt}_giss'):
-            # self.driver = driver = ginfess_driver(self.client_path)
-            self.driver = driver = pgdas_driver(self.client_path)
+            self.driver = driver = ginfess_driver(self.client_path)
+            # self.driver = driver = pgdas_driver(self.client_path)
             self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)

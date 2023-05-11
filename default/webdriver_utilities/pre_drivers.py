@@ -1,8 +1,9 @@
 import os
+from user_agent import generate_user_agent as random
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-
+from default.sets.pathmanager import Dirs
 # continuar a desenvolver a def real_path, p/ driver
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -30,7 +31,8 @@ def default_qrcode_driver(path=''):
         Create new profile
         """
         #
-        with_title_name = 'PATH_PROFILES.txt'
+        file_path = os.path.join(Dirs.get_documents_folder_location(), 'oesk')
+        with_title_name = os.path.join(file_path, 'PATH_PROFILES.txt')
         if recria_padrao:
             with open(with_title_name, 'w') as f:
                 f.write('')
@@ -39,48 +41,22 @@ def default_qrcode_driver(path=''):
             if value == '':
                 raise FileNotFoundError
         except FileNotFoundError:
+            with open(with_title_name, 'w') as f:
+                value = f.write(file_path)
             # IF FILE CONTAINING PATH NOT EXISTS, IT'LL DISPLAY A SELECTOR
-
-            from tkinter import filedialog
-            from tkinter import Tk
-            root = Tk()
-            root.withdraw()
-            root = Tk()
-            root.withdraw()
-            while True:
-                input(
-                    'cheguei em onde estão as planilhas aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa tiramee')
-                way = filedialog.askdirectory(
-                    title='SELECIONE ONDE ESTÃO SUAS PLANILHAS')
-
-                # input(f'{fatiado_1} ;;;; {fatiado_2}')
-                """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
-
-                file = open(with_title_name, 'w')  # mt da hora
-                file.write(way)
-                file.close()
-                value = open(with_title_name).read()
-                if len(value) <= 0:
-                    from tkinter import messagebox
-                    resp = messagebox.askokcancel(
-                        'ATENÇÃO!', message='Selecione uma pasta ou clique em CANCELAR.')
-                    if not resp:
-                        return
-                else:
-                    root.quit()
-                    break
-                root.mainloop()
-        value = value.replace('/', '\\')
         return value
 
     __padrao = __profiles_main_folder()
     # path = SetPaths().new_path_set(path)
     # já está em mamae_download
-
+    ua = random()
     path = path.replace('/', '\\')
     # o try já tá dentro de replace
 
     chrome_options = Options()
+    chrome_options.add_argument(f'user-agent={ua}')
+    chrome_options.add_argument(
+        "--disable-blink-features=AutomationControlled")
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument('--no-sandbox')
@@ -98,12 +74,10 @@ def default_qrcode_driver(path=''):
 
     })
 
-    chromedriver = link
-
     # vindo do ginfess_driver [magic]
 
     driver = webdriver.Chrome(
-        executable_path=chromedriver, options=chrome_options)
+        service=SERVICE, options=chrome_options)
     return driver
 
 
@@ -114,6 +88,9 @@ def pgdas_driver(path=''):
     """
 
     chrome_options = Options()
+    chrome_options.add_argument(
+        "--disable-blink-features=AutomationControlled")
+
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument('--no-sandbox')
@@ -144,9 +121,11 @@ def pgdas_driver_ua(path=''):
     :return: o driver para fechar no loop
     """
 
-    from user_agent import generate_user_agent as random
     # user_agent = random()
     chrome_options = Options()
+    chrome_options.add_argument(
+        "--disable-blink-features=AutomationControlled")
+
     ua = random()
     chrome_options.add_argument(f'user-agent={ua}')
 
@@ -186,6 +165,8 @@ def ginfess_driver(path=''):
     """
     print('\033[1;33m Headless\033[m')
     chrome_options = Options()
+    chrome_options.add_argument(
+        "--disable-blink-features=AutomationControlled")
 
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
@@ -238,6 +219,9 @@ def proffile_noqr_driver(path='', profile_path=''):
     # o try já tá dentro de replace
 
     chrome_options = Options()
+    chrome_options.add_argument(
+        "--disable-blink-features=AutomationControlled")
+
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument('--no-sandbox')
@@ -283,6 +267,9 @@ def jucesp_simple_driver():
     # o try já tá dentro de replace
 
     chrome_options = Options()
+    chrome_options.add_argument(
+        "--disable-blink-features=AutomationControlled")
+
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument('--no-sandbox')
