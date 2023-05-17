@@ -243,31 +243,20 @@ elif page == PAGE_ENVIADOS:
     other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt_order_by(
         _COMPT_AS_DATE, ['envio asc'])
 
+    table_datas = []
     for other in other_values:
         dados = EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
             id=other.main_empresa_id)
         cnpj = dados.cnpj
 
-        cols = st.columns([1, 1, 1, 2, 1])
-        with cols[3]:
-            st.write(dados.razao_social)
-        with cols[1]:
-            if other.declarado:
-                st.write("DECLARADO: ✅")
-            else:
-                st.write("DECLARADO: ❌")
-        with cols[2]:
-            if other.envio:
-                st.write("ENVIO: ✅")
-            else:
-                st.write("ENVIO: ❌")
-        with cols[0]:
-            st.code(other.valor_total)
-        with cols[4]:
-            if other.nf_saidas.upper() == 'OK':
-                st.write('nf_saídas: ✅')
-            else:
-                st.write('nf_saídas: ❌')
+        row = [
+            dados.razao_social, "DECLARADO: ✅" if other.declarado else "DECLARADO: ❌", "ENVIO: ✅" if other.envio else "ENVIO: ❌",
+            other.valor_total, "nf_saídas: ✅" if other.nf_saidas.upper() == 'OK' else "nf_saídas: ❌"]
+
+        table_datas.append(row)
+
+    st.dataframe(pd.DataFrame(table_datas, columns=[
+        "Razão Social", "Declarado", "Envio", "Valor Total", "nf_saídas"]), height=700, use_container_width=True)
 
 # print(item.cnpj)
 

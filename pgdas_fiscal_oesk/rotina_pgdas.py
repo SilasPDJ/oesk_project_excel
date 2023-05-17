@@ -33,11 +33,13 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
         if not self.walget_searpath("PGDASD-DECLARACAO", self.client_path, 2):
             # drivers declarados
-            super().__init__(self.driver, self.compt, self.client_path)
-            if driver is None:
+            try:
+                assert driver is None, 'Driver is None'
                 self.driver = pgdas_driver(self.client_path)
-            else:
-                self.enable_download_in_headless_chrome(self.client_path)
+            except AssertionError as e:
+                self.driver = driver
+            finally:
+                super().__init__(self.driver, self.compt, self.client_path)
 
             # self.driver.maximize_window;()
 

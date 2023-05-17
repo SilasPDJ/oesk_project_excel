@@ -102,49 +102,57 @@ class ComptGuiManager(DBInterface):
 
         merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
-        # merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
-        merged_df = merged_df.sort_values(
-            'ha_procuracao_ecac', key=lambda x: x.map({'não': 0, 'sim': 1}))
+        # merged_df = _merged_df.sort_values(
+        #     'ha_procuracao_ecac', key=lambda x: x.map({'não': 0, 'sim': 1}))
 
-        attributes_required = ['razao_social', 'cnpj', 'cpf',
-                               'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
-        anexo_valores_keys = ['sem_retencao', 'com_retencao',  'anexo']
+        merged_df_cod_acesso = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
+        merged_df_proc_ecac = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'sim', :]
+        # TODO: agora só falta conseguir alterar cliente direto no código
+        # talvez seja legal debugar
+        _iniciando_driver_ = default_qrcode_driver('C:\\Temp')
 
-        required_df = merged_df.loc[:, attributes_required+anexo_valores_keys]
+        for merged_df in [merged_df_cod_acesso, merged_df_proc_ecac]:
 
-        SEP_INDX = len(attributes_required)
-        # for client_row in self._yield_rows(required_df):
-        allowed_column_names = ['declarado']
+            attributes_required = ['razao_social', 'cnpj', 'cpf',
+                                   'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
+            anexo_valores_keys = ['sem_retencao', 'com_retencao',  'anexo']
 
-        _iniciando_driver_ = default_qrcode_driver()
-        # fazer_tudo_em_uma única sessão
+            required_df = merged_df.loc[:,
+                                        attributes_required+anexo_valores_keys]
 
-        for row in merged_df.to_dict(orient='records'):
-            client_row = [row[var] for var in required_df.columns.to_list()]
-            print(client_row)
+            SEP_INDX = len(attributes_required)
+            # for client_row in self._yield_rows(required_df):
+            allowed_column_names = ['declarado']
 
-            # this will be updated to add many anexos
-            valores = {key: row[key] for key in anexo_valores_keys}
-            # valores.update({key: float(row[key])
-            #                for key in anexo_valores_keys[:-1]})
-            all_valores = [
-                valores
-            ]
-            # ---
-            prossegue = False if row['declarado'] else True
+            # fazer_tudo_em_uma única sessão
 
-            if prossegue or self._specifics:
-                if row['ha_procuracao_ecac'] == 'sim':
-                    PgdasDeclaracao(*client_row[:SEP_INDX],
-                                    compt=self.compt, all_valores=all_valores, driver=_iniciando_driver_)
-                else:
-                    PgdasDeclaracao(*client_row[:SEP_INDX],
-                                    compt=self.compt, all_valores=all_valores)
+            for row in merged_df.to_dict(orient='records'):
+                client_row = [row[var]
+                              for var in required_df.columns.to_list()]
+                print(client_row)
 
-                row['declarado'] = True
+                # this will be updated to add many anexos
+                valores = {key: row[key] for key in anexo_valores_keys}
+                # valores.update({key: float(row[key])
+                #                for key in anexo_valores_keys[:-1]})
+                all_valores = [
+                    valores
+                ]
+                # ---
+                prossegue = False if row['declarado'] else True
 
-                self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
-                    row['cnpj'], row, allowed=allowed_column_names)
+                if prossegue or self._specifics:
+                    if row['ha_procuracao_ecac'] == 'sim':
+                        PgdasDeclaracao(*client_row[:SEP_INDX],
+                                        compt=self.compt, all_valores=all_valores, driver=_iniciando_driver_)
+                    else:
+                        PgdasDeclaracao(*client_row[:SEP_INDX],
+                                        compt=self.compt, all_valores=all_valores)
+
+                    row['declarado'] = True
+
+                    self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                        row['cnpj'], row, allowed=allowed_column_names)
 
     def call_ginfess(self, specifics_list: List[AutocompleteEntry] = None):
         merged_df = self.main_generate_dados()
