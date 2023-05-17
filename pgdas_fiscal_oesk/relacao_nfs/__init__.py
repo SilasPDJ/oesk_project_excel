@@ -30,8 +30,8 @@ class NfCanceled:
             fcanceladas
             df = pd.read_excel(self.path_cliente_plan)
             is_nf_valid = df['NF cancelada'] == False
-            nfs_valid = df.loc[is_nf_valid, 'Valor'].to_list()
-            nfs_invalid = df.loc[~is_nf_valid, 'Valor'].to_list()
+            nfs_valid = df.loc[is_nf_valid, 'Nº NF'].to_list()
+            nfs_invalid = df.loc[~is_nf_valid, 'Nº NF'].to_list()
 
             fcanceladas.write('\n'.join([str(int(nf)) for nf in nfs_invalid]))
 

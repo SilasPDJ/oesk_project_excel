@@ -11,7 +11,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
-
+from selenium import webdriver
 from time import sleep
 from default.sets.pathmanager import HasJson
 # from . import *
@@ -21,7 +21,7 @@ from default.sets.pathmanager import HasJson
 
 
 class PgdasDeclaracao(SimplesNacionalUtilities):
-    def __init__(self, *args, compt, all_valores=None):
+    def __init__(self, *args, compt, all_valores=None, driver: webdriver.Remote = None):
         __r_social, __cnpj, __cpf, __cod_simples, __valor_competencia, proc_ecac = args
         # __anexo,  __valor_n_ret, __valor_ret, already_declared
 
@@ -33,14 +33,14 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
         # self.client_path = self.pathit(self.compt, main_path, __r_social)
         if not self.walget_searpath("PGDASD-DECLARACAO", self.client_path, 2):
             # drivers declarados
-            if proc_ecac == 'sim':
-                self.driver = default_qrcode_driver(self.client_path)
-            else:
+            super().__init__(self.driver, self.compt, self.client_path)
+            if driver is None:
                 self.driver = pgdas_driver(self.client_path)
+            else:
+                self.enable_download_in_headless_chrome(self.client_path)
 
             # self.driver.maximize_window;()
 
-            super().__init__(self.driver, self.compt, self.client_path)
             [print('\033[1;33m', __cod_simples, '\033[m')for i in range(1)]
 
             if __cod_simples is None or __cod_simples == '-' or proc_ecac.lower().strip() == 'sim':

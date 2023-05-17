@@ -329,7 +329,7 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
                 # ler TODO do backend...
                 driver.save_screenshot(self.certif_feito(
                     self.client_path, add=f"{__r_social}-ginfessDone"))
-
+            # elif self.driver.current_url == 'https://sumare.sigissweb.com/':
             else:
                 print(__r_social)
                 driver.execute_script("javascript:location.reload();")

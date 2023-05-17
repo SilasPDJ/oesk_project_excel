@@ -31,11 +31,13 @@ from pgdas_fiscal_oesk.send_pgdamail import PgDasmailSender
 from pgdas_fiscal_oesk.ginfess_download import DownloadGinfessGui
 # from selenium.common.exceptions import UnexpectedAlertPresentException
 # from pgdas_fiscal_oesk.silas_jr import JR
+from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_ua, default_qrcode_driver
+
 
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
-VENC_DAS = '20-04-2023'
+VENC_DAS = '22-05-2023'
 # TODO: GUI para impostos possiveis
 
 # TODO: transformar self.compt das rotinas para objeto date com strformatado
@@ -98,16 +100,11 @@ class ComptGuiManager(DBInterface):
     def call_simples_nacional(self, specifics_list: List[AutocompleteEntry] = None):
         # separar simples nacional de certificado???
 
-        # simples_nacional procuradeclaracao_version
-        # só vai chamar compts já criadas...
-        # Como todas foram criadas 09-03-2023, tomar cuidado......
-
         merged_df = self.main_generate_dados(allow_only_authorized=True)
         merged_df = self._get_specifics(specifics_list, merged_df)
         # merged_df = merged_df.loc[merged_df['ha_procuracao_ecac'] == 'não', :]
-        # TODO: deixar os certificados pro final?
-        # if specifics_list[0] != "" , selfl.spefics != None
-        # merged_df = merged_df.loc[(merged_df['valor_total'] > 0), :]
+        merged_df = merged_df.sort_values(
+            'ha_procuracao_ecac', key=lambda x: x.map({'não': 0, 'sim': 1}))
 
         attributes_required = ['razao_social', 'cnpj', 'cpf',
                                'codigo_simples', 'valor_total', 'ha_procuracao_ecac']
@@ -118,6 +115,9 @@ class ComptGuiManager(DBInterface):
         SEP_INDX = len(attributes_required)
         # for client_row in self._yield_rows(required_df):
         allowed_column_names = ['declarado']
+
+        _iniciando_driver_ = default_qrcode_driver()
+        # fazer_tudo_em_uma única sessão
 
         for row in merged_df.to_dict(orient='records'):
             client_row = [row[var] for var in required_df.columns.to_list()]
@@ -134,8 +134,13 @@ class ComptGuiManager(DBInterface):
             prossegue = False if row['declarado'] else True
 
             if prossegue or self._specifics:
-                PgdasDeclaracao(*client_row[:SEP_INDX],
-                                compt=self.compt, all_valores=all_valores)
+                if row['ha_procuracao_ecac'] == 'sim':
+                    PgdasDeclaracao(*client_row[:SEP_INDX],
+                                    compt=self.compt, all_valores=all_valores, driver=_iniciando_driver_)
+                else:
+                    PgdasDeclaracao(*client_row[:SEP_INDX],
+                                    compt=self.compt, all_valores=all_valores)
+
                 row['declarado'] = True
 
                 self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
@@ -207,6 +212,10 @@ class ComptGuiManager(DBInterface):
 
     def call_g5(self, specifics_list: List[AutocompleteEntry] = None):
         main_df = self.main_generate_dados()
+        elses = main_df.loc[main_df['imposto_a_calcular'] == 'ICMS']
+        print('\033[1;31m', elses, '\033[;m')
+        # main_df = main_df.loc[main_df['imposto_a_calcular'] != 'ICMS']
+
         main_df = self._get_specifics(specifics_list, main_df)
 
         attributes_required = ['razao_social', 'cnpj', 'cpf',
@@ -225,13 +234,17 @@ class ComptGuiManager(DBInterface):
             row['nf_saidas'] = row['nf_saidas'].upper()
             if row['nf_entradas'] == 'NÃO HÁ' == row['nf_saidas']:
                 continue
-            print(client_row)
-            if 'OK' not in row['nf_saidas'].upper() and 'OK' not in row['nf_entradas'] != 'não há':
+
+            if specifics_list[0].get() != '':
+                G5(*client_row,
+                   compt=self.compt)
+            checker_continues = 'OK' not in row['nf_saidas'].upper().strip()
+            # TODO: row['nf_entradas']?
+            if checker_continues:
                 G5(*client_row,
                    compt=self.compt)
                 row['nf_saidas'] = "OK"
-                # TODO: OK? OK0?
-                # row['nf_entradas']
+                # r
 
                 self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                     row['cnpj'], row, allowed=allowed_column_names)

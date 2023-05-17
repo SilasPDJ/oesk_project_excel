@@ -46,7 +46,7 @@ class G5(Contimatic):
             print(__client)
             # Se tem 3valores[excel], tem XML. Se não tem, não tem
             # (pois o xml e excel vem do ginfess_download)....
-            if self.registronta() and nf_out.lower() not in ['ok0']:
+            if self.registronta():
                 self.abre_ativa_programa('G5 ')  # vscode's cause
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 # - IMPORTA NF
@@ -113,15 +113,15 @@ class G5(Contimatic):
                 self.activating_client(self.formatar_cnpj(__cnpj))
                 self._ativa_robo_once(pygui.getActiveWindow())
                 self.abre_ativa_programa('G5 ')
-                if nf_out.upper() not in ['OK0', ] and nf_out.upper() != "NÃO HÁ":
-                    # entradas não zeraram
-                    self.caminho_autorizadas_destino, self.caminho_canceladas_destino = self._settar_destino_icms()
-                    self.importa_nf_icms_saidas()
+                # remove o if...
+                # entradas não zeraram
+                self.caminho_autorizadas_destino, self.caminho_canceladas_destino = self._settar_destino_icms()
+                self.importa_nf_icms_saidas()
 
-                    # self.importa_nf_icms_entradas()
-                    # self.__saida_entrada('e')
-                    self.foxit_save__icms()
-                    all_keys('alt', 'f4')
+                # self.importa_nf_icms_entradas()
+                # self.__saida_entrada('e')
+                self.foxit_save__icms()
+                all_keys('alt', 'f4')
 
                 # apuração ICMS
                 self.abre_ativa_programa('G5')
@@ -233,7 +233,9 @@ class G5(Contimatic):
         if self._extract_folder():
             self._xml_send2cloud_icms()
             for path2import in [self.caminho_autorizadas_destino, self.caminho_canceladas_destino]:
-                print(path2import)
+                if path2import == '':
+                    continue
+                print(path2import, 'sou o path2import')
                 print('Only Once')
                 self.abre_ativa_programa('G5')
                 sleep(1)
@@ -247,8 +249,11 @@ class G5(Contimatic):
                 foritab(1, 'up', 'right', 'enter', interval=0.25)
                 # aí tem que sleepar pq ta importando, TODO: calcular o sleep
                 segs = self._while_importing(path2import)
-                print(f'{path2import}. sleeping: ', segs)
+                print(f'{path2import}. sleeping: ', segs, )
+                print('Espere para excluir automaticamente')
                 sleep(segs)
+                self._remove_icms_folders()
+
                 # SÓ É PRECISO IMPORTAR 1X PQ AS SAÍDAS ESTÃO JUNTAS
 
     def importa_nf_icms_entradas(self):
@@ -298,6 +303,9 @@ class G5(Contimatic):
         if all(os.path.isdir(os.path.join(DIRETORIO, item)) for item in os.listdir(DIRETORIO)):
             # Define se é mercado livre ou arqiuvo normal
             DIRETORIO = os.path.join(DIRETORIO, 'Emitidas_Mercado_Livre')
+        else:
+            self.caminho_canceladas_destino = ''
+            # pois não é template mercado livre(????)
 
         list_path_autorizadas = []
         list_path_canceladas = []
@@ -319,9 +327,22 @@ class G5(Contimatic):
             if os.path.exists(_path):
                 list_path_autorizadas.append(_path)
 
+        # se continuarem vazio é porque o template NÃO é do mercado livre
+        if not list_path_autorizadas:
+            list_path_autorizadas.append(DIRETORIO)
+
         for aut_path in list_path_autorizadas:
             _move_arquivos(
                 aut_path, self.caminho_autorizadas_destino)
+
+        for aut_path in list_path_canceladas:
+            _move_arquivos(
+                aut_path, self.caminho_canceladas_destino)
+
+    def _remove_icms_folders(self):
+        os.remove(self.caminho_autorizadas_destino)
+        os.remove(self.caminho_canceladas_destino)
+        os.remove(os.path.join(self.client_path, 'NFS'))
 
     def importa_nfs_iss(self):
         def exe_bt_executar(import_items=True):
@@ -413,14 +434,17 @@ class G5(Contimatic):
         # pygui.hotkey('alt', 'f4')
 
     def foxit_save__iss(self, add2file):
-
-        # filename = f"Registro_ISS-{add2file}"
-        filename = f'{self.client_path}Registro_ISS-{add2file}'
+        sleep(.5)
+        pygui.hotkey('enter')  # fica perguntando onde salvar...
+        sleep(1)
+        filename = f"Registro_ISS-{add2file}"
+        filename = os.path.join(self.client_path, filename)
         all_keys('ctrl', 'shift', 's')
         sleep(1)
-        # pygui.hotkey("enter")  # ...
+        pygui.hotkey("enter")  # ...
+        sleep(1)
         pygui.write(filename)
-        sleep(2)
+        sleep(3.5)
         pygui.hotkey('return', duration=1, interval=1)
         # pygui.hotkey('alt', 'f4')
 

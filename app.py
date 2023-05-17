@@ -248,7 +248,7 @@ elif page == PAGE_ENVIADOS:
             id=other.main_empresa_id)
         cnpj = dados.cnpj
 
-        cols = st.columns([1, 1, 1, 2])
+        cols = st.columns([1, 1, 1, 2, 1])
         with cols[3]:
             st.write(dados.razao_social)
         with cols[1]:
@@ -263,6 +263,12 @@ elif page == PAGE_ENVIADOS:
                 st.write("ENVIO: ❌")
         with cols[0]:
             st.code(other.valor_total)
+        with cols[4]:
+            if other.nf_saidas.upper() == 'OK':
+                st.write('nf_saídas: ✅')
+            else:
+                st.write('nf_saídas: ❌')
+
 # print(item.cnpj)
 
 
