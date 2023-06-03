@@ -1,4 +1,5 @@
 import streamlit as st
+import datetime
 from backend.models import SqlAchemyOrms
 from backend.main import COMPT_ORM_OPERATIONS, EMPRESAS_ORM_OPERATIONS
 
@@ -7,7 +8,7 @@ from backend.main import COMPT_ORM_OPERATIONS, EMPRESAS_ORM_OPERATIONS
 razao_social_dict = EMPRESAS_ORM_OPERATIONS.get_ids_dictonary()
 
 
-def generate_form(key):
+def generate_form(key, compt: datetime.date):
 
     id_mapper = st.selectbox(
         'Razão Social', razao_social_dict, format_func=lambda x: razao_social_dict[x])
@@ -46,14 +47,9 @@ def generate_form(key):
                 if st.form_submit_button(label='Atualizar'):
                     if EMPRESAS_ORM_OPERATIONS.update_from_id(id_mapper, form_values):
                         st.success('Atualizado com sucesso')
-                        from backend.database.db_interface import InitNewCompt
-                        init_compt = InitNewCompt('03-2023')
-                        if init_compt.add_new_client(getattr(_empresa, 'id'), imposto_a_calcular):
-                            st.success(
-                                f"Competência para {form_values['razao_social']} criada")
-                        else:
-                            st.error(
-                                f"Competência para {form_values['razao_social']} já existente")
+                        if not form_values.get('status_ativo'):
+                            if COMPT_ORM_OPERATIONS.delete_from_id_empresa(id_mapper, compt):
+                                st.warning(f'Competência {compt.strftime("%m-%Y")} excluída')
 
             with cols[1]:
                 if st.form_submit_button('EXCLUIR', type='primary'):

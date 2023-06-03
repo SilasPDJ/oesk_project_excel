@@ -101,7 +101,7 @@ def page_empresa_forms(compt_as_date: date):
     cols = st.columns(2)
     with cols[0]:
         st.header('Selecione cliente para atualizar')
-        update_form('update_form')
+        update_form('update_form', compt_as_date)
 
     with cols[1]:
         st.header('Crie um cliente novo')

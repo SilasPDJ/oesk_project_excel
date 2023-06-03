@@ -21,6 +21,7 @@ class SqlAchemyOrms(Connection):
         ginfess_cod = Column(String(100))
         ginfess_link = Column(String(500))
         ha_procuracao_ecac = Column(String(15))
+        status_ativo = Column(Boolean())
 
         clients_compts = relationship(
             "ClientsCompts", back_populates="main_empresas")
