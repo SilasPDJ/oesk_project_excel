@@ -86,13 +86,13 @@ class DBInterface:
                     self.orm).all()
                 return empresa
 
-        def get_from_id(self, id: int):
+        def get_from_id(self, _id: int):
             with self.conn_obj.Session() as session:
-                return session.query(self.orm).get(id)
+                return session.query(self.orm).get(_id)
 
-        def update_from_id(self, id: int, form_values: dict):
+        def update_from_id(self, _id: int, form_values: dict):
             with self.conn_obj.Session() as session:
-                record = session.query(self.orm).get(id)
+                record = session.query(self.orm).get(_id)
                 for key, value in form_values.items():
                     setattr(record, key, value)
                 session.commit()
@@ -114,9 +114,9 @@ class DBInterface:
                 session.commit()
                 return new_record.id
 
-        def delete_from_id(self, id: int):
+        def delete_from_id(self, _id: int):
             with self.conn_obj.Session() as session:
-                record = session.query(self.orm).get(id)
+                record = session.query(self.orm).get(_id)
                 if record is not None:
                     session.delete(record)
                     session.commit()
@@ -258,15 +258,26 @@ class DBInterface:
                     return True
 
                 return False
-        # def delete_from_id(self, id: int):
-        #     with self.conn_obj.Session() as session:
-        #         record = session.query(self.orm).get(id)
-        #         if record is not None:
-        #             session.delete(record)
-        #             session.commit()
-        #             return True
-        #         else:
-        #             return False
+
+        def delete_from_id_empresa(self, _id_empresa: int, compt):
+            """Deleta a competência a partir do _id_empresa
+            Args:
+                _id (int): _description_
+                compt (_type_): _description_
+
+            Returns:
+            """
+            with self.conn_obj.Session() as session:
+                record = session.query(self.orm).join(SqlAchemyOrms.MainEmpresas,
+                                                      self.orm.main_empresa_id == _id_empresa) \
+                    .filter(self.orm.compt == compt).one_or_none()
+
+                if record is not None:
+                    session.delete(record)
+                    session.commit()
+                    return True
+                else:
+                    return False
 
 
 class InitNewCompt:
