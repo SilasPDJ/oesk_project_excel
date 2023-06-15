@@ -3,8 +3,9 @@ from backend.models import SqlAchemyOrms
 from backend.main import COMPT_ORM_OPERATIONS, EMPRESAS_ORM_OPERATIONS
 from backend.database.db_interface import InitNewCompt
 
-
 # Define a function to generate a Streamlit form for a given SQL ORM model
+
+
 def generate_form(key, compt: str):
     """Gera o formulário para criar empresa, e já inicializa a competência dela
 
@@ -47,14 +48,15 @@ def generate_form(key, compt: str):
             client_id = EMPRESAS_ORM_OPERATIONS.insert(form_values)
             if client_id:
                 st.success('Inserido com sucesso')
-                init_compt = InitNewCompt(compt)
-                if init_compt.add_new_client(client_id, imposto_a_calcular):
-                    st.success(
-                        f"Competência {compt} para {form_values['razao_social']} criada")
-                    st.warning(
-                        'Anexos padrões ou sugeridos são: I p/ ICMS e III p/ ISS')
-                else:
-                    # st.error(
-                    #     f"Competência para {form_values['razao_social']} já existente")
-                    pass
-                # TODO juntar o update com o create numa classe??
+                if form_values.get('status_ativo'):
+                    init_compt = InitNewCompt(compt, False)
+                    if init_compt.add_new_client(client_id, imposto_a_calcular):
+                        st.success(
+                            f"Competência {compt} para {form_values['razao_social']} criada")
+                        st.warning(
+                            'Anexos padrões ou sugeridos são: I p/ ICMS e III p/ ISS')
+                    else:
+                        # st.error(
+                        #     f"Competência para {form_values['razao_social']} já existente")
+                        pass
+                    # TODO juntar o update com o create numa classe??

@@ -100,3 +100,8 @@ class MySqlInitConnection:
             self.create_table_if_not_exists(df, tb_name)
         df.to_sql(name=tb_name, con=self.engine,
                   if_exists=if_exists, index=False)
+
+
+if __name__ == "__main__":
+    pass
+    MySqlInitConnection()

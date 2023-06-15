@@ -213,11 +213,12 @@ elif page == PAGE_UPDT_COMPT:
                     confirm_changes = True
                     if confirm_changes:
                         if st.form_submit_button():
+                            other_values.pode_declarar = True
                             updated = COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt(cnpj,
                                                                                       other_values)
                             if updated:
                                 display_success_msg(
-                                    container_status_message, "Status de declaração alterado!")
+                                    container_status_message, "Status de declaração alterado! Pode declarar!")
                             else:
                                 _status_message.error(
                                     "Failed to update Competencias.")
@@ -250,13 +251,14 @@ elif page == PAGE_ENVIADOS:
         cnpj = dados.cnpj
 
         row = [
+            "AUTORIZADO: ✅" if other.pode_declarar else "AUTORIZADO: ❌",
             dados.razao_social, "DECLARADO: ✅" if other.declarado else "DECLARADO: ❌", "ENVIO: ✅" if other.envio else "ENVIO: ❌",
             other.valor_total, "nf_saídas: ✅" if other.nf_saidas.upper() == 'OK' else "nf_saídas: ❌"]
 
         table_datas.append(row)
 
     st.dataframe(pd.DataFrame(table_datas, columns=[
-        "Razão Social", "Declarado", "Envio", "Valor Total", "nf_saídas"]), height=700, use_container_width=True)
+        "Autorizado", "Razão Social", "Declarado", "Envio", "Valor Total", "nf_saídas"]), height=700, use_container_width=True)
 
 # print(item.cnpj)
 

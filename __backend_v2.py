@@ -37,7 +37,7 @@ from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_u
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
-VENC_DAS = '22-05-2023'
+VENC_DAS = '20-06-2023'
 # TODO: GUI para impostos possiveis
 
 # TODO: transformar self.compt das rotinas para objeto date com strformatado
@@ -88,8 +88,10 @@ class ComptGuiManager(DBInterface):
         InitNewCompt(compt)
 
         self.__setup__()
-        self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(
-            None, None)
+
+        self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(None, None)
+        self.EMPRESAS_DADOS = self.EMPRESAS_DADOS[self.EMPRESAS_DADOS['status_ativo']]
+         # somente ativos NA GUI
         # EMPRESA_DADOS is an actual constant
 
         self._specifics = None
@@ -186,6 +188,11 @@ class ComptGuiManager(DBInterface):
 
                         self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
                             row['cnpj'], row, allowed=allowed_column_names)
+                    else:
+                        row['pode_declarar'] = True
+                        self.COMPT_ORM_OPERATIONS.update_from_cnpj_and_compt__dict(
+                            row['cnpj'], row, allowed=['pode_declarar'])
+
                 print(row)
                 # row['declarado'] = True
 

@@ -281,18 +281,19 @@ class DBInterface:
 
 
 class InitNewCompt:
-    def __init__(self, compt) -> None:
+    def __init__(self, compt, setup=True) -> None:
         """Initialize a new compt if it not exists
 
         Args:
             compt_str (str): "%mm-yyyy"
+            setup (bool): runs setup or not
         """
         self.conn_obj = MySqlInitConnection()
         self.engine = self.conn_obj.engine
         self.orm = SqlAchemyOrms.ClientsCompts
         self.compt = compt
-
-        self.setup()
+        if setup:
+            self.setup()
 
     def setup(self) -> None:
         from sqlalchemy import and_, desc
@@ -355,7 +356,8 @@ class InitNewCompt:
         else:
             anexo_sugerido = ''
 
-        compt_datetime = datetime.strptime(self.compt, '%m-%Y')
+        compt_datetime = self.compt
+
         with self.conn_obj.Session() as session:
             exists = session.query(self.orm).filter_by(
                 compt=compt_datetime, main_empresa_id=empresa_id).first()

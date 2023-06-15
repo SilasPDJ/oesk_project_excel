@@ -49,6 +49,7 @@ class PgdasDeclaracao(SimplesNacionalUtilities):
 
                 self.loga_cert()
                 self.change_ecac_client(__cnpj)
+                self.enable_download_in_headless_chrome(self.files_pathit(__r_social.strip(), self.compt))
             else:
                 self.loga_simples(__cnpj, __cpf, __cod_simples, __r_social)
             if self.driver.current_url == "https://www8.receita.fazenda.gov.br/SimplesNacional/controleAcesso/AvisoMensagens.aspx":

@@ -2,6 +2,7 @@ import streamlit as st
 import datetime
 from backend.models import SqlAchemyOrms
 from backend.main import COMPT_ORM_OPERATIONS, EMPRESAS_ORM_OPERATIONS
+from backend.database.db_interface import InitNewCompt
 
 
 # Define a function to generate a Streamlit form for a given SQL ORM model
@@ -47,9 +48,15 @@ def generate_form(key, compt: datetime.date):
                 if st.form_submit_button(label='Atualizar'):
                     if EMPRESAS_ORM_OPERATIONS.update_from_id(id_mapper, form_values):
                         st.success('Atualizado com sucesso')
+                        print(form_values.get('status_ativo'))
                         if not form_values.get('status_ativo'):
                             if COMPT_ORM_OPERATIONS.delete_from_id_empresa(id_mapper, compt):
                                 st.warning(f'Competência {compt.strftime("%m-%Y")} excluída')
+                        else:
+                            print(form_values)
+                            init_compt = InitNewCompt(compt, False)
+                            if init_compt.add_new_client(id_mapper, form_values.get('imposto_a_calcular')):
+                                st.success('Compt reiniciada')
 
             with cols[1]:
                 if st.form_submit_button('EXCLUIR', type='primary'):
