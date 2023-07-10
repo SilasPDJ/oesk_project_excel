@@ -235,12 +235,6 @@ elif page == PAGE_UPDT_COMPT:
 
 elif page == PAGE_ENVIADOS:
     # CNPJS = EMPRESAS_ORM_OPERATIONS.query_all()
-    other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt(
-        _COMPT_AS_DATE)
-
-    other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt_order_by(
-        _COMPT_AS_DATE, ['envio asc'])
-
     other_values = COMPT_ORM_OPERATIONS.filter_all_by_compt_order_by(
         _COMPT_AS_DATE, ['envio asc'])
 
@@ -248,6 +242,8 @@ elif page == PAGE_ENVIADOS:
     for other in other_values:
         dados = EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
             id=other.main_empresa_id)
+        if not dados.status_ativo:
+            continue
         cnpj = dados.cnpj
 
         row = [

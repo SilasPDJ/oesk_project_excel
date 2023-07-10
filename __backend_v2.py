@@ -89,9 +89,10 @@ class ComptGuiManager(DBInterface):
 
         self.__setup__()
 
-        self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(None, None)
+        self.EMPRESAS_DADOS = self.EMPRESAS_ORM_OPERATIONS.generate_df_v2(
+            None, None)
         self.EMPRESAS_DADOS = self.EMPRESAS_DADOS[self.EMPRESAS_DADOS['status_ativo']]
-         # somente ativos NA GUI
+        # somente ativos NA GUI
         # EMPRESA_DADOS is an actual constant
 
         self._specifics = None
@@ -247,12 +248,12 @@ class ComptGuiManager(DBInterface):
         for row in merged_df.to_dict(orient='records'):
             client_row = [row[var] for var in required_df.columns.to_list()]
             row['nf_saidas'] = row['nf_saidas'].upper()
-            if row['nf_entradas'] == 'NÃO HÁ' == row['nf_saidas']:
-                continue
-
             if specifics_list[0].get() != '':
                 G5(*client_row,
                    compt=self.compt)
+            if row['nf_entradas'] == 'NÃO HÁ' == row['nf_saidas']:
+                continue
+
             checker_continues = 'OK' not in row['nf_saidas'].upper().strip()
             # TODO: row['nf_entradas']?
             if checker_continues:
@@ -320,7 +321,7 @@ class ComptGuiManager(DBInterface):
         for row in allowed_df.to_dict(orient='records'):
             if row['declarado']:
                 print('PASSANDO GIA: ', row['razao_social'])
-                continue
+                # continue
 
             client_row = [row[var] for var in required_df.columns.to_list()]
             client_row[1] = client_row[1].replace(".", "")

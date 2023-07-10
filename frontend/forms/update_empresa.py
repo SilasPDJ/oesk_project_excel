@@ -50,8 +50,9 @@ def generate_form(key, compt: datetime.date):
                         st.success('Atualizado com sucesso')
                         print(form_values.get('status_ativo'))
                         if not form_values.get('status_ativo'):
-                            if COMPT_ORM_OPERATIONS.delete_from_id_empresa(id_mapper, compt):
-                                st.warning(f'Competência {compt.strftime("%m-%Y")} excluída')
+                            if st.form_submit_button('Excluir competência?'):
+                                if COMPT_ORM_OPERATIONS.delete_from_id_empresa(id_mapper, compt):
+                                    st.warning(f'Competência {compt.strftime("%m-%Y")} excluída')
                         else:
                             print(form_values)
                             init_compt = InitNewCompt(compt, False)
