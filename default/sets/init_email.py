@@ -121,10 +121,10 @@ class EmailExecutor:
         hora = dt.now().time().hour
         if 18 > hora >= 12:
             return 'Boa tarde'
-        elif 12 > hora > 0:
-            return 'Por gentileza'
+        elif 12 > hora > 7:
+            return 'Bom dia'
         elif hora >= 18:
             # return 'Boa noite'
             return 'Por gentileza'
         else:
-            return 'Boa noite'
+            return 'Por gentileza'

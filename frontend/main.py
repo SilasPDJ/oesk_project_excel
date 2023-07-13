@@ -105,4 +105,4 @@ def page_empresa_forms(compt_as_date: date):
 
     with cols[1]:
         st.header('Crie um cliente novo')
-        create_form('create_form', compt_as_date.strftime("%m-%Y"))
+        create_form('create_form', compt_as_date)

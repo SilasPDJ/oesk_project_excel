@@ -1,4 +1,5 @@
 import streamlit as st
+import datetime
 from backend.models import SqlAchemyOrms
 from backend.main import COMPT_ORM_OPERATIONS, EMPRESAS_ORM_OPERATIONS
 from backend.database.db_interface import InitNewCompt
@@ -6,14 +7,14 @@ from backend.database.db_interface import InitNewCompt
 # Define a function to generate a Streamlit form for a given SQL ORM model
 
 
-def generate_form(key, compt: str):
+def generate_form(key, compt: datetime.date):
     """Gera o formulário para criar empresa, e já inicializa a competência dela
 
     Args:
         key (str): form_key
         compt (str): %m-%Y InitNewCompt
     """
-
+    compt_str = compt.strftime('%m-%Y')
     imposto_a_calcular = st.selectbox('Selecione o imposto Principal a Calcular',
                                       ['ICMS', 'ISS', 'SEM_MOV', 'LP'])
     # O correto seria realmente juntar os dois
@@ -52,7 +53,7 @@ def generate_form(key, compt: str):
                     init_compt = InitNewCompt(compt, False)
                     if init_compt.add_new_client(client_id, imposto_a_calcular):
                         st.success(
-                            f"Competência {compt} para {form_values['razao_social']} criada")
+                            f"Competência {compt_str} para {form_values['razao_social']} criada")
                         st.warning(
                             'Anexos padrões ou sugeridos são: I p/ ICMS e III p/ ISS')
                     else:
