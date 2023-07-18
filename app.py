@@ -242,19 +242,28 @@ elif page == PAGE_ENVIADOS:
     for other in other_values:
         dados = EMPRESAS_ORM_OPERATIONS.filter_by_kwargs(
             id=other.main_empresa_id)
-        if not dados.status_ativo:
+        try:
+            if not dados.status_ativo:
+                continue
+        except Exception as e:
+
+            st.warning((e, other.main_empresa_id, 'PERIGO! ❌❌❌'))
+            # COMPT_ORM_OPERATIONS.delete_from_id_empresa(
+            #     other.main_empresa_id, _COMPT_AS_DATE)
             continue
         cnpj = dados.cnpj
 
         row = [
             "AUTORIZADO: ✅" if other.pode_declarar else "AUTORIZADO: ❌",
             dados.razao_social, "DECLARADO: ✅" if other.declarado else "DECLARADO: ❌", "ENVIO: ✅" if other.envio else "ENVIO: ❌",
-            other.valor_total, "nf_saídas: ✅" if other.nf_saidas.upper() == 'OK' else "nf_saídas: ❌"]
+            other.anexo,
+            other.valor_total, "nf_saídas: ✅" if other.nf_saidas.upper() == 'OK' else "nf_saídas: ❌",
+        ]
 
         table_datas.append(row)
 
     st.dataframe(pd.DataFrame(table_datas, columns=[
-        "Autorizado", "Razão Social", "Declarado", "Envio", "Valor Total", "nf_saídas"]), height=700, use_container_width=True)
+        "Autorizado", "Razão Social", "Declarado", "Envio", "Valor Total", "anexo", "nf_saídas"]), height=700, use_container_width=True)
 
 # print(item.cnpj)
 

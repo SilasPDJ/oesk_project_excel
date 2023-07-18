@@ -563,11 +563,9 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         newdf.loc[:, 'Valor dos Serviços'] = newdf['Valor dos Serviços'].str.replace(
             '.', '').str.replace(',', '.').astype(float)
 
-        valor_total = newdf.iloc[:-1, 0].sum()
-
+        # valor_total = newdf.iloc[:-1, 0].sum()
         # Verifica se é igual ao proposto pelo csv...
-        valor_total == newdf.iloc[-1, 0]
-        assert valor_total == newdf.iloc[-1, 0]
+        valor_total = newdf.iloc[-1, 0]
 
         # Checa se ISS Retido é único, ou seja se ISS == 'N'
         if newdf.iloc[:-1, 1].nunique() == 1:
@@ -631,111 +629,6 @@ class DownloadGinfessGui(InitialSetting, WDShorcuts):
         self.ginfess_valores = valor_nao_retido, valor_retido, valor_total
 
         df.to_excel(excel_file, index=False)
-
-    def excel_from_html_above__old(self, excel_file, html):
-        from bs4 import BeautifulSoup
-        from openpyxl.styles import PatternFill
-        # from win32com.client import Dispatch
-        from comtypes.client import CreateObject, GetActiveObject
-        # desempenho melhor que a de cima
-        import pythoncom
-
-        mylist = pd.read_html(html)
-
-        soup = BeautifulSoup(html, 'html.parser')
-        with_class = tables = [str(table) for table in soup.select('table')]
-        df = pd.concat([l for l in mylist])
-        header = ['Nº NF', 'Data', 'Valor', 'Imposto',
-                  'CPF/CNPJ tomador']
-
-        def to_number(ind):
-            df[ind] = [d.replace('R$ ', '') for d in df[ind]]
-            df[ind] = [d.replace('.', '') for d in df[ind]]
-            df[ind] = [d.replace(',', '.') for d in df[ind]]
-            df[ind] = pd.to_numeric(df[ind])
-            return df[ind]
-        with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-            df[2] = to_number(2)
-            df[3] = to_number(3)
-            # df.style =
-            # create new formats
-            book = writer.book
-            contabil_format = book.add_format({'num_format': 44})
-
-            add_soma = f'C{len(df[2])+1}'
-            add_soma = df[2].sum()
-            # df.loc[2] = add_soma
-            # input(add_soma)
-            while True:
-                try:
-                    wb = df.to_excel(writer, sheet_name='Sheet1',
-                                     header=header, index=False)
-                    break
-                except ValueError:
-                    header.append('-')
-
-            worksheet = writer.sheets['Sheet1']
-
-            worksheet.set_column('C:C', None, contabil_format)
-            worksheet.set_column('D:D', None, contabil_format)
-
-        wb = openpyxl.load_workbook(excel_file)
-        wks = wb.worksheets
-        ws = wb.active
-
-        # next line = nxln
-        # last value line = llv
-        line = nxln = llv = len(df[2]) + 3
-        llv -= 2
-
-        # filt
-        ws.auto_filter.ref = f'A1:F{llv}'
-
-        ln_ret = line + 1
-        ln_nao = line + 2
-
-        # Total independente E DESCARTÁVEL
-        ws[f'E{line}'] = f'= SUM(C2:C{llv})'
-
-        ws[f'C{line}'] = f'= SUM(C{ln_ret}:C{ln_nao})'
-        ws[f'A{line}'] = f'Valor total'
-
-        formul_ret = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}>0)+0)'
-        n_retforml = f'= SUMPRODUCT(SUBTOTAL(9,OFFSET(C2,ROW(C2:C{llv})-ROW(C2),0)),(D2:D{llv}=0)+0)'
-
-        # valores
-        ws[f'C{ln_ret}'] = formul_ret
-        ws[f'A{ln_ret}'] = 'RETIDO'
-        ws[f'C{ln_nao}'] = n_retforml
-        ws[f'A{ln_nao}'] = 'NÃO RETIDO'
-        # formatacoes
-        ws[f'C{ln_ret}'].number_format = ws['C2'].number_format
-        ws[f'C{ln_nao}'].number_format = ws['C2'].number_format
-        ws[f'C{line}'].number_format = ws['C2'].number_format
-        # muda
-        redFill = PatternFill(start_color='FFFF0000',
-                              end_color='FFFF0000',
-                              fill_type='solid')
-        #  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        with_class.insert(0, '')
-        for table, row_a, row_c in zip(with_class, ws['A'], ws['C']):
-            if 'notaCancelada' in table:
-                row_a.fill = redFill
-                row_c.value = ""  # nota_cancelada
-        # ws['A2'].fill = redFill
-        wb.save(excel_file)
-        wb.close()
-
-        # AUTO FIT ------
-        # excel = Dispatch('Excel.Application', pythoncom.CoInitialize())
-        excel = CreateObject('Excel.Application', pythoncom.CoInitialize())
-
-        wb_disptch = excel.Workbooks.Open(excel_file)
-        excel.ActiveSheet.Columns.AutoFit()
-        wb_disptch.Close(SaveChanges=1)
-        excel.Quit()
-
-        # ------- autofit
 
     def check_done(self, save_path, file_type, startswith=None):
         """

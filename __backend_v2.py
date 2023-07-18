@@ -22,7 +22,6 @@ import sys
 from backend.database.db_create import TablesCreationInDBFromPandas
 from backend.database.db_interface import DBInterface, InitNewCompt
 from default.sets import calc_date_compt_offset, get_compt, compt_to_date_obj
-# from default.sets import get_all_valores
 
 from pgdas_fiscal_oesk.rotina_pgdas import PgdasDeclaracao
 # from pgdas_fiscal_oesk.rotina_pgdas_v3 import PgdasDeclaracao as PgdasDeclaracaoFull
@@ -37,7 +36,7 @@ from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_u
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
-VENC_DAS = '20-06-2023'
+VENC_DAS = '20-07-2023'
 # TODO: GUI para impostos possiveis
 
 # TODO: transformar self.compt das rotinas para objeto date com strformatado
@@ -176,9 +175,10 @@ class ComptGuiManager(DBInterface):
                                              compt=self.compt, show_driver=True)
                 except Exception as e:
                     pass
-                    print(f'\033[1;31mErro com {row["razao_social"]}\033[m')
+                    print(
+                        f'\033[1;31mErro após fazer o download do ginfess com {row["razao_social"]}\033[m')
                 else:
-                    if dgg.ginfess_valores is not None:
+                    if dgg.ginfess_valores:
                         for e, k in enumerate(allowed_column_names):
                             row[k] = dgg.ginfess_valores[e]
 
