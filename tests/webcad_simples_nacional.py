@@ -9,7 +9,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from wbs import WDShorcuts as Util
-from webdriver_manager.chrome import ChromeDriverManager
 
 from __backend import (COMPT, CONS, IMPOSTOS_POSSIVEIS, TOTAL_CLIENTES,
                        Backend, PgdasDeclaracaoFull, consultar_compt,
@@ -18,8 +17,10 @@ from __backend import (COMPT, CONS, IMPOSTOS_POSSIVEIS, TOTAL_CLIENTES,
 
 # pip install -i https://test.pypi.org/simple/ wds-utilities
 
+from selenium.webdriver.chrome.service import Service
 
-service = Service(ChromeDriverManager().install())
+service = Service()
+
 driver = webdriver.Chrome(service=service)
 
 

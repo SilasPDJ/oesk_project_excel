@@ -5,14 +5,15 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from default.sets.pathmanager import Dirs
 # continuar a desenvolver a def real_path, p/ driver
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
+SERVICE = Service()
 link = "Chromedriver/chromedriver.exe"
 this_file_path = os.path.realpath(__file__)
 path = os.path.dirname(this_file_path)
 link = os.path.join(path, link)
 
-SERVICE = Service(ChromeDriverManager().install())
+
 # procura link chamado pela variável __file__
 
 

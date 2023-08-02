@@ -14,6 +14,7 @@ class Contimatic(InitialSetting):
         :return: True: prossegue, False: não prosssegue
         """
         registronta = False
+        # TODO: e se for o almeida com XML???
         for f in self.files_get_anexos_v4(self.client_path, file_type='xml'):
             registronta = True
 
