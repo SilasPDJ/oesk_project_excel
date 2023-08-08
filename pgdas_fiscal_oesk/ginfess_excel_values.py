@@ -13,54 +13,31 @@ import pandas as pd
 class ExcelValuesPreensh(EmailExecutor, InitialSetting):
     shall_sleep = True
 
-    def __init__(self, *args, main_xl_path, compt, shall_sleep=False):
-        # TODO: PQ TESTE e AQUI não funcionam da mesma forma?????????????
-        # ---------- README: tentar fazer como o botão do F5 e
-        #                    só Reabrir o main_gui quando terminar o excel
-        #                    provavelmente é isso
-        a = __r_social, __cnpj, __cpf = args
-        self.main_xl_path = main_xl_path
+    def __init__(self, *args, compt, shall_sleep=False):
+        # __r_social, __cnpj, __cpf = args
+        __r_social = args[0]
         self.compt = compt
 
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
-        # self.excel_iss_file = os.path.join(
-        #     self.client_path, f'{__cnpj}.xlsx')
-        _wb_exists = self.walget_searpath(f'{__r_social[:__r_social.find(" ")]}_{__cnpj}.xlsx',
-                                          self.client_path, 2)
-        self.excel_iss_file = dict(
-            enumerate(_wb_exists)).get(0, False)
+        self.excel_reports_exported()
+        
 
-        self.excel = excel = win32.Dispatch("Excel.Application")
-        excel.Visible = True
-        wb = self.excel.Workbooks.Open(main_xl_path)
-        wb.Sheets(self.compt)
-        if shall_sleep:
-            sleep(2.5)
-        if _wb_exists:
-            v_clifolder_tot, v_clifolder_ret, v_clifolder_nret = self.gethe3values()
-            # excel can be visible or not
-            # wb = self.excel.Workbooks.Open(self.main_xl_path)
-            excel.SendKeys("%cfsl")  # localizar agora
-            excel.SendKeys(__r_social)
-            excel.SendKeys("{ENTER}")
-            excel.SendKeys("{ENTER}")
-            sleep(.5)
-            excel.SendKeys("{ESC}")
-            # excel.Range("2:5").Select()
-            range_atual = excel.Range(excel.Selection.Address)
-            range_atual.Offset(1, 5).Select()
-            # ESCREVE VALOR não retido----------------------
-            excel.ActiveCell.FormulaR1C1 = v_clifolder_nret
-            range_atual.Offset(1, 6).Select()
-            # ESCREVE VALOR retido
-            excel.ActiveCell.FormulaR1C1 = v_clifolder_ret
+    @property
+    def excel_reports_exported(self):
+        emission_report = self.walget_searpath(
+            'emission_report', os.path.dirname(self.client_path), 1)
+        export_report = self.walget_searpath(
+            '[export_report]', os.path.dirname(self.client_path), 1)
 
-            print(excel.Selection.Address)
+        reports = emission_report + export_report
+
+        return reports
+
 
     def gethe3values(self):
         from openpyxl import Workbook, load_workbook
 
-        wb = load_workbook(self.excel_iss_file, data_only=True, )
+        wb = load_workbook(self.excel_reports_exported, data_only=True, )
         ws = wb.active
         column_name = 'Valor'
         valores = []
