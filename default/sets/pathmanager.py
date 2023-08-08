@@ -57,8 +57,14 @@ class Dirs:
                 if searched in dirpath:
                     return dirpath
             elif whatis == 1:
-                if searched in dirnames:
-                    return dirnames
+                listof = []
+                for path_level_1 in dirnames:
+                    for file in os.listdir(os.path.join(dirpath, path_level_1)):
+                        if file.find(searched) > -1:
+                            listof.append(os.path.join(
+                                dirpath, path_level_1, file))
+                return listof
+
             elif whatis == 2:
                 try:
                     listof = []
@@ -203,3 +209,9 @@ class HasJson:
         """
         with open(file, 'w', encoding='utf-8') as file:
             json.dump(objeto, file, ensure_ascii=False, indent=8)
+
+
+if __name__ == "__main__":
+    test = Dirs.walget_searpath(
+        'emission_report', r'O:\OneDrive\_FISCAL-2021\2023\07-2023', 1)
+    print(test)

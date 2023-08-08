@@ -24,7 +24,7 @@ link = "ChromeDriver/chromedriver.exe"
 # self.pyautogui
 class GissGui(InitialSetting, WDShorcuts):
 
-    def __init__(self, dados, compt, first_compt):
+    def __init__(self, dados, compt, first_compt, headless=True):
         from functools import partial
         self.__COMPT = compt
         with open('pgdas_fiscal_oesk/data_clients_files/giss_passwords.txt') as f:
@@ -37,9 +37,11 @@ class GissGui(InitialSetting, WDShorcuts):
             __r_social.strip(), compt)
 
         if not self.certifs_exist(f'{compt}_giss'):
-            self.driver = driver = ginfess_driver(self.client_path)
-            # self.driver = driver = pgdas_driver(self.client_path)
-            self.driver.set_window_position(2000, 0)
+            if headless:
+                self.driver = driver = ginfess_driver(self.client_path)
+            else:
+                self.driver = driver = pgdas_driver(self.client_path)
+            # self.driver.set_window_position(2000, 0)
             super().__init__(self.driver)
             [print(a)
                 for a in self.ate_atual_compt(first_compt)]
@@ -371,7 +373,7 @@ class GissGui(InitialSetting, WDShorcuts):
             driver.switch_to.default_content()
         except NoSuchElementException as e:
             print("Erro na geração de boletos do GISS Online!")
-            raise e
+            # raise e
         driver.switch_to.default_content()
         iframe = driver.find_element(By.XPATH, "//iframe[@name='header']")
         driver.switch_to.frame(iframe)
