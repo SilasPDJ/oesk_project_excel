@@ -19,33 +19,46 @@ class ExcelValuesPreensh(EmailExecutor, InitialSetting):
         self.compt = compt
 
         self.client_path = self.files_pathit(__r_social.strip(), self.compt)
-        self.excel_reports_exported()
-        
+        self.make_valor_total_formulas()
 
     @property
-    def excel_reports_exported(self):
+    def _shopee_reports_exported(self):
         emission_report = self.walget_searpath(
             'emission_report', os.path.dirname(self.client_path), 1)
-        export_report = self.walget_searpath(
-            '[export_report]', os.path.dirname(self.client_path), 1)
+        # export_report = self.walget_searpath(
+        #     '[export_report]', os.path.dirname(self.client_path), 1)
+        export_report = []
 
         reports = emission_report + export_report
 
         return reports
 
+    def make_valor_total_formulas(self):
+        from openpyxl import load_workbook
+        from openpyxl.utils.formulas import FORMULAE
+        from openpyxl.styles import numbers
+        import os
 
-    def gethe3values(self):
-        from openpyxl import Workbook, load_workbook
+        for report in self._shopee_reports_exported:
+            wb = load_workbook(report, data_only=True)
+            ws = wb.active
+            (ws.title)
 
-        wb = load_workbook(self.excel_reports_exported, data_only=True, )
-        ws = wb.active
-        column_name = 'Valor'
-        valores = []
-        for column_cell in ws.iter_cols(1, ws.max_column):
-            # ws.column_dimensions['C'].hidden = False
-            if column_cell[0].value == column_name:
-                for data in column_cell[-3:]:
-                    valores.append(float(data.internal_value or 0))
-                    # data.value
+            # Loop para percorrer a coluna Q
+            for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=17, max_col=17):
+                for cell in row:
+                    # Obtém a fórmula da célula atual
+                    # "SUM" in FORMULAE
+                    # "VALUE" in FORMULAE
 
-        return valores
+                    formula = f'=_xlfn.VALUE(SUBSTITUTE(SUBSTITUTE(VALUE($L{cell.row}), "$ ", ""), "$ ", ""))'
+                    cell.value = formula
+
+            # new_filename = os.path.splitext(report)[0] + '_modifiedds.xlsx'
+            ws['Q2'].value = 'FORMULA'
+            ws['R3'].value = f'=_xlfn.SUMIF(H3:H{ws.max_row},"Venda",Q3:Q{ws.max_row})'
+            wb.save(report)
+
+
+# =@VALOR(SUBSTITUIR(SUBSTITUIR(VALOR(L2); "$ "; ""); "$ "; ""))
+# =VALOR(SUBSTITUIR(SUBSTITUIR(VALOR(L2); "$ "; ""); "$ "; ""))
