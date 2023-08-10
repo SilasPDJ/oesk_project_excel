@@ -183,7 +183,7 @@ Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar
                 df_data.append({
                     'Competência': mes,
                     'numero_parcelamento': numero_parcelamento,
-                    'Valor retroativo': valor
+                    'Valor do DAS pendente': valor
                 })
 
             df = pd.DataFrame(df_data)
