@@ -15,6 +15,8 @@ class Contimatic(InitialSetting):
         """
         registronta = False
         # TODO: e se for o almeida com XML???
+        self._extract_folder(True)
+
         for f in self.files_get_anexos_v4(self.client_path, file_type='xml'):
             registronta = True
 
@@ -32,7 +34,7 @@ class Contimatic(InitialSetting):
             else:
                 registronta = True
         return registronta
-
+    
     def __read_login(self, admin=False):
         """
         :return: password

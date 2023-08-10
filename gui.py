@@ -20,6 +20,8 @@ import sys
 import subprocess
 import clipboard
 
+from pgdas_fiscal_oesk.gshopee_excel_values import ShopeeExcel
+
 entry_row = 1
 
 COMPT = get_compt(int(sys.argv[1])) if len(
@@ -113,7 +115,7 @@ class MainApplication(tk.Frame, ComptGuiManager):
         self.increment_header_tip(
             LABEL_TIPS, "Pressione Control+F5 após atualizar a planilha")
         self.increment_header_tip(
-            LABEL_TIPS, "F12 p/ auto preencher GINFESS")
+            LABEL_TIPS, "F12 p/ auto preencher GShopee Emission_Reports")
         # TIPS
         self.__pack(*SMALL_TIPS)
         self.__pack(*LABEL_TIPS)
@@ -131,7 +133,7 @@ class MainApplication(tk.Frame, ComptGuiManager):
             excel_col.get()
         ))
         self.root.bind("<F1>", lambda x: self.abre_pasta())
-        # self.root.bind("<F12>", self.after_ginfess)
+        self.root.bind("<F12>", lambda x: ShopeeExcel(compt=COMPT))
 
     def abre_pasta(self):
         folder = InitialSetting.files_pathit(self.selected_client.get(), COMPT)

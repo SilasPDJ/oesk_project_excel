@@ -12,7 +12,7 @@ from __backend_v2 import GIAS_GISS_COMPT, IMPOSTOS_POSSIVEIS, VENC_DAS
 import tkinter as tk
 from default.interact.autocomplete_entry import AutocompleteEntry
 from default.sets import InitialSetting, get_compt
-from pgdas_fiscal_oesk.ginfess_excel_values import ExcelValuesPreensh
+from pgdas_fiscal_oesk.gshopee_excel_values import ShopeeExcel
 from ttkwidgets import autocomplete as ttkac
 
 from threading import Thread
@@ -28,4 +28,4 @@ COMPT = get_compt(int(sys.argv[1])) if len(
 
 
 if __name__ == "__main__":
-    ExcelValuesPreensh('ADEILTON', compt=COMPT)
+    ShopeeExcel(compt=COMPT)
