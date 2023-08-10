@@ -25,7 +25,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         print(__valor_competencia)
         print(a)
 
-        self._mensagem_com_boletos_pendentes = '<u>ATENÇÃO, HÁ BOLETO(S) DO PGDAS PENDENTE(S)</u>'
+        self._mensagem_com_boletos_pendentes = '<u>Atenção. Há boleto(s) pendente(s):</u>'
 
         now_email = email
         # now_email = 'silsilinhas@gmail.com'
@@ -86,8 +86,8 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         mail._oleobj_.Invoke(*(64209, 0, 8, 0, account))
         # mail.SendUsingAccount = self.outlook_app.Session.Accounts.Item(1)
         # set email sender
-        mail.To = 'silsilinhas@gmail.com'
-        # mail.To = to
+        # mail.To = 'silsilinhas@gmail.com'
+        mail.To = to
         mail.Subject = header
         mail.HTMLBody = attached_msg
         if pdf_files is not None:
@@ -181,9 +181,9 @@ Por gentileza, cheque o nome e o CNPJ ({ntt('span'+red, cnpj)}) {"antes de pagar
                 valor = item['em_aberto'].replace(',', '.')
 
                 df_data.append({
-                    'Mês': mes,
+                    'Competência': mes,
                     'numero_parcelamento': numero_parcelamento,
-                    'Valor retroativo a pagar': valor
+                    'Valor retroativo': valor
                 })
 
             df = pd.DataFrame(df_data)

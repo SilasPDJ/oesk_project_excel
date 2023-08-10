@@ -36,7 +36,7 @@ from default.webdriver_utilities.pre_drivers import pgdas_driver, pgdas_driver_u
 GIAS_GISS_COMPT = get_compt(int(sys.argv[2])) if len(
     sys.argv) > 2 else get_compt(-2)
 IMPOSTOS_POSSIVEIS = ['ICMS', 'ISS']
-VENC_DAS = '20-07-2023'
+VENC_DAS = '21-08-2023'
 # TODO: GUI para impostos possiveis
 
 # TODO: transformar self.compt das rotinas para objeto date com strformatado
