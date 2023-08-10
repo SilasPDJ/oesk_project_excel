@@ -126,7 +126,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
         pendencias = f"{ntt('h4'+red, self._mensagem_com_boletos_pendentes) if pendencias else ''}{pendencias}"
 
         _valor_condition = valor not in [
-            'SEM VALOR A PAGAR', '0, 00. SEM MOVIMENTO ESTE MÊS.']
+            'SEM VALOR A PAGAR', '0, 00. SEM MOVIMENTO NESTE MÊS.']
         # --------
 
         header = f"""
