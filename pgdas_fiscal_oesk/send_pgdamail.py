@@ -48,7 +48,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             if _valor != '0, 00. SEM MOVIMENTO NESTE MÊS.' and __valor_competencia != 'das_pend':
                 if len(das_anx_files) < 4:
                     print(
-                        f'\033[1;31mAlgo está errado com {__r_social}\033[m')
+                        f'\033[1;31mQuantidade de arquivos menor do que (4) para {__r_social}\033[m')
                     print('Vou passar...')
                 else:
                     print('td certo')
@@ -57,7 +57,7 @@ class PgDasmailSender(EmailExecutor, InitialSetting):
             else:
                 if len(das_anx_files) < 2:
                     print(
-                        f'\033[1;31mAlgo está errado com {__r_social}\033[m')
+                        f'\033[1;31mQuantidade de arquivos menor do que (4) para {__r_social}\033[m')
                     print('Vou passar...')
                 else:
                     self.main_send_email(

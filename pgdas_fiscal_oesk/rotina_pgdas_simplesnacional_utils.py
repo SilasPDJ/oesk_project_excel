@@ -252,40 +252,42 @@ class SimplesNacionalUtilities(InitialSetting, WDShorcuts):
 
         driver.get("https://sso.acesso.gov.br/authorize?response_type=code&client_id=cav.receita.fazenda.gov.br&scope=openid+govbr_recupera_certificadox509+govbr_confiabilidades&redirect_uri=https://cav.receita.fazenda.gov.br/autenticacao/login/govbrsso&state=aESzUCvrPCL56W7S")
         # 17bd6f43454
-        initial = WebDriverWait(driver, 30).until(
-            expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Seu certificado digital')))
-        driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
-        sleep(2)
-        make_login = initial.get_attribute("href")
+        # initial = WebDriverWait(driver, 30).until(
+        #     expected_conditions.presence_of_element_located((By.LINK_TEXT, 'Seu certificado digital')))
+        # driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.CONTROL + 'T')
+        # sleep(2)
+        # make_login = initial.get_attribute("href")
 
-        driver.execute_script("window.open()")
+        # driver.execute_script("window.open()")
 
-        driver.switch_to.window(driver.window_handles[1])
-        a = Thread(target=lambda: driver.get(make_login))
-        a.start()
-        sleep(randsleep2(0.71, 2.49))
-        [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))  # down, enter
-         for i in range(3)]
-        pygui.hotkey('ctrl', 'w')
-        # driver.close()
-        driver.switch_to.window(driver.window_handles[0])
-        # driver.execute_script("closeModal('modal-tips')")
-        initial.click()
+        # driver.switch_to.window(driver.window_handles[1])
+        # a = Thread(target=lambda: driver.get(make_login))
+        # a.start()
+        # sleep(randsleep2(0.71, 2.49))
+        # [pygui.hotkey('enter', interval=randsleep2(0.21, 0.78))  # down, enter
+        #  for i in range(3)]
+        # pygui.hotkey('ctrl', 'w')
+        # # driver.close()
+        # driver.switch_to.window(driver.window_handles[0])
+        # # driver.execute_script("closeModal('modal-tips')")
+        # initial.click()
         print('ativando janela acima, logando certificado abaixo, linhas 270')
         sleep(randsleep2(3, 7))
         driver.get("https://cav.receita.fazenda.gov.br/autenticacao/login")
-        sleep(10)
+        # sleep(10)
         # driver.execute_script("validarRecaptcha('frmLoginCert')")
         sleep(10)
 
-        self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
-        while self.driver.current_url == "https://cav.receita.fazenda.gov.br/autenticacao/login":
-            try:
-                self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
-            except NoSuchElementException as e:
-                pass
-                sleep(1)
-                print("sleeping...")
+        # self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        # while self.driver.current_url == "https://cav.receita.fazenda.gov.br/autenticacao/login":
+        #     try:
+        #         self.click_elements_by_tt("Acesso Gov BR", tortil='alt')
+        #     except NoSuchElementException as e:
+        #         pass
+        #         sleep(1)
+        #         print("sleeping...")
+        print('pressione f9 pra prosseguir')
+        press_key_b4('f9')
         # TODO descobrir pq zerar ICMS por certificado não funciona direito
 
     def change_ecac_client(self, CNPJ):

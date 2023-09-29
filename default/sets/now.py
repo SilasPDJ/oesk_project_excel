@@ -56,17 +56,6 @@ class Now:
         else:
             return f'{dia:02d}{sep}{mes:02d}{sep}{ano}'
 
-    @staticmethod
-    def most_recent_file(path=r'C:/Users'):
-        import glob
-        import os
-
-        # * means all if need specific format then *.csv
-        list_of_files = glob.glob(path + '/*')
-        latest_file = max(list_of_files, key=os.path.getctime)
-        print(latest_file)
-        return latest_file
-
     def first_and_last_day_compt(self, compt, sep='/', zdate_wontbe_greater=False):
         """
         ELE JÁ PEGA O ANTERIOR MAIS PROX

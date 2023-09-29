@@ -1,4 +1,5 @@
 import os
+import glob
 import json
 from json import decoder
 
@@ -166,6 +167,19 @@ class Dirs:
                       reverse=True)
 
     @staticmethod
+    def get_most_recent_files_in_dir(num_files, path=os.path.expanduser('~' + os.sep + 'Downloads')):
+        # Get a list of all files in the specified directory
+        list_of_files = glob.glob(path + '/*')
+
+        # Sort the list of files by their creation time in descending order (most recent first)
+        list_of_files.sort(key=os.path.getctime, reverse=True)
+
+        # Get the top 'num_files' files
+        most_recent_files = list_of_files[:num_files]
+
+        return most_recent_files
+
+    @staticmethod
     def get_documents_folder_location():
         """
         :returns: user Documents folder location 
@@ -215,3 +229,6 @@ if __name__ == "__main__":
     test = Dirs.walget_searpath(
         'emission_report', r'O:\OneDrive\_FISCAL-2021\2023\07-2023', 1)
     print(test)
+
+    most_recent_Files = Dirs.get_most_recent_files_in_dir(num_files=4)
+    print(most_recent_Files)

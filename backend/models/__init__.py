@@ -49,4 +49,3 @@ class SqlAchemyOrms(Connection):
         possui_das_pendentes = Column(Boolean())
         compt = Column(Date())
         pode_declarar = Column(Boolean())
-        # TODO: adicionar pode_declarar
