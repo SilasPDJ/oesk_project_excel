@@ -46,6 +46,6 @@ class SqlAchemyOrms(Connection):
         anexo = Column(String(3))
         envio = Column(Boolean())
         imposto_a_calcular = Column(String(7))
-        possui_das_pendentes = Column(Boolean())
         compt = Column(Date())
         pode_declarar = Column(Boolean())
+        venc_das = Column(Date())

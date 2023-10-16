@@ -339,7 +339,6 @@ class InitNewCompt:
                         valor_total=0.00,
                         anexo=row.anexo,
                         imposto_a_calcular=row.imposto_a_calcular,
-                        possui_das_pendentes=False,
                         compt=compt_datetime,
                         envio=_envio,
                         pode_declarar=False  # set to False
@@ -377,7 +376,6 @@ class InitNewCompt:
                     valor_total=0.00,
                     anexo=anexo_sugerido,
                     imposto_a_calcular=imposto_a_calcular,
-                    possui_das_pendentes=False,
                     compt=compt_datetime,
                     envio=_envio,
                     pode_declarar=False  # set to False

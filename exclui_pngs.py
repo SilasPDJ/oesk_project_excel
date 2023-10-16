@@ -1,5 +1,5 @@
 import pathlib
-from __backend import COMPT, main_folder, main_file
+from __backend_v2 import COMPT, main_folder, main_file
 from default.sets import InitialSetting
 
 import os
